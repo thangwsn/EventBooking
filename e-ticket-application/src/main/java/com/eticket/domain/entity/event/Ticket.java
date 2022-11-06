@@ -2,7 +2,9 @@ package com.eticket.domain.entity.event;
 
 import com.eticket.domain.entity.BaseEntity;
 import com.eticket.domain.entity.account.User;
+import com.eticket.domain.entity.booking.Booking;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +16,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @Entity
 @Table(name = "ticket")
+@Builder
 public class Ticket extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,10 +24,8 @@ public class Ticket extends BaseEntity {
     private Integer id;
     @Column(name = "code", unique = true)
     private String code;
-    @Column(name = "seat_code")
-    private String seatCode;
     @Column(name = "price")
-    private Double price;
+    private double price;
     @Column(name = "qr_code")
     private String QRcode;
     @Column(name = "status")
@@ -41,4 +42,6 @@ public class Ticket extends BaseEntity {
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
+    @ManyToOne(targetEntity = Booking.class, fetch = FetchType.LAZY)
+    private Booking booking;
 }

@@ -16,6 +16,7 @@ public class Employee extends Account {
     @Column(name = "employee_code", unique = true)
     private String employeeCode;
     @Column(name = "position")
+    @Enumerated(EnumType.STRING)
     private Position position;
     @Column(name = "join_date")
     @Temporal(TemporalType.DATE)

@@ -1,0 +1,106 @@
+<main id="main" class="main">
+    <div class="pagetitle">
+      <h1>Event</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+          <li class="breadcrumb-item">Event</li>
+          <li class="breadcrumb-item active">Event Detail</li>
+        </ol>
+      </nav>
+    </div>
+    <section
+    class="container py-0"
+    *ngIf="bookingDetail$ | async as bookingDetail"
+  >
+    <div class="row align-items-top">
+      <div class="col-lg-9">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title text-uppercase">Booking Detail</h5>
+            <h6 class="card-text">Amount: {{ bookingDetail.amount }}VND</h6>
+            <h6 class="card-text">Create At: {{ bookingDetail.createTime }}</h6>
+            <span [ngClass]="getBookingStatusClass(bookingDetail.statusString)">{{
+              bookingDetail.statusString | titlecase
+            }}</span>
+            <div class="row">
+              <div class="row col-lg-6">
+                <div class="card-body">
+                  <h5 class="card-title">Catalog</h5>
+                  <ol class="list-group list-group-numbered">
+                    <li
+                      class="list-group-item d-flex justify-content-between align-items-start"
+                      *ngFor="let item of bookingDetail.ticketCatalogList"
+                    >
+                      <div class="ms-2 me-auto">
+                        <div class="fw-bold">{{ item.ticketCatalogTitle }}</div>
+                        {{ item.price }}đ
+                      </div>
+                      <span class="badge bg-primary rounded-pill">{{
+                        item.quantity
+                      }}</span>
+                    </li>
+                  </ol>
+                </div>
+              </div>
+              <div class="col-lg-6" *ngIf="bookingDetail.event.typeString === 'CHARGE'">
+                <div class="card-body">
+                  <h5 class="card-title">Payment</h5>
+                  <div class="row col-sm-auto">
+                    <div
+                      class="col-sm-4 custom-control custom-radio custom-control-inline"
+                    >
+                      <img
+                        width="100px"
+                        [src]="getPaymentTypeLogo(bookingDetail.payment.typeString)"
+                        class="card-image"
+                      />
+                    </div>
+                    <div class="col-sm-8">
+                      <h6>Code: {{bookingDetail.payment.code}}</h6>
+                      <h6>Create at: {{bookingDetail.payment.createTime}}</h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header">Ticket List</div>
+          <div class="card-body">
+            <app-ticket-detail-admin
+              *ngFor="let ticket of bookingDetail.listTicket"
+              [ticket]="ticket"
+            ></app-ticket-detail-admin>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-3">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">User Information</h5>
+            <h6 class="card-text">Full name: {{ bookingDetail.fullName }}</h6>
+            <h6 class="card-text">Username: {{ bookingDetail.username }}</h6>
+            <h6 class="card-text">Mobile: {{ bookingDetail.mobile }}</h6>
+            <h6 class="card-text">Email: {{ bookingDetail.email }}</h6>
+          </div>
+        </div>
+        <div class="card">
+          <img src="assets/img/card.jpg" class="card-img-top" alt="..." />
+          <div class="card-body">
+            <h5 class="card-title">{{ bookingDetail.event.title }}</h5>
+            <p class="card-text">
+              {{
+                bookingDetail.event.summary.length >= 50
+                  ? bookingDetail.event.summary.substring(0, 47) + "... "
+                  : bookingDetail.event.summary
+              }}<a [routerLink]="['/events/', bookingDetail.event.id]">more</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  </main>

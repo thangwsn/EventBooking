@@ -2,6 +2,7 @@ package com.eticket.domain.entity.booking;
 
 import com.eticket.domain.entity.BaseEntity;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -12,6 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @Entity
 @Table(name = "payment")
+@Builder
 public class Payment extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +22,7 @@ public class Payment extends BaseEntity {
     @Column(name = "code", unique = true)
     private String code;
     @Column(name = "amount")
-    private Double amount;
+    private double amount;
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private PaymentStatus status;

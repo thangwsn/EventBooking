@@ -24,4 +24,6 @@ public class Follow extends BaseEntity {
     @ManyToOne(targetEntity = Event.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+    @Column(name = "removed")
+    private boolean removed;
 }

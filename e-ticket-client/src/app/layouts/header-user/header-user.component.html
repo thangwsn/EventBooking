@@ -1,0 +1,84 @@
+<nav
+  class="navbar navbar-expand-lg navbar-light fixed-top py-3 d-block bg-dark-light"
+  data-navbar-on-scroll="data-navbar-on-scroll"
+  style="opacity: 0.85"
+>
+  <div class="container">
+    <a class="navbar-brand d-inline-flex" href="#"
+      ><img class="d-inline-block" src="assets/img/logo.png" alt="logo" /></a
+    ><button
+      class="navbar-toggler collapsed"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div
+      class="collapse navbar-collapse border-lg-0 mt-4 mt-lg-0"
+      id="navbarSupportedContent"
+    >
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item px-2">
+          <a
+            class="nav-link fw-medium"
+            aria-current="page"
+            href="#categoryWomen"
+            >Home</a
+          >
+        </li>
+        <li class="nav-item px-2">
+          <a class="nav-link fw-medium" href="#header">Event</a>
+        </li>
+        <li class="nav-item px-2">
+          <a class="nav-link fw-medium" routerLink="booking" routerLinkActive="active">Booking</a>
+        </li>
+        <li class="nav-item px-2">
+          <a class="nav-link fw-medium" href="#outlet">Calender</a>
+        </li>
+      </ul>
+      <div class="d-flex">
+        <a class="text-1000" href="#!" *ngIf="isUserLoggedIn()">
+          <span><i class="bi bi-heart"></i></span>
+        </a>
+        &nbsp; &nbsp;
+        <a class="text-1000" href="#!" *ngIf="isUserLoggedIn()">
+          <span><i class="bi bi-person"></i></span>
+        </a>
+        &nbsp; &nbsp;
+        <a class="text-1000" routerLink="login" *ngIf="!isUserLoggedIn()">
+          <span><i class="bi bi-box-arrow-left"></i>&nbsp; Login</span>
+        </a>
+        <a class="text-1000" routerLink="login" *ngIf="isUserLoggedIn()" (click)="signOut()">
+          <span><i class="bi bi-box-arrow-right"></i>&nbsp; Sign Out</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</nav>
+<section class="py-10 bg-light-gradient border-bottom border-white border-5">
+  <div
+    class="bg-holder overlay overlay-light"
+    style="
+      background-image: url(assets/img/header-bg.png);
+      background-size: cover;
+      background-repeat: repeat;
+    "
+  ></div>
+  <!--/.bg-holder-->
+  <div class="container">
+    <div class="row flex-center">
+      <div class="col-12 mb-0">
+        <div class="d-flex align-items-center flex-column">
+          <h1 class="fw-normal">With an outstanding style, only for you</h1>
+          <h1 class="fs-4 fs-lg-8 fs-md-6 fw-bold">
+            Exclusively designed for you
+          </h1>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

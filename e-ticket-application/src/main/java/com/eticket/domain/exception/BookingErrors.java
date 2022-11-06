@@ -24,7 +24,7 @@ public class BookingErrors {
     /**
      * 404
      */
-    public static final BookingBusinessError EXAMPLE_NOT_FOUND_ERROR = new BookingBusinessError(404, "Resource is not found", HttpStatus.NOT_FOUND);
+    public static final BookingBusinessError NOT_FOUND_ERROR = new BookingBusinessError(404, "Resource is not found", HttpStatus.NOT_FOUND);
 
     /**
      * 500

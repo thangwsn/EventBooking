@@ -20,12 +20,33 @@ public class TicketCatalog extends BaseEntity {
     @Column(name = "title")
     private String title;
     @Column(name = "slot")
-    private Integer slot;
+    private int slot;
     @Column(name = "sold_slot")
-    private Integer soldSlot;
+    private int soldSlot;
+    @Column(name = "remain_slot")
+    private int remainSlot;
     @Column(name = "price")
-    private Double price;
+    private double price;
+    @Column(name = "remark")
+    private String remark;
+    @Column(name = "removed")
+    private boolean removed;
     @ManyToOne(targetEntity = Event.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+
+    @Override
+    public String toString() {
+        return "TicketCatalog{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", slot=" + slot +
+                ", soldSlot=" + soldSlot +
+                ", remainSlot=" + remainSlot +
+                ", price=" + price +
+                ", remark='" + remark + '\'' +
+                ", removed=" + removed +
+                ", event=" + event.getId() +
+                '}';
+    }
 }

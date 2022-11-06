@@ -1,0 +1,13 @@
+<article class="card fl-left me-2">
+    <section class="date">
+      <time datetime="23th feb"> <span>{{ticket.startTime | date: 'dd'}}</span><span>{{ticket.startTime | date: 'MMMM'}}</span> </time>
+    </section>
+    <section class="card-cont">
+      <h3>ID: {{ ticket.id }}</h3>
+      <div class="even-info">
+        <h5>Code: <span class="fw-bold">{{ticket.code}}</span></h5>
+        <h6>Sold at: {{ticket.soldTime | date : "long"}}</h6>
+      </div>
+    </section>
+  </article>
+  

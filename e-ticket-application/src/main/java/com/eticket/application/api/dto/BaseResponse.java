@@ -1,5 +1,6 @@
 package com.eticket.application.api.dto;
 
+
 import com.eticket.domain.exception.BookingBusinessError;
 import com.eticket.domain.exception.BookingException;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -8,8 +9,13 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 
+import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ * Base Response for RestAPI
+ */
 @Data
 @Accessors(chain = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -45,11 +51,11 @@ public class BaseResponse<T> {
         return response;
     }
 
-    public static <T> BaseResponse<T> ofInvalid(T data, String message) {
+    public static <T> BaseResponse<T> ofInvalid(T data) {
         BaseResponse<T> response =  new BaseResponse<T>();
         response.data = data;
-        response.meta.code = OK_CODE;
-        response.meta.message = message;
+        response.meta.code = INVALID_CODE;
+        response.meta.message = "Invalid";
         return response;
     }
 
@@ -57,11 +63,15 @@ public class BaseResponse<T> {
         return ofFailed(errorCode, null);
     }
 
-
     public static BaseResponse<Void> ofFailed(BookingBusinessError errorCode, String message) {
+        return ofFailed(errorCode, message, null);
+    }
+
+    public static BaseResponse<Void> ofFailed(BookingBusinessError errorCode, String message, List<FieldViolation> errors) {
         BaseResponse<Void> response = new BaseResponse<>();
         response.meta.code = errorCode.getCode();
         response.meta.message = (message != null) ? message : errorCode.getMessage();
+        response.meta.errors = (errors != null) ? new ArrayList<>(errors) : null;
         return response;
     }
 
@@ -76,6 +86,7 @@ public class BaseResponse<T> {
         private Integer page;
         private Integer size;
         private Long total;
+        private List<FieldViolation> errors;
         private String message;
         private String requestId;
     }

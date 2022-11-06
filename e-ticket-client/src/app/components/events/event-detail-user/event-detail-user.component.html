@@ -1,0 +1,210 @@
+<section class="py-0" style="margin-top: -8rem !important">
+  <div class="container" *ngIf="event$ | async as event">
+    <div class="row mb-5">
+      <div class="col-lg-6">
+        <!-- image slider -->
+        <div
+          id="carouselExampleFade"
+          class="carousel slide carousel-fade"
+          data-bs-ride="carousel"
+        >
+          <div class="carousel-inner">
+            <div
+              *ngFor="let image of event.imagePathList; let i = index"
+              [ngClass]="i === 0 ? 'carousel-item active' : 'carousel-item'"
+            >
+              <img
+                [src]="BASE_API + image"
+                class="d-block w-100"
+                [alt]="event.title"
+              />
+            </div>
+          </div>
+          <button
+            class="carousel-control-prev"
+            type="button"
+            data-bs-target="#carouselExampleFade"
+            data-bs-slide="prev"
+          >
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+          </button>
+          <button
+            class="carousel-control-next"
+            type="button"
+            data-bs-target="#carouselExampleFade"
+            data-bs-slide="next"
+          >
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+          </button>
+        </div>
+      </div>
+      <!-- EVENT DETAILS-->
+      <div class="row col-lg-6">
+        <div class="col-lg-6">
+          <span class="text-dark fs-5"
+            ><span class="text-danger fw-bold"
+              ><i class="bi bi-heart-fill"></i
+            ></span>
+            &nbsp;{{ event.followerNum }}</span
+          >
+        </div>
+        <div class="col-lg-6 d-flex justify-content-end">
+          <div>
+            <span [ngClass]="getClassOfEventType()">{{
+              event.typeString | titlecase
+            }}</span>
+          </div>
+        </div>
+        <h1>{{ event.title }}</h1>
+        <div class="col-lg-6">
+          <span [ngClass]="getClassOfEventStatus()">{{
+            event.statusString | titlecase
+          }}</span>
+        </div>
+        <div>
+          <a
+            #toggleFollow
+            class="text-dark p-0 d-inline-block fs-lg-5"
+            (click)="toggleFollowEvent()"
+            ><i [ngClass]="getFollowClass(event.followed)"></i
+          ></a>
+        </div>
+        <p class="text-muted lead">Price</p>
+        <p class="text-sm mb-4">
+          {{ event.summary }}
+        </p>
+        <h6 class="text-muted">
+          Remain Slot: <strong>{{ event.remainSlot }}</strong>
+        </h6>
+        <div class="mb-3">
+          <h5 class="card-title">
+            Ticket Catalog ({{ event.ticketCatalogList.length }})
+          </h5>
+          <ul class="list-group" *ngIf="true">
+            <app-ticket-catalog-item
+              *ngFor="let catalog of event.ticketCatalogList"
+              [ticketCatalog]="catalog"
+            ></app-ticket-catalog-item>
+          </ul>
+        </div>
+        <div class="row mb-3">
+          <div class="col-sm-3 pl-sm-0">
+            <button
+              class="btn btn-outline-dark"
+              (click)="booking()"
+              [disabled]="event.disableBooking || event.statusString != 'OPEN'"
+            >
+              Book
+            </button>
+          </div>
+        </div>
+        <ul class="list-unstyled small d-inline-block">
+          <li class="px-3 py-2 mb-1 bg-white">
+            <strong class="text-uppercase">Time: </strong
+            ><span class="ms-2 text-muted">{{ event.startTime | date: 'medium' }}</span>
+          </li>
+          <li class="px-3 py-2 mb-1 bg-white">
+            <strong class="text-uppercase">Location: </strong
+            ><span class="ms-2 text-muted">{{ event.locationString }}</span>
+          </li>
+          <li class="px-3 py-2 mb-1 bg-white text-muted">
+            <strong class="text-uppercase text-dark">Organizer:</strong
+            ><a class="reset-anchor ms-2" href="#!">{{
+              event.organizer.name
+            }}</a>
+          </li>
+          <li class="px-3 py-2 mb-1 bg-white text-muted">
+            <strong class="text-uppercase text-dark">Tags:</strong
+            ><span
+              class="badge bg-light text-dark"
+              *ngFor="let tag of event.listTag"
+              >{{ tag }}</span
+            >
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!-- DETAILS TABS-->
+    <ul class="nav nav-tabs border-0" id="myTab" role="tablist">
+      <li class="nav-item">
+        <a
+          class="nav-link text-uppercase active"
+          id="description-tab"
+          data-bs-toggle="tab"
+          href="#description"
+          role="tab"
+          aria-controls="description"
+          aria-selected="true"
+          >Description</a
+        >
+      </li>
+      <li class="nav-item">
+        <a
+          class="nav-link text-uppercase"
+          id="reviews-tab"
+          data-bs-toggle="tab"
+          href="#reviews"
+          role="tab"
+          aria-controls="reviews"
+          aria-selected="false"
+          >Reviews</a
+        >
+      </li>
+    </ul>
+    <div class="tab-content mb-5" id="myTabContent">
+      <div
+        class="tab-pane fade show active"
+        id="description"
+        role="tabpanel"
+        aria-labelledby="description-tab"
+      >
+        <div class="p-4 p-lg-5 bg-white">
+          <h6 class="text-uppercase">Event description</h6>
+          <p class="text-muted text-sm mb-0">
+            {{ event.description }}
+          </p>
+        </div>
+      </div>
+      <div
+        class="tab-pane fade"
+        id="reviews"
+        role="tabpanel"
+        aria-labelledby="reviews-tab"
+      >
+        <div class="p-4 p-lg-5 bg-white">
+          <div class="row">
+            <div class="col-lg-8"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- RELATED Events-->
+    <h2 class="h5 text-uppercase mb-4">Related events</h2>
+    <!-- <div class="row h-100">
+      <div class="col-12">
+        <div>
+          <div>
+            <div>
+              <div class="row h-100 align-items-center g-2">
+                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
+                  <app-event-item></app-event-item>
+                </div>
+                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
+                  <app-event-item></app-event-item>
+                </div>
+                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
+                  <app-event-item></app-event-item>
+                </div>
+                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
+                  <app-event-item></app-event-item>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div> -->
+  </div>
+</section>

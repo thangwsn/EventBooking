@@ -8,5 +8,11 @@ import java.util.Optional;
 
 @Repository
 public interface JpaAccountRepository extends JpaRepository<Account, Integer> {
-    Optional<Account> findByUsernameAndIsActivedTrueAndRemovedFalse(String username);
+    Optional<Account> findByUsernameAndRemovedFalse(String username);
+
+    boolean existsAccountByUsernameAndRemovedFalse(String username);
+
+    boolean existsAccountByEmail(String email);
+
+    boolean existsAccountByUsernameAndEmailAndActiveCode(String username, String email, String activeCode);
 }

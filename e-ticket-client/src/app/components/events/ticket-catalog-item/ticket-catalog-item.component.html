@@ -1,0 +1,28 @@
+<div
+  class="list-group-item d-flex justify-content-between align-items-center px-3 py-2 mb-1 bg-white"
+>
+  <div class="col-md-9">
+    {{ ticketCatalog.title }} ({{
+      ticketCatalog.slot - ticketCatalog.soldSlot
+    }}/{{ ticketCatalog.slot }})
+  </div>
+  <div class="col-md-1">
+    <span [hidden]="isHiddenSub()"
+      ><i class="bi bi-dash-circle" (click)="sub()"></i
+    ></span>
+  </div>
+
+  <div class="col-md-1">
+    <span [hidden]="isHiddenAdd()"
+      ><i class="bi bi-plus-circle" (click)="add()"></i
+    ></span>
+    &nbsp;
+  </div>
+ 
+
+  <span
+    class="badge bg-primary rounded-pill"
+    *ngIf="quantity >= 0 && ticketCatalog.slot - ticketCatalog.soldSlot > 0"
+    >{{ quantity }}</span
+  >
+</div>

@@ -1,0 +1,36 @@
+<div class="card">
+  <div class="bg-image hover-overlay" mdbRipple rippleColor="light">
+    <img
+      [src]="BASE_API + event.imagePathList[0]"
+      class="img-fluid"
+      width="320px"
+    />
+  </div>
+  <div class="card-body">
+    <div class="row mt-1">
+      <div class="col-md-6">
+      </div>
+      <div class="col-md-6 d-flex justify-content-end">
+        <span [ngClass]="getClassOfEventStatus()">{{event.statusString | titlecase}}</span>
+      </div>
+    </div>
+
+    <h5 class="card-title">{{event.title}}</h5>
+    <p class="card-text">
+     {{(event.summary.length >= 50) ? event.summary.substring(0, 47) + "..." : event.summary}}
+    </p>
+    <p class="text-muted">Tags:
+      <span class="badge bg-light text-dark" *ngFor="let tag of event.listTag">{{tag}}</span>
+    </p>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <button href="#!" class="btn btn-outline-primary"[routerLink]="['/events/', event.id]">More</button>
+      </div>
+      
+      <div class="col-md-6 d-flex justify-content-end">
+        <span class="align-content-center text-dark fs-5"><span class="text-danger fw-bold"><i class="bi bi-heart-fill"></i></span> &nbsp;{{event.followerNum}}</span>
+      </div>
+    </div>
+  </div>
+</div>

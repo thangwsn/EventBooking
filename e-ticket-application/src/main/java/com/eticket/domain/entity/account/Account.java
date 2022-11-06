@@ -3,16 +3,18 @@ package com.eticket.domain.entity.account;
 import com.eticket.domain.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
 
+@Inheritance(strategy = InheritanceType.JOINED)
+@EqualsAndHashCode(callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Inheritance(strategy = InheritanceType.JOINED)
 @Table(name = "account")
 public class Account extends BaseEntity {
     @Id
@@ -32,8 +34,6 @@ public class Account extends BaseEntity {
     private String mobile;
     @Column(name = "active_code")
     private String activeCode;
-    @Column(name = "is_active")
-    private boolean isActived;
     @Column(name = "full_name")
     private String fullName;
     @Enumerated(EnumType.STRING)

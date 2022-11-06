@@ -22,6 +22,8 @@ public class Organizer extends BaseEntity {
     private String name;
     @Column(name = "address")
     private String address;
+    @Column(name = "email")
+    private String email;
     @Column(name = "mobile", nullable = false)
     private String mobile;
     @Column(name = "representative")

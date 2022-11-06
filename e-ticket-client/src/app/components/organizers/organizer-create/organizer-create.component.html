@@ -1,0 +1,112 @@
+<main id="main" class="main">
+  <div class="bg-holder overlay" style="background-image:url(assets/img/header-bg.png);background-size:cover;background-repeat: repeat;"></div>
+  <div class="pagetitle">
+    <h1>Organizers</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+        <li class="breadcrumb-item">Organizers</li>
+        <li class="breadcrumb-item">New Organizer</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <h5 class="card-title">New Organizer</h5>
+      <form class="row g-3" [formGroup]="createOrganizerForm" (ngSubmit)="createOrganizerForm.valid && onSubmit()">
+        <div class="col-md-12">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="floatingName"
+              formControlName="name"
+            />
+            <label for="floatingName">Organizer Name</label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="email"
+              class="form-control"
+              id="floatingEmail"
+              formControlName="email"
+            />
+            <label for="floatingEmail">Organizer Email</label>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="floatingMobile"
+              formControlName="mobile"
+            />
+            <label for="floatingMobile">Organizer Mobile</label>
+          </div>
+        </div>
+        <div class="col-md-8">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="floatingRepresentative"
+              formControlName="representative"
+            />
+            <label for="floatingRepresentative">Organizer Representative</label>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              id="floatingTaxcode"
+              formControlName="taxCode"
+            />
+            <label for="floatingZip">Tax Code</label>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              id="floatingTextarea"
+              style="height: 100px"
+              formControlName="address"
+            ></textarea
+            ><label for="floatingTextarea">Address</label>
+          </div>
+        </div>
+       
+        <div class="col-12">
+          <!-- <div class="form-control">
+            <label for="floatingTextarea">Summary</label>
+            <div class="card">
+              <div class="card-body">
+                 <div #summary class="quill-editor-bubble">
+                 </div>
+              </div>
+           </div>  
+          </div> -->
+          <div class="form-floating">
+            <textarea
+              class="form-control"
+              id="floatingTextarea"
+              style="height: 100px"
+              formControlName="summary"
+            ></textarea
+            ><label for="floatingTextarea">Summary</label>
+          </div>
+        </div>
+       
+        <div class="text-center">
+          <button type="submit" class="btn btn-primary" [disabled]="createOrganizerForm.invalid">Submit</button>
+          <button type="reset" class="btn btn-secondary">Reset</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>

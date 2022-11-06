@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @Validated
 public class LoginRequest {
-    @Email
+    @NotBlank
     private String username;
     @NotBlank
     private String password;

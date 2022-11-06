@@ -1,0 +1,25 @@
+<section class="container py-0" style="margin-top: -10rem !important">
+  <div class="row">
+    <div class="card">
+        <div class="card-body">
+           <h5 class="text-uppercase mb-4 card-title">Booking List</h5>
+           <div class="list-group">
+              <a class="list-group-item list-group-item-action" aria-current="true"
+              *ngFor="let booking of bookingList$ | async"
+              [routerLink]="['/booking/', booking.id]"
+              >
+                 <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1"><span [ngClass]="getBookingStatusClass(booking.statusString)">{{booking.statusString | titlecase}}</span> #{{booking.code}}</h5>
+                    <small>{{booking.createTime | date: 'medium'}}</small>
+                 </div>
+                 <p class="mb-1">{{booking.fullName}} | {{booking.mobile}}</p>
+                 <div>
+                  <small class="bg-white text-dark" *ngFor="let item of booking.ticketCatalogList"> {{item.ticketCatalogTitle}} x {{item.quantity}}</small>
+                 </div>
+                 <p class="mb-1 fw-semi-bold">Amount: {{booking.amount}}đ</p>
+               </a>
+           </div>
+        </div>
+     </div>
+  </div>
+</section>

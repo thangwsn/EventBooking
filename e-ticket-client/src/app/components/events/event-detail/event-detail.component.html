@@ -1,0 +1,264 @@
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Event</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+        <li class="breadcrumb-item">Event</li>
+        <li class="breadcrumb-item active">Event Detail</li>
+      </ol>
+    </nav>
+  </div>
+  <section class="section contact" *ngIf="event$ | async as event">
+    <div class="row gy-4">
+      <div class="col-xl-6">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="info-box card">
+              <i class="bi bi-geo-alt"></i>
+              <h3>Location</h3>
+              <p>{{ event.locationString }}<br /></p>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="info-box card">
+              <i class="bi bi-clock"></i>
+              <h3>Time</h3>
+              <p>
+                {{ event.startTime | date: 'medium' }}<br />Duration
+                {{ event.duration }} hour<span *ngIf="event.duration >= 1"
+                  >s</span
+                >
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="info-box card">
+              <i class="bi bi-person-workspace"></i>
+              <h3>Organizer</h3>
+              <p>
+                <a [routerLink]="['admin/organizers/', event.organizer.id]">{{
+                  event.organizer.name
+                }}</a
+                ><br />
+                <span>{{ event.organizer.email || "[Email]" }}</span>
+              </p>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="info-box card">
+              <i class="bi bi-currency-exchange"></i>
+              <h3>Sales</h3>
+              <p>
+                {{ event.sales }} đ<br />{{ event.soldSlot }} ticket<span
+                  *ngIf="event.soldSlot >= 1"
+                  >s</span
+                >
+                sold
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-xl-6">
+        <div class="card">
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-sm-8">
+                <h5 class="card-title">#{{ event.id }} {{ event.title }}</h5>
+              </div>
+              <div
+                class="col-sm-4 d-flex justify-content-end align-items-center"
+              >
+                <h5>
+                  <span [ngClass]="getClassOfEventType()">{{
+                    event.typeString | titlecase
+                  }}</span>
+                </h5>
+              </div>
+            </div>
+
+            <div class="row mb-3">
+              <div class="col-sm-4">
+                <h5>
+                  <span [ngClass]="getClassOfEventStatus()">{{
+                    event.statusString | titlecase
+                  }}</span>
+                </h5>
+              </div>
+              <div class="col-sm-4 d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-warning"
+                  [disabled]="
+                    event.statusString === 'LIVE' ||
+                    event.statusString === 'FINISH'
+                  "
+                >
+                  Edit Event
+                </button>
+              </div>
+              <div class="col-sm-4 d-flex justify-content-end">
+                <button
+                  type="button"
+                  class="btn btn-danger"
+                  [disabled]="event.statusString !== 'CREATED'"
+                >
+                  Remove Event
+                </button>
+              </div>
+            </div>
+
+            <form
+              class="row mb-3"
+              [formGroup]="changeStatusForm"
+              (ngSubmit)="changeStatusForm.valid && changeStatus()"
+            >
+              <div class="col-sm-7">
+                <select
+                  class="form-select"
+                  aria-label="Change this event status"
+                  formControlName="targetStatus"
+                >
+                  <option
+                    *ngFor="let status of eventStatusList$ | async"
+                    [value]="status"
+                  >
+                    {{ status | titlecase }}
+                  </option>
+                </select>
+              </div>
+              <div class="col-sm-5 d-flex justify-content-end">
+                <button
+                  type="submit"
+                  class="btn btn-primary"
+                  [disabled]="
+                    changeStatusForm.invalid || event.statusString === 'FINISH'
+                  "
+                >
+                  Change Status
+                </button>
+              </div>
+            </form>
+            <br />
+            <h5>
+              Ticket Catalog &nbsp;
+              <span
+                class="text-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#add-ticket-modal"
+                [hidden]="hiddenAddCatalog"
+                ><i class="bi bi-plus-circle"></i
+              ></span>
+              &nbsp;
+              <span class="text-primary"
+                ><i class="bi bi-pencil-fill" [hidden]="hiddenEditCatalog"></i
+              ></span>
+            </h5>
+            <h6>Total ticket: {{ event.totalSlot }}</h6>
+            <div class="accordion accordion-flush">
+              <div
+                class="accordion-item" 
+                *ngFor="let ticketCatalog of event.ticketCatalogList; let i = index"
+              >
+                <h2 class="accordion-header" id="flush-headingOne">
+                  <button
+                    class="accordion-button collapsed"
+                    type="button"
+                    data-bs-toggle="collapse"
+                    [attr.data-bs-target]="'#catalog' + (i + 1)"
+                    aria-expanded="false"
+                    aria-controls="flush-collapseOne"
+                  >
+                  #{{i + 1}} &nbsp; &nbsp;{{ticketCatalog.title}}
+                  </button>
+                </h2>
+                <div
+                  id="catalog{{i + 1}}"
+                  class="accordion-collapse collapse"
+                  aria-labelledby="flush-headingOne"
+                  data-bs-parent="#accordionFlushExample"
+                >
+                  <div class="accordion-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">{{ticketCatalog.slot}} slots</li>
+                        <li class="list-group-item">{{ticketCatalog.soldSlot}} sold ticket<span *ngIf="ticketCatalog.soldSlot > 1">s</span></li>
+                        <li class="list-group-item">{{ticketCatalog.remainSlot}} available ticket<span *ngIf="ticketCatalog.soldSlot > 1">s</span></li>
+                        <li class="list-group-item">{{ticketCatalog.price}} đ</li>
+                     </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row gy-4">
+      <div>
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">{{event.title}}</h5>
+            <span><i class="bi bi-heart-fill"></i>&nbsp;{{event.followerNum}}</span>
+            <div>
+                <span *ngFor="let tag of event.listTag" class="badge rounded-pill bg-light text-dark">
+                    {{tag}}
+                 </span>
+            </div>
+            <p>{{event.summary}}</p>
+            <div
+              id="carouselExampleFade"
+              class="carousel slide carousel-fade"
+              data-bs-ride="carousel"
+            >
+              <div class="carousel-inner">
+                <div
+                *ngFor="let image of event.imagePathList; let i = index"
+                [ngClass]="i === 0 ? 'carousel-item active' : 'carousel-item'"
+              >
+                <img
+                  [src]="BASE_API + image"
+                  class="d-block w-100"
+                  [alt]="event.title"
+                />
+              </div>
+              </div>
+              <button
+                class="carousel-control-prev"
+                type="button"
+                data-bs-target="#carouselExampleFade"
+                data-bs-slide="prev"
+              >
+                <span
+                  class="carousel-control-prev-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Previous</span>
+              </button>
+              <button
+                class="carousel-control-next"
+                type="button"
+                data-bs-target="#carouselExampleFade"
+                data-bs-slide="next"
+              >
+                <span
+                  class="carousel-control-next-icon"
+                  aria-hidden="true"
+                ></span>
+                <span class="visually-hidden">Next</span>
+              </button>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-text">{{event.description}}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <app-add-ticket-dialog
+      [eventId]="eventId"
+      [eventType]="event.typeString"
+    ></app-add-ticket-dialog>
+  </section>
+</main>

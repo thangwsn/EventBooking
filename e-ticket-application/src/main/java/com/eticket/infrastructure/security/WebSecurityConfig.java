@@ -2,11 +2,12 @@ package com.eticket.infrastructure.security;
 
 import com.eticket.infrastructure.security.jwt.AuthEntryPointJwt;
 import com.eticket.infrastructure.security.jwt.AuthTokenFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -22,6 +23,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class WebSecurityConfig {
+    private static final Logger logger = LoggerFactory.getLogger(WebSecurityConfig.class);
     @Autowired
     UserDetailsService userDetailsService;
 
@@ -32,18 +34,10 @@ public class WebSecurityConfig {
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter();
     }
-    @Bean
-    public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-
-        return authProvider;
-    }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
+        logger.debug("AuthenticationManager invoked.");
         return authConfig.getAuthenticationManager();
     }
 
@@ -54,15 +48,19 @@ public class WebSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.cors().and().csrf().disable()
+        logger.debug("SecurityConfig initialized.");
+        // We don't need CSRF for this example
+        http.csrf().disable()
+                // don't authenticate this particular request
+                .authorizeRequests().antMatchers("/swagger-ui/**", "/api/login", "/api/signup-user", "/api/verify-signup", "/api/event/*").permitAll()
+//                .antMatchers("/api/booking/**").hasAuthority(Role.USER.name())
+                // all other requests need to be authenticated
+//                .anyRequest().authenticated()
+                .and()
+                // make sure we use stateless session; session won't be used to
+                // store user's state.
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
-                .antMatchers("/api/test/**").permitAll()
-                .antMatchers("/swagger-ui/**").permitAll();
-//                .anyRequest().authenticated();
-
-        http.authenticationProvider(authenticationProvider());
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 

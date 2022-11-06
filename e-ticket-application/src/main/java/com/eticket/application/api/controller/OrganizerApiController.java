@@ -1,9 +1,12 @@
 package com.eticket.application.api.controller;
 
+import com.eticket.application.api.dto.BaseResponse;
+import com.eticket.application.api.dto.event.ListOrganizerGetResponse;
 import com.eticket.application.api.dto.event.OrganizerCreateRequest;
+import com.eticket.application.api.dto.event.OrganizerGetDetailResponse;
 import com.eticket.application.api.dto.event.OrganizerUpdateRequest;
-import com.eticket.domain.service.OrganizerSevice;
-import lombok.RequiredArgsConstructor;
+import com.eticket.domain.service.OrganizerService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,13 +15,17 @@ import javax.validation.Valid;
 @CrossOrigin
 @RestController
 @RequestMapping("/api/organizer")
-@RequiredArgsConstructor
 public class OrganizerApiController {
-    private OrganizerSevice organizerSevice;
+    @Autowired
+    private OrganizerService organizerSevice;
 
     @PostMapping
-    public ResponseEntity<?> addNewOrganizer(@Valid @RequestBody OrganizerCreateRequest organizerCreateRequest) {
-        return null;
+    public ResponseEntity<BaseResponse<Void>> addNewOrganizer(@Valid @RequestBody OrganizerCreateRequest organizerCreateRequest) {
+        boolean accept = organizerSevice.registerOrganizer(organizerCreateRequest);
+        if (!accept) {
+            throw new IllegalArgumentException();
+        }
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
     @PutMapping("/{organizer_id}")
@@ -27,17 +34,20 @@ public class OrganizerApiController {
     }
 
     @DeleteMapping("/{organizer_id}")
-    public ResponseEntity<?> removeOrganizer(@PathVariable("organizer_id") Integer organizerId) {
-        return null;
+    public ResponseEntity<BaseResponse<Void>> removeOrganizer(@PathVariable("organizer_id") Integer organizerId) {
+        organizerSevice.removeOrganizer(organizerId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllOrganizer() {
-        return null;
+    public ResponseEntity<BaseResponse<ListOrganizerGetResponse>> getAllOrganizer() {
+        ListOrganizerGetResponse response = organizerSevice.getAllOrganizer();
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
     @GetMapping("/{organizer_id}")
-    public ResponseEntity<?> getOrganizer(@PathVariable("organizer_id") Integer organizerId) {
-        return null;
+    public ResponseEntity<BaseResponse<OrganizerGetDetailResponse>> getOrganizer(@PathVariable("organizer_id") Integer organizerId) {
+        OrganizerGetDetailResponse response = organizerSevice.getOrganizerById(organizerId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 }

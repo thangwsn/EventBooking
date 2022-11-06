@@ -1,0 +1,32 @@
+<article class="card fl-left me-2">
+  <section class="date">
+    <time datetime="23th feb">
+      <span>{{ ticket.startTime | date: "dd" }}</span
+      ><span>{{ ticket.startTime | date: "MMMM" }}</span>
+    </time>
+  </section>
+  <section class="card-cont">
+    <small>{{ ticket.ticketCatalogTitle }}</small>
+    <h3>{{ ticket.eventTitle }}</h3>
+    <div class="even-date">
+      <i class="fa fa-calendar"></i>
+      <time>
+        <span>{{ ticket.startTime | date: "long" }}</span>
+      </time>
+    </div>
+    <img
+      *ngIf="bookingStatus === 'COMPLETED'"
+      src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/QR_code_for_mobile_English_Wikipedia.svg/1200px-QR_code_for_mobile_English_Wikipedia.svg.png"
+      width="100px"
+      height="100px"
+    />
+    <div class="even-info">
+      <i class="fa fa-map-marker"></i>
+      <p>{{ ticket.locationString }}</p>
+    </div>
+  </section>
+  <div
+    *ngIf="bookingStatus !== 'COMPLETED'"
+    class="bg-holder overlay overlay-light"
+  ></div>
+</article>

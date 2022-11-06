@@ -1,8 +1,18 @@
 package com.eticket.domain.service;
 
-import com.eticket.application.api.dto.account.LoginRequest;
-import com.eticket.application.api.dto.account.LoginResponse;
+import com.eticket.application.api.dto.FieldViolation;
+import com.eticket.application.api.dto.account.*;
+
+import java.util.List;
 
 public interface AccountService {
-    LoginResponse authenticate(LoginRequest loginRequest);
+    LoginResponse authenticate(LoginRequest loginRequest) throws Exception;
+
+    List<FieldViolation> registerUser(UserSignUpRequest userSignUpRequest);
+
+    boolean verifyActiveCode(VerifyCodeRequest verifyCodeRequest);
+
+    List<FieldViolation> registerEmployee(EmployeeSignUpRequest employeeSignUpRequest);
+
+    AccountInfoResponse getAccountInfo();
 }

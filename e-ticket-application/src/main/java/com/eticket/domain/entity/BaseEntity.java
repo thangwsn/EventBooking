@@ -1,18 +1,18 @@
 package com.eticket.domain.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.experimental.FieldNameConstants;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
 @Data
-@FieldNameConstants
+@AllArgsConstructor
+@NoArgsConstructor
 public class BaseEntity {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "create_time", nullable = false, updatable = false)
@@ -20,7 +20,19 @@ public class BaseEntity {
     private Date createTime;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "update_time", nullable = false)
+    @Column(name = "update_time", nullable = true)
     @LastModifiedDate
     private Date updateTime;
+
+    @PrePersist
+    public void setCreateTime() {
+        createTime = new Date();
+        updateTime = new Date();
+    }
+
+    @PreUpdate
+    public void setUpdateTime() {
+        updateTime = new Date();
+    }
+
 }

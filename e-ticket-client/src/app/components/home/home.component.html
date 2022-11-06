@@ -1,0 +1,139 @@
+<section class="py-0" style="margin-top: -16rem !important">
+  <div class="container">
+    <div class="row h-100">
+      <div class="col-lg-7 mx-auto text-center mt-7 mb-5">
+        <h5 class="fw-bold fs-3 fs-lg-5 lh-sm">Popular Event</h5>
+      </div>
+      <div class="col-12">
+        <div>
+          <div>
+            <div>
+              <div class="row h-100 align-items-center g-2">
+                <div
+                  class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100"
+                  *ngFor="let event of popularEventList$ | async"
+                >
+                  <app-event-item [event]="event"></app-event-item>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 d-flex justify-content-center">
+        <a class="btn btn-lg btn-outline-dark" href="#!">View All </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mt-7">
+  <div class="container">
+    <div class="row h-100 g-0">
+      <div class="col-md-6">
+        <div class="bg-300 p-4 h-100 d-flex flex-column justify-content-center">
+          <h4 class="text-800">Live</h4>
+          <h1 class="fw-semi-bold lh-sm fs-4 fs-lg-5 fs-xl-6">Be exclusive</h1>
+          <p class="mb-5 fs-1">
+            The best everyday option in a Super Saver range within a reasonable
+            price. It is our responsibility to keep you 100 percent stylish. Be
+            smart &amp; , trendy with us.
+          </p>
+          <div class="d-grid gap-2 d-md-block">
+            <a class="btn btn-lg btn-dark" href="#" role="button">More</a>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card card-span h-100 text-white">
+          <img class="card-img h-100" src="assets/img/outfit.png" alt="..." />
+          <div class="card-img-overlay bg-dark-gradient">
+            <div class="d-flex align-items-end justify-content-center h-100">
+              <a class="btn btn-lg text-light" href="#!" role="button"
+                >Outfit <br /><span
+                  ><i class="bi bi-arrow-right-circle"></i></span
+              ></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="row h-100 g-2 py-1">
+      <div class="col-md-4">
+        <div class="card card-span h-100 text-white">
+          <img
+            class="card-img h-100"
+            src="assets/img/vanity-bag.png"
+            alt="..."
+          />
+          <div class="card-img-overlay bg-dark-gradient">
+            <div class="d-flex align-items-end justify-content-center h-100">
+              <a class="btn btn-lg text-light" href="#!" role="button"
+                >Vanity Bags<br /><span
+                  ><i class="bi bi-arrow-right-circle"></i></span
+              ></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-span h-100 text-white">
+          <img class="card-img h-100" src="assets/img/hat.png" alt="..." />
+          <div class="card-img-overlay bg-dark-gradient">
+            <div class="d-flex align-items-end justify-content-center h-100">
+              <a class="btn btn-lg text-light" href="#!" role="button"
+                >Hats<br /><span><i class="bi bi-arrow-right-circle"></i></span
+              ></a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card card-span h-100 text-white">
+          <img
+            class="card-img h-100"
+            src="assets/img/high-heels.png"
+            alt="..."
+          />
+          <div class="card-img-overlay bg-dark-gradient">
+            <div class="d-flex align-items-end justify-content-center h-100">
+              <a class="btn btn-lg text-light" href="#!" role="button"
+                >High Heels<br /><span
+                  ><i class="bi bi-arrow-right-circle"></i></span
+              ></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="py-0">
+  <div class="container">
+    <div class="row h-100">
+      <div class="col-lg-7 mx-auto text-center mt-7 mb-5">
+        <h5 class="fw-bold fs-3 fs-lg-5 lh-sm">Upcoming Event</h5>
+      </div>
+      <div class="col-12">
+        <div>
+          <div>
+            <div>
+              <div class="row h-100 align-items-center g-2">
+                <div
+                  class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100"
+                  *ngFor="let event of upComingEventList$ | async"
+                >
+                  <app-event-item [event]="event"></app-event-item>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 d-flex justify-content-center">
+        <a class="btn btn-lg btn-outline-dark" href="#!">View All </a>
+      </div>
+    </div>
+  </div>
+</section>

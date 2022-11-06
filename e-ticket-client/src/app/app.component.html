@@ -1,0 +1,13 @@
+
+<app-header *ngIf="isAdminSite()"></app-header>
+<app-sidebar *ngIf="isAdminSite()"></app-sidebar>
+
+<app-header-user *ngIf="isUserSite()"></app-header-user>
+
+<router-outlet></router-outlet>
+
+<app-footer *ngIf="isAdminSite()"></app-footer>
+<app-footer-user *ngIf="isUserSite()"></app-footer-user>
+
+
+
