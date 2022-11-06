@@ -150,7 +150,6 @@ public class EventServiceImpl implements EventService {
         Optional<User> userOptional = userRepository.findByUsernameAndRemovedFalse(username);
         if (userOptional.isPresent()) {
             isFollowed = followRepository.findByUserIdAndEventIdAndRemovedFalse(userOptional.get().getId(), eventId).isPresent();
-            System.out.println(followRepository.findByUserIdAndEventIdAndRemovedFalse(eventId, userOptional.get().getId()).isPresent());
             if (event.getType().equals(EventType.FREE)) {
                 isDisableBooking = bookingRepository.findByRemovedFalseAndEventIdAndUserIdAndStatus(eventId, userOptional.get().getId(), BookingStatus.COMPLETED).isPresent();
             }

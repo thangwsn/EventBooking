@@ -7,7 +7,7 @@ import com.eticket.application.api.dto.booking.ListBookingGetResponse;
 public interface BookingService {
     void handleBooking(String message);
 
-    void cancelBooking(Integer bookingId);
+    void cancelBooking(Integer bookingId, boolean withAuth);
 
     ListBookingGetResponse getListBooking(BookingGetRequest bookingGetRequest);
 

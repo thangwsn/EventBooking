@@ -6,10 +6,14 @@ import com.eticket.domain.entity.account.Role;
 import com.eticket.domain.entity.account.User;
 import com.eticket.domain.entity.booking.*;
 import com.eticket.domain.entity.event.*;
+import com.eticket.domain.entity.quartz.ScheduleJob;
+import com.eticket.domain.entity.quartz.ScheduleJobType;
 import com.eticket.domain.repo.*;
 import com.eticket.infrastructure.kafka.producer.KafkaSendService;
 import com.eticket.infrastructure.mapper.BookingMap;
 import com.eticket.infrastructure.mapper.TicketMap;
+import com.eticket.infrastructure.quartz.model.ScheduleRequest;
+import com.eticket.infrastructure.quartz.service.ScheduleService;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
 import com.eticket.infrastructure.utils.Constants;
 import com.eticket.infrastructure.utils.Utils;
@@ -58,6 +62,10 @@ public class BookingServiceImpl implements BookingService {
     private TicketMap ticketMap;
     @Autowired
     private ModelMapper modelMapper;
+    @Autowired
+    private ScheduleService scheduleService;
+    @Autowired
+    private JpaScheduleJobRepository scheduleJobRepository;
 
     @Override
     @KafkaListener(groupId = Constants.groupId, topics = Constants.BOOKING_HANDLER_TOPIC)
@@ -68,8 +76,8 @@ public class BookingServiceImpl implements BookingService {
         Event event = eventRepository.findByIdAndRemovedFalse(bookingCreateRequest.getEventId()).orElseThrow(() -> new RuntimeException("Event is not found"));
         BookingCreateResponse bookingCreateResponse = new BookingCreateResponse();
         bookingCreateResponse.setBookingCode(bookingCreateRequest.getBookingCode());
+        Booking booking;
         if (user.getRole().equals(Role.USER) && isAvailable(event, bookingCreateRequest.getListItem())) {
-            Booking booking;
             if (event.getType().equals(EventType.FREE)) {
                 booking = saveBooking(bookingCreateRequest, EventType.FREE, event, user);
                 bookingCreateResponse.setMessage("Completed Booking");
@@ -77,6 +85,14 @@ public class BookingServiceImpl implements BookingService {
                 booking = saveBooking(bookingCreateRequest, EventType.CHARGE, event, user);
                 bookingCreateResponse.setMessage("Next step, payment");
             }
+            // if CHARGE Event ==> Quartz Schedule time out booking
+            if (event.getType().equals(EventType.CHARGE)) {
+                String jobKey = Utils.generateUUID();
+                ScheduleJob scheduleJob = ScheduleJob.builder().objectId(booking.getId()).jobKey(jobKey).type(ScheduleJobType.BOOKING_TIMEOUT).removed(false).build();
+                scheduleJobRepository.save(scheduleJob);
+                scheduleService.scheduleJob(new ScheduleRequest(jobKey, Constants.JOB_GROUP_BOOKING, Constants.TRIGGER_BOOKING, ScheduleJobType.BOOKING_TIMEOUT, booking.getId(), booking.getBookingTimeout()));
+            }
+
             bookingCreateResponse.setId(booking.getId());
             bookingCreateResponse.setBookingCode(booking.getCode());
             bookingCreateResponse.setEventType(event.getType());
@@ -96,7 +112,7 @@ public class BookingServiceImpl implements BookingService {
             bookingCreateResponse.setMessage("Some of item are full");
         }
         kafkaSendService.reactorSend(Constants.BOOKING_RESPONSE_TOPIC, bookingCreateResponse, bookingCreateResponse.getBookingCode());
-        // if CHARGE Event ==> Quartz Schedule time out booking
+
     }
 
     @Transactional(rollbackFor = {Exception.class})
@@ -154,22 +170,29 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void cancelBooking(Integer bookingId) {
-        String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
-        User user = userRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
-                .orElseThrow(() -> new RuntimeException(String.format("Account not found by username %s ", usernameFromJwtToken)));
-        if (!user.getRole().equals(Role.USER)) {
-            throw new AuthenticationException("Unauthoraiztion") {
-            };
+    public void cancelBooking(Integer bookingId, boolean withAuth) {
+        User user = new User();
+        if (withAuth) {
+            String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
+            user = userRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
+                    .orElseThrow(() -> new RuntimeException(String.format("Account not found by username %s ", usernameFromJwtToken)));
+            if (!user.getRole().equals(Role.USER)) {
+                throw new AuthenticationException("Unauthoraiztion") {
+                };
+            }
         }
+
         Booking booking = bookingRepository.findByIdAndRemovedFalse(bookingId)
                 .orElseThrow(() -> new RuntimeException(String.format("Booking %d not found ", bookingId)));
+        if (booking.getStatus().equals(BookingStatus.CANCEL)) {
+            return;
+        }
         List<Ticket> ticketList = booking.getListTicket();
         Event event = eventRepository.findByIdAndRemovedFalse(booking.getEvent().getId()).get();
         if (!(event.getStatus().equals(EventStatus.OPEN) || event.getStatus().equals(EventStatus.SOLD))) {
             return;
         }
-        if (!user.getId().equals(booking.getUser().getId())) {
+        if (withAuth && !user.getId().equals(booking.getUser().getId())) {
             return;
         }
         if ((booking.getStatus().equals(BookingStatus.COMPLETED) && event.getType().equals(EventType.FREE))
@@ -184,7 +207,6 @@ public class BookingServiceImpl implements BookingService {
                 ticket.setQRcode(null);
                 ticket.setStatus(TicketStatus.AVAILABLE);
             }
-//            ticketRepository.saveAll(ticketList);
             booking.setListTicket(ticketList);
             //update ticket catalog
             List<BookingDetail> bookingDetailList = bookingDetailRepository.findAllByBooking(booking);
@@ -205,9 +227,17 @@ public class BookingServiceImpl implements BookingService {
                 event.setStatus(EventStatus.OPEN);
             }
             booking.setEvent(event);
-//            eventRepository.save(event);
             bookingRepository.save(booking);
             ticketRepository.saveAll(ticketList);
+            // quartz schedule: cancel booking timeout job in CHARGE EVENT case
+            if (event.getType().equals(EventType.FREE)) {
+                return;
+            }
+            Optional<ScheduleJob> scheduleJobOptional = scheduleJobRepository.findByRemovedFalseAndObjectIdAndType(bookingId, ScheduleJobType.BOOKING_TIMEOUT);
+            if (!scheduleJobOptional.isPresent()) {
+                return;
+            }
+            scheduleService.cancelJob(scheduleJobOptional.get().getJobKey(), Constants.JOB_GROUP_BOOKING);
         }
     }
 
@@ -218,7 +248,7 @@ public class BookingServiceImpl implements BookingService {
         Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), sort);
         Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken()).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
         boolean userView = account.getRole().equals(Role.USER);
-        List<Booking> bookingList = new ArrayList<>();
+        List<Booking> bookingList;
         if (userView) {
             User user = userRepository.findByUsernameAndRemovedFalse(account.getUsername()).get();
             if (request.getStatus().equals("")) {
@@ -266,36 +296,6 @@ public class BookingServiceImpl implements BookingService {
         }
         BookingDetailResponse bookingDetailResponse = bookingMap.toBookingDetail(booking, bookingCatalogItems, ticketList, paymentGetResponse, userView);
         return bookingDetailResponse;
-    }
-
-    private int getSoldSlotOfTicketCatalog(TicketCatalog ticketCatalog) {
-        int soldSlot = (int) ticketRepository.countByTicketCatalogAndStatus(ticketCatalog, TicketStatus.RESERVED);
-        return soldSlot;
-    }
-
-    void updateTicketCatalog(Integer ticketCatalogId) {
-        Optional<TicketCatalog> ticketCatalogOptional = ticketCatalogRepository.findByIdAndRemovedFalse(ticketCatalogId);
-        if (ticketCatalogOptional.isPresent()) {
-            TicketCatalog ticketCatalog = ticketCatalogOptional.get();
-            ticketCatalog.setSoldSlot(getSoldSlotOfTicketCatalog(ticketCatalog));
-            ticketCatalog.setRemainSlot(ticketCatalog.getSlot() - ticketCatalog.getSoldSlot());
-            ticketCatalogRepository.save(ticketCatalog);
-        }
-    }
-
-    void updateEventSlot(Integer eventId) {
-        Optional<Event> eventOptional = eventRepository.findByIdAndRemovedFalse(eventId);
-        if (!eventOptional.isPresent()) {
-            return;
-        }
-        Event event = eventOptional.get();
-        int soldSlot = ticketCatalogRepository.sumSoldSlotByEventId(eventId);
-        event.setSoldSlot(soldSlot);
-        event.setRemainSlot(event.getTotalSlot() - soldSlot);
-        if (event.getStatus().equals(EventStatus.SOLD) && event.getRemainSlot() > 0) {
-            event.setStatus(EventStatus.OPEN);
-        }
-        eventRepository.save(event);
     }
 
     private boolean isAvailable(Event event, List<ItemCreateRequest> listItem) {

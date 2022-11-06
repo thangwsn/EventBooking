@@ -71,7 +71,7 @@ public class BookingClientApiController {
 
     @GetMapping("/cancel-booking")
     public ResponseEntity<BaseResponse> cancelBooking(@RequestParam("bookingId") Integer bookingId) {
-        bookingService.cancelBooking(bookingId);
+        bookingService.cancelBooking(bookingId, true);
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 

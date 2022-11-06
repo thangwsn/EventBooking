@@ -14,4 +14,10 @@ public class Constants {
 
     public static final long BOOKING_TIMEOUT = 900000;
 
+    public static final String JOB_GROUP_BOOKING = "booking_jobs";
+    public static final String JOB_GROUP_EVENT = "event_jobs";
+
+    public static final String TRIGGER_BOOKING = "booking_triggers";
+    public static final String TRIGGER_EVENT = "event_triggers";
+
 }
