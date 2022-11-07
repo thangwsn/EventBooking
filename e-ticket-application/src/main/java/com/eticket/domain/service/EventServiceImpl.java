@@ -5,9 +5,12 @@ import com.eticket.domain.entity.account.Employee;
 import com.eticket.domain.entity.account.User;
 import com.eticket.domain.entity.booking.BookingStatus;
 import com.eticket.domain.entity.event.*;
+import com.eticket.domain.entity.quartz.ScheduleJob;
+import com.eticket.domain.entity.quartz.ScheduleJobType;
 import com.eticket.domain.repo.*;
-import com.eticket.infrastructure.kafka.producer.KafkaSendService;
 import com.eticket.infrastructure.mapper.EventMap;
+import com.eticket.infrastructure.quartz.model.ScheduleRequest;
+import com.eticket.infrastructure.quartz.service.ScheduleService;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
 import com.eticket.infrastructure.utils.Constants;
 import com.eticket.infrastructure.utils.Utils;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -58,7 +62,9 @@ public class EventServiceImpl implements EventService {
     @Autowired
     private FileStorageService fileStorageService;
     @Autowired
-    private KafkaSendService kafkaSendService;
+    private ScheduleService scheduleService;
+    @Autowired
+    private JpaScheduleJobRepository scheduleJobRepository;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -93,6 +99,8 @@ public class EventServiceImpl implements EventService {
             listImage.add(Image.builder().url(imageURI).event(event).build());
         }
         imageRepository.saveAll(listImage);
+        scheduleEventJob(event);
+
     }
 
     @Override
@@ -262,6 +270,8 @@ public class EventServiceImpl implements EventService {
         }
         event.setStatus(EventStatus.valueOf(changeEventStatusRequest.getTargetStatus()));
         eventRepository.saveAndFlush(event);
+        // quartz schedule remove job
+        cancelEventJob(event, changeEventStatusRequest.getTargetStatus());
     }
 
     private void generateAndSaveTicketList(TicketCatalog ticketCatalog) {
@@ -284,5 +294,57 @@ public class EventServiceImpl implements EventService {
     private int getFollowNum(Integer eventId) {
         Integer num = followRepository.countByEventIdAndRemovedFalse(eventId);
         return (num == null) ? 0 : num.intValue();
+    }
+
+    private void scheduleEventJob(Event event) {
+        // open
+        ScheduleJob eventOpenJob = ScheduleJob.builder().jobKey(Utils.generateUUID()).objectId(event.getId()).type(ScheduleJobType.EVENT_OPEN).removed(false).build();
+        scheduleJobRepository.save(eventOpenJob);
+        scheduleService.scheduleJob(new ScheduleRequest(eventOpenJob.getJobKey(), Constants.JOB_GROUP_EVENT, Constants.TRIGGER_EVENT, eventOpenJob.getType(), eventOpenJob.getObjectId(), event.getLaunchTime()));
+        // close
+        ScheduleJob eventCloseJob = ScheduleJob.builder().jobKey(Utils.generateUUID()).objectId(event.getId()).type(ScheduleJobType.EVENT_CLOSE).removed(false).build();
+        scheduleJobRepository.save(eventCloseJob);
+        scheduleService.scheduleJob(new ScheduleRequest(eventCloseJob.getJobKey(), Constants.JOB_GROUP_EVENT, Constants.TRIGGER_EVENT, eventCloseJob.getType(), eventCloseJob.getObjectId(), event.getCloseTime()));
+        // live
+        ScheduleJob eventLiveJob = ScheduleJob.builder().jobKey(Utils.generateUUID()).objectId(event.getId()).type(ScheduleJobType.EVENT_LIVE).removed(false).build();
+        scheduleJobRepository.save(eventLiveJob);
+        scheduleService.scheduleJob(new ScheduleRequest(eventLiveJob.getJobKey(), Constants.JOB_GROUP_EVENT, Constants.TRIGGER_EVENT, eventLiveJob.getType(), eventLiveJob.getObjectId(), event.getStartTime()));
+        //finish
+        ScheduleJob eventFinishJob = ScheduleJob.builder().jobKey(Utils.generateUUID()).objectId(event.getId()).type(ScheduleJobType.EVENT_FINISH).removed(false).build();
+        scheduleJobRepository.save(eventFinishJob);
+        scheduleService.scheduleJob(new ScheduleRequest(eventFinishJob.getJobKey(), Constants.JOB_GROUP_EVENT, Constants.TRIGGER_EVENT, eventFinishJob.getType(), eventFinishJob.getObjectId(), new Timestamp(event.getStartTime().getTime() + (long) event.getDuration() * 60 * 60 * 1000)));
+    }
+
+    private void cancelEventJob(Event event, String targetStatus) {
+        Integer eventId = event.getId();
+        if (targetStatus.equals(EventStatus.OPEN.name())) {
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
+        }
+        if (targetStatus.equals(EventStatus.SOLD.name())) {
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
+        }
+        if (targetStatus.equals(EventStatus.CLOSE.name())) {
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_CLOSE);
+        }
+        if (targetStatus.equals(EventStatus.LIVE.name())) {
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_CLOSE);
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_LIVE);
+        }
+        if (targetStatus.equals(EventStatus.FINISH.name())) {
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_CLOSE);
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_LIVE);
+            cancelSingleEventJob(eventId, ScheduleJobType.EVENT_FINISH);
+        }
+    }
+
+    private void cancelSingleEventJob(Integer eventId, String type) {
+        Optional<ScheduleJob> scheduleJobOptional = scheduleJobRepository.findByRemovedFalseAndObjectIdAndType(eventId, type);
+        if (!scheduleJobOptional.isPresent()) {
+            return;
+        }
+        scheduleService.cancelJob(scheduleJobOptional.get().getJobKey(), Constants.JOB_GROUP_EVENT);
     }
 }

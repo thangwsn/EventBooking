@@ -90,7 +90,7 @@ public class BookingServiceImpl implements BookingService {
                 String jobKey = Utils.generateUUID();
                 ScheduleJob scheduleJob = ScheduleJob.builder().objectId(booking.getId()).jobKey(jobKey).type(ScheduleJobType.BOOKING_TIMEOUT).removed(false).build();
                 scheduleJobRepository.save(scheduleJob);
-                scheduleService.scheduleJob(new ScheduleRequest(jobKey, Constants.JOB_GROUP_BOOKING, Constants.TRIGGER_BOOKING, ScheduleJobType.BOOKING_TIMEOUT, booking.getId(), booking.getBookingTimeout()));
+                scheduleService.scheduleJob(new ScheduleRequest(jobKey, Constants.JOB_GROUP_BOOKING, Constants.TRIGGER_BOOKING, scheduleJob.getType(), booking.getId(), booking.getBookingTimeout()));
             }
 
             bookingCreateResponse.setId(booking.getId());

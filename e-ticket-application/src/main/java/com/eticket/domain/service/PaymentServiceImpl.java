@@ -39,7 +39,6 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentType paymentType = PaymentType.valueOf(bookingPaymentRequest.getPaymentType());
         if (paymentType.equals(PaymentType.PayPal)) {
             Map<String, Object> paymentInfo = payPalService.createPayment(bookingPaymentRequest);
-            paymentInfo.put("bookingId", bookingPaymentRequest.getBookingId()); // remove
             return paymentInfo;
         }
         return null;

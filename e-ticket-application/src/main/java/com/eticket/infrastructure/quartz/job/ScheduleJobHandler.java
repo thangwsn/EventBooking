@@ -1,7 +1,10 @@
 package com.eticket.infrastructure.quartz.job;
 
+import com.eticket.application.api.dto.event.ChangeEventStatusRequest;
+import com.eticket.domain.entity.event.EventStatus;
 import com.eticket.domain.entity.quartz.ScheduleJobType;
 import com.eticket.domain.service.BookingService;
+import com.eticket.domain.service.EventService;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -16,6 +19,8 @@ public class ScheduleJobHandler extends QuartzJobBean {
     private static final Logger logger = LoggerFactory.getLogger(ScheduleJobHandler.class);
     @Autowired
     private BookingService bookingService;
+    @Autowired
+    private EventService eventService;
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
@@ -44,23 +49,26 @@ public class ScheduleJobHandler extends QuartzJobBean {
 
     private void scheduleBookingTimeout(Integer bookingId) {
         logger.info("Handle Booking Timeout with booking id = {}", bookingId);
-        // handle
         bookingService.cancelBooking(bookingId, false);
     }
 
     private void scheduleEventOpen(Integer eventId) {
         logger.info("Handle change to open status with event od = {}", eventId);
+        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.OPEN.name()));
     }
 
     private void scheduleEventClose(Integer eventId) {
         logger.info("Handle change to close status with event od = {}", eventId);
+        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.CLOSE.name()));
     }
 
     private void scheduleEventLive(Integer eventId) {
         logger.info("Handle change to live status with event od = {}", eventId);
+        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.LIVE.name()));
     }
 
     private void scheduleEventFinish(Integer eventId) {
         logger.info("Handle change to finish status with event od = {}", eventId);
+        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.FINISH.name()));
     }
 }

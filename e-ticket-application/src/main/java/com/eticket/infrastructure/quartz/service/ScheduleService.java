@@ -37,6 +37,9 @@ public class ScheduleService {
     public void cancelJob(String jobKey, String jobGroup) {
         try {
             JobDetail jobDetail = scheduler.getJobDetail(new JobKey(jobKey, jobGroup));
+            if (jobDetail == null) {
+                return;
+            }
             scheduler.deleteJob(jobDetail.getKey());
             ScheduleJob scheduleJob = scheduleJobRepository.findByRemovedFalseAndJobKey(jobKey).get();
             scheduleJob.setRemoved(true);
