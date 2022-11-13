@@ -41,12 +41,12 @@ public class Booking {
     private String mobile;
     @Column(name = "booking_timeout")
     private Timestamp bookingTimeout;
-    @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;
     @OneToMany(mappedBy = "booking", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST})
     private List<Ticket> listTicket;
-    @ManyToOne(targetEntity = Event.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Event.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id")
     private Event event;
     @Temporal(TemporalType.TIMESTAMP)

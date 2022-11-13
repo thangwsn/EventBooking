@@ -120,16 +120,18 @@
                             <td>{{organizer.representative}}</td>
                             <td>{{organizer.updateBy}}</td>
                             <td>
-                              <a href="#" class="btn"><i class="bi-pencil-fill"></i></a>
-                              <button type="button" class="btn" (click)="openRemoveConfirm(organizer)"><i class="bi-trash-fill"></i></button>
+                              <button pButton pRipple type="button" icon="pi pi-pencil " class="p-button-rounded p-button-text"></button>
+                              <button pButton pRipple type="button" class="p-button-rounded p-button-danger p-button-text" (click)="openRemoveConfirm(organizer)" icon="pi pi-times"></button>
                             </td>
                          </tr>
                       </tbody>
                    </table>
+                   <p-confirmDialog [style]="{width: '50vw'}" [baseZIndex]="10000"></p-confirmDialog> 
                 </div>
              </div>
           </div>
        </div>
+       <p-toast></p-toast>
     </section>
 
  </main>

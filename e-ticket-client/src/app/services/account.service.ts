@@ -44,6 +44,10 @@ export class AccountService {
     });
   }
 
+  verifyRegisterUser(userId: number, activeCode: string): Observable<any> {
+    return this.http.get(`${BASE_API}/verify-register?user_id=${userId}&active_code=${activeCode}`);
+  }
+
   private getHeader() {
     return {
         headers: new HttpHeaders({

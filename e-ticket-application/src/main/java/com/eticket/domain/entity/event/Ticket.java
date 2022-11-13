@@ -33,10 +33,10 @@ public class Ticket extends BaseEntity {
     private TicketStatus status;
     @Column(name = "sold_time")
     private Timestamp soldTime;
-    @ManyToOne(targetEntity = Event.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = Event.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "event_id")
     private Event event;
-    @ManyToOne(targetEntity = TicketCatalog.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = TicketCatalog.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "ticket_catalog_id")
     private TicketCatalog ticketCatalog;
     @ManyToOne(targetEntity = User.class, fetch = FetchType.LAZY)

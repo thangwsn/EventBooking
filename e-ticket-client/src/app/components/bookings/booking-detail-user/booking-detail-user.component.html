@@ -3,6 +3,7 @@
   style="margin-top: -10rem !important"
   *ngIf="bookingDetail$ | async as bookingDetail"
 >
+<p-blockUI [blocked]="blockedDocument"></p-blockUI>
   <div class="row align-items-top">
     <div class="col-lg-9 mb-1">
       <div class="card">
@@ -196,4 +197,5 @@
       </div>
     </div>
   </div>
+  <p-confirmDialog [style]="{width: '50vw'}" [baseZIndex]="10000"></p-confirmDialog> 
 </section>

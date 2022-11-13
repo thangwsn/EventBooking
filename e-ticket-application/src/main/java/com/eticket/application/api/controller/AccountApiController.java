@@ -33,13 +33,10 @@ public class AccountApiController {
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
-    @PostMapping("/verify-signup")
-    public ResponseEntity<BaseResponse> verifyCodeSignUp(@Valid @RequestBody VerifyCodeRequest verifyCodeRequest) {
-        boolean accept = accountService.verifyActiveCode(verifyCodeRequest);
-        if (!accept) {
-            return ResponseEntity.ok(BaseResponse.ofInvalid(verifyCodeRequest));
-        }
-        return ResponseEntity.ok(BaseResponse.ofSucceeded());
+    @PostMapping("/verify")
+    public String verifyCodeSignUp(@RequestParam("user_id") Integer userId, @RequestParam("code") String code) {
+        boolean accept = accountService.verifyActiveCode(userId, code);
+        return "";
     }
 
     @PostMapping("/signup-employee")
@@ -66,5 +63,14 @@ public class AccountApiController {
     public ResponseEntity<BaseResponse<AccountInfoResponse>> getAccountInfo() {
         AccountInfoResponse response = accountService.getAccountInfo();
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
+    }
+
+    @GetMapping("/verify-register")
+    public ResponseEntity<BaseResponse> verifyRegister(@RequestParam("user_id") Integer userId, @RequestParam("active_code") String activeCode) {
+        boolean verified = accountService.verifyActiveCode(userId, activeCode);
+        if (!verified) {
+            return ResponseEntity.ok(BaseResponse.ofInvalid(verified));
+        }
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 }

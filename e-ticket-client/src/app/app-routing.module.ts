@@ -43,10 +43,11 @@ import { OrganizerListComponent } from './components/organizers/organizer-list/o
 import { HomeComponent } from './components/home/home.component';
 import { EventDetailUserComponent } from './components/events/event-detail-user/event-detail-user.component';
 import { CheckoutComponent } from './components/bookings/checkout/checkout.component';
-import { BookingListUserComponent } from './components/booking-list-user/booking-list-user.component';
+import { BookingListUserComponent } from './components/bookings/booking-list-user/booking-list-user.component';
 import { BookingDetailUserComponent } from './components/bookings/booking-detail-user/booking-detail-user.component';
 import { BookingListComponent } from './components/bookings/booking-list/booking-list.component';
 import { BookingDetailComponent } from './components/bookings/booking-detail/booking-detail.component';
+import { VerifyComponent } from './pages/user/verify/verify.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent},
@@ -82,6 +83,7 @@ const routes: Routes = [
   
   { path: 'login', component: PagesLoginComponent },
   { path: 'register', component: PagesRegisterComponent },
+  { path: 'verify-register', component: VerifyComponent},
   { path: 'user-profile', component: UsersProfileComponent },
   { path: 'admin/organizers', component: OrganizerListComponent},
   { path: 'admin/organizers/create', component: OrganizerCreateComponent},

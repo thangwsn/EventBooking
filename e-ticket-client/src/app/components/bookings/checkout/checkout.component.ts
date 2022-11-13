@@ -3,6 +3,7 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
+import { PrimeNGConfig } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { AccountInfo } from 'src/app/model/account.model';
 import { BookingCreateRequest, ItemCreateRequest } from 'src/app/model/booking.model';
@@ -21,7 +22,7 @@ export class CheckoutComponent implements OnInit {
   displayPayment: boolean = true;
   bookingCheckoutForm: any = new FormGroup({});
   userInfo$: Observable<AccountInfo> = new Observable<AccountInfo>();
-
+  blockedDocument: boolean = false;
 
   constructor(
     private bookingService: BookingUserService,
@@ -30,46 +31,11 @@ export class CheckoutComponent implements OnInit {
     private toastr: ToastrService,
     private _router: Router,
     @Inject(DOCUMENT) private document: Document,
-    private _route: ActivatedRoute) { }
+    private _route: ActivatedRoute,
+    private primengConfig: PrimeNGConfig) { }
 
   ngOnInit(): void {
-    var paymentId = '';
-    var payerId = '';
-    var cancel = '';
-    var bookingId = '';
-    this._route.queryParams.subscribe(params => {
-      paymentId = params['paymentId'];
-      payerId = params['PayerID'];
-      cancel = params['cancel'];
-      bookingId = params['bookingId']
-    })
-   
-    if (paymentId !== undefined && payerId !== undefined) {
-      this.bookingService.completePayment(paymentId, payerId).subscribe({
-        next: (resp: any) => {
-          if (resp.meta.code === 200) {
-            this._router.navigate(['/booking'])
-          }
-        },
-        error: (err) => {
-          console.log(err);
-        }
-      });
-    }
-
-    if (cancel === 'true' && bookingId !== undefined) {
-      this.bookingService.cancelPayment(bookingId).subscribe({
-        next: (resp: any) => {
-          if (resp.meta.code === 200) {
-            this._router.navigate(['/booking'])
-          }
-        },
-        error: (err) => {
-          console.log(err);
-        }
-      });
-    }
-
+    this.primengConfig.ripple = true;
     this.bookingPreCheckout = this.bookingService.bookingPreCheckout || { event: {}, listItem: [] };
     this.displayPayment = this.bookingPreCheckout.event.typeString == Constants.EVENT_TYPE_CHARGE
     this.accountService.getUserInfo();
@@ -83,6 +49,7 @@ export class CheckoutComponent implements OnInit {
   }
 
   placeBooking() {
+    this.blockedDocument = true;
     var listItem: ItemCreateRequest[] = this.bookingPreCheckout.listItem.map((item: any) => new ItemCreateRequest(item.ticketCatalog.id, item.quantity))
     const request: BookingCreateRequest = new BookingCreateRequest(
       this.bookingPreCheckout.event.id,
@@ -97,7 +64,7 @@ export class CheckoutComponent implements OnInit {
           const data = resp.data;
           if (data.status === Constants.BOOKING_STATUS_COMPLETED) {
             this.toastr.success('', 'Completed booking!', { timeOut: 1000, newestOnTop: true, tapToDismiss: true });
-            this._router.navigate(['/booking']);
+            this._router.navigate(['/booking/' + data.id]);
           } else if (data.status === Constants.BOOKING_STATUS_PENDING) {
             // handle payment
             const bookingPaymentRequest = {

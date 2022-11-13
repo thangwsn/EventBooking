@@ -2,8 +2,7 @@ import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Notifications } from '@mobiscroll/angular';
-import { ToastrService } from 'ngx-toastr';
+import { PrimeNGConfig, ConfirmationService, Message, MessageService, } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { BookingDetail } from 'src/app/model/booking.model';
 import { BookingUserService } from 'src/app/services/booking-user.service';
@@ -12,38 +11,41 @@ import { Constants } from 'src/app/utils/constants';
 @Component({
   selector: 'app-booking-detail-user',
   templateUrl: './booking-detail-user.component.html',
-  styleUrls: ['./booking-detail-user.component.css']
+  styleUrls: ['./booking-detail-user.component.css'],
+  providers: [ConfirmationService, MessageService]
 })
 export class BookingDetailUserComponent implements OnInit {
-  @ViewChild('amount') amountElement!: ElementRef; 
+  @ViewChild('amount') amountElement!: ElementRef;
   bookingId!: number;
   bookingDetail$: Observable<BookingDetail> = new Observable<BookingDetail>();
   BASE_API = Constants.HOST;
   placePaymentForm: any = new FormGroup({});
+  blockedDocument: boolean = false;
 
-  constructor(private bookingService: BookingUserService, 
-    private _route: ActivatedRoute, 
+  constructor(private bookingService: BookingUserService,
+    private _route: ActivatedRoute,
     private fb: FormBuilder,
     @Inject(DOCUMENT) private document: Document,
-    private notify: Notifications,
-    private _router: Router,
-    private toastr: ToastrService) { }
+    private confirmationService: ConfirmationService,
+    private primengConfig: PrimeNGConfig,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
     let paramValue = this._route.snapshot.paramMap.get('bookingId');
     if (paramValue !== null) {
-     this.bookingId = parseInt(paramValue);
-     this.bookingService.getBookingDetail(this.bookingId);
-     this.bookingDetail$ = this.bookingService.bookingDetail$
+      this.bookingId = parseInt(paramValue);
+      this.bookingService.getBookingDetail(this.bookingId);
+      this.bookingDetail$ = this.bookingService.bookingDetail$
     }
-    this.placePaymentForm= this.fb.group({
+    this.placePaymentForm = this.fb.group({
       paymentType: ['PayPal', Validators.required]
     })
   }
 
   getBookingStatusClass(status: string): string {
     var bookingStatusClass = '';
-    switch(status) {
+    switch (status) {
       case Constants.BOOKING_STATUS_PENDING:
         bookingStatusClass = 'badge bg-primary'
         break;
@@ -61,7 +63,7 @@ export class BookingDetailUserComponent implements OnInit {
 
   getPaymentTypeLogo(type: string): string {
     var imageLink = '';
-    switch(type) {
+    switch (type) {
       case Constants.PAYMENT_TYPE_PAYPAL:
         imageLink = 'https://i.imgur.com/cMk1MtK.jpg'
     }
@@ -69,23 +71,23 @@ export class BookingDetailUserComponent implements OnInit {
   }
 
   isHiddenCancelBtn(bookingStatus: string, eventType: string, eventStatus: string): boolean {
-    if (eventType === Constants.EVENT_TYPE_FREE 
-        && (eventStatus === Constants.EVENT_STATUS_OPEN || eventStatus === Constants.EVENT_STATUS_SOLD)
-        && (bookingStatus === Constants.BOOKING_STATUS_COMPLETED || bookingStatus === Constants.BOOKING_STATUS_PENDING)) {
+    if (eventType === Constants.EVENT_TYPE_FREE
+      && (eventStatus === Constants.EVENT_STATUS_OPEN || eventStatus === Constants.EVENT_STATUS_SOLD)
+      && (bookingStatus === Constants.BOOKING_STATUS_COMPLETED || bookingStatus === Constants.BOOKING_STATUS_PENDING)) {
       return false;
     }
-    if (eventType === Constants.EVENT_TYPE_CHARGE 
-        && (eventStatus === Constants.EVENT_STATUS_OPEN || eventStatus === Constants.EVENT_STATUS_SOLD)
-        && (bookingStatus === Constants.BOOKING_STATUS_PENDING)) {
-      return false; 
+    if (eventType === Constants.EVENT_TYPE_CHARGE
+      && (eventStatus === Constants.EVENT_STATUS_OPEN || eventStatus === Constants.EVENT_STATUS_SOLD)
+      && (bookingStatus === Constants.BOOKING_STATUS_PENDING)) {
+      return false;
     }
     return true;
   }
 
   pendingBooking(bookingStatus: string, eventStatus: string, bookingTimeout: number): boolean {
-    if (bookingStatus === Constants.BOOKING_STATUS_PENDING 
-        && (eventStatus === Constants.EVENT_STATUS_OPEN || eventStatus === Constants.EVENT_STATUS_SOLD)) {
-        return true;
+    if (bookingStatus === Constants.BOOKING_STATUS_PENDING
+      && (eventStatus === Constants.EVENT_STATUS_OPEN || eventStatus === Constants.EVENT_STATUS_SOLD)) {
+      return true;
     }
     if (bookingTimeout > 0 && bookingTimeout <= new Date().getTime()) {
       return true;
@@ -94,6 +96,7 @@ export class BookingDetailUserComponent implements OnInit {
   }
 
   placePayment() {
+    this.blockedDocument = true;
     const bookingPaymentRequest = {
       bookingId: this.bookingId,
       paymentType: this.placePaymentForm.get("paymentType").value,
@@ -107,19 +110,16 @@ export class BookingDetailUserComponent implements OnInit {
   }
 
   openConfirmCancel(bookingId: number) {
-    // Using callback function
-    this.notify.confirm({
-      title: 'Cancel Booking Confirm',
-      message: 'Are your sure cancel this booking?',
-      okText: 'OK',
-      cancelText: 'Cancel'
-    }).then((result) => {
-      if (result == true) {
+    this.confirmationService.confirm({
+      message: 'Are you sure that you want to cancel this booking?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
         this.handleCancelBooking(bookingId)
-      } 
-    })
-    .catch((err) => {
-      console.log(err);
+      },
+      reject: () => {
+        this.messageService.add({severity:'info', summary: 'Reject', detail: 'Reject!'});
+      }
     });
   }
 
@@ -127,10 +127,11 @@ export class BookingDetailUserComponent implements OnInit {
     this.bookingService.cancelBooking(bookingId).subscribe({
       next: (resp: any) => {
         if (resp.meta.code === 200) {
-          this.toastr.success('', 'Completed canceling booking!', { timeOut: 1000, newestOnTop: true, tapToDismiss: true });
-          this._router.navigate(['/booking']);
+          this.messageService.add({severity:'success', summary: 'Success', detail: 'Completed canceling booking!'});
+          this.bookingService.updateStatus(Constants.BOOKING_STATUS_CANCEL)
+          this.bookingDetail$ = this.bookingService.bookingDetail$
         } else {
-          this.toastr.error('', 'Having error!', { timeOut: 1000, newestOnTop: true, tapToDismiss: true });
+          this.messageService.add({severity:'waring', summary: 'Error', detail: 'Having error!'});
         }
       }
     })

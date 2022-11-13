@@ -1,20 +1,22 @@
 package com.eticket.application.api.dto.booking;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.sql.Timestamp;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TicketGetResponse {
-    private Integer id;
+@Builder
+public class TicketInfomation {
     private String code;
+    private String catalog;
     private double price;
-    private long soldTime;
+    private int eventId;
     private String eventTitle;
-    private long startTime;
-    private String locationString;
-    private String ticketCatalogTitle;
-    private String QRcode;
+    private Timestamp bookAt;
+    private String fullName;
 }

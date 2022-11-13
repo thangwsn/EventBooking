@@ -65,14 +65,14 @@ public class BookingClientApiController {
 
     @PostMapping("/complete-payment")
     public ResponseEntity<BaseResponse> completePayment(@RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId) {
-        paymentService.completePayment(paymentId, payerId);
-        return ResponseEntity.ok(BaseResponse.ofSucceeded());
+        Integer bookingId = paymentService.completePayment(paymentId, payerId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(bookingId));
     }
 
     @GetMapping("/cancel-booking")
     public ResponseEntity<BaseResponse> cancelBooking(@RequestParam("bookingId") Integer bookingId) {
         bookingService.cancelBooking(bookingId, true);
-        return ResponseEntity.ok(BaseResponse.ofSucceeded());
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(bookingId));
     }
 
     @PostMapping("/get-list-booking")

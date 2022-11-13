@@ -19,11 +19,11 @@ export class AppComponent {
 
   isAdminSite(): boolean {
     this.role = this.tokenStorageService.getUser().role;
-    return(this.role === 'ADMINISTRATOR' || this.role === 'OPERATOR') && !(this._router.url === '/register' || this._router.url === '/login' || this._router.url === '/pages-error404');
+    return(this.role === 'ADMINISTRATOR' || this.role === 'OPERATOR') && !(this._router.url === '/register' || this._router.url === '/login' || this._router.url === '/pages-error404' || this._router.url.startsWith('/verify-register'));
   }
 
   isUserSite(): boolean {
     this.role = this.tokenStorageService.getUser().role;
-    return(this.role === undefined || this.role === 'USER') && !(this._router.url === '/register' || this._router.url === '/login' || this._router.url === '/pages-error404');
+    return(this.role === undefined || this.role === 'USER') && !(this._router.url === '/register' || this._router.url === '/login' || this._router.url === '/pages-error404' || this._router.url.startsWith('/verify-register'));
   }
 }

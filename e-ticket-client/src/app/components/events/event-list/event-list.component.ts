@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Notifications } from '@mobiscroll/angular';
 import { Observable } from 'rxjs';
 import { EventGet } from 'src/app/model/event.model';
 import { EventService } from 'src/app/services/event.service';
@@ -13,7 +12,7 @@ import { Constants } from 'src/app/utils/constants';
 export class EventListComponent implements OnInit {
   eventList$: Observable<EventGet[]> = new Observable<EventGet[]>();
 
-  constructor(private eventService: EventService, private notify: Notifications ) { }
+  constructor(private eventService: EventService) { }
 
   ngOnInit(): void {
     this.eventService.fetchEventListForAdmin();

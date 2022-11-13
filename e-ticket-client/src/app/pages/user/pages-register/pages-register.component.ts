@@ -62,8 +62,7 @@ export class PagesRegisterComponent implements OnInit {
     this.accountService.register(userSignUpRequest).subscribe({
       next: (response: any) => {
         if (response.meta.code == 200) {
-          // this._router.navigate(["verify-account"]);
-          this._router.navigate(["login"]);
+          this._router.navigate(["verify-register"]);
         }
         console.log(response);
       }

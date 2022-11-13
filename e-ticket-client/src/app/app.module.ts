@@ -1,8 +1,14 @@
-import { MbscModule } from '@mobiscroll/angular';
+
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
+import { ToastrModule } from 'ngx-toastr';
+import { ButtonModule } from 'primeng/button';
+import { MessagesModule } from 'primeng/messages';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { BlockUIModule } from 'primeng/blockui';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -51,8 +57,6 @@ import { EventDetailComponent } from './components/events/event-detail/event-det
 import { UserListComponent } from './components/users/user-list/user-list.component';
 import { EmployeeListComponent } from './components/employees/employee-list/employee-list.component';
 import { EmployeeCreateComponent } from './components/employees/employee-create/employee-create.component';
-
-import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AddTicketDialogComponent } from './components/events/add-ticket-dialog/add-ticket-dialog.component';
 import { HeaderUserComponent } from './layouts/header-user/header-user.component';
@@ -62,12 +66,13 @@ import { EventItemComponent } from './components/events/event-item/event-item.co
 import { EventDetailUserComponent } from './components/events/event-detail-user/event-detail-user.component';
 import { TicketCatalogItemComponent } from './components/events/ticket-catalog-item/ticket-catalog-item.component';
 import { CheckoutComponent } from './components/bookings/checkout/checkout.component';
-import { BookingListUserComponent } from './components/booking-list-user/booking-list-user.component';
+import { BookingListUserComponent } from './components/bookings/booking-list-user/booking-list-user.component';
 import { BookingDetailUserComponent } from './components/bookings/booking-detail-user/booking-detail-user.component';
 import { BookingListComponent } from './components/bookings/booking-list/booking-list.component';
 import { BookingDetailComponent } from './components/bookings/booking-detail/booking-detail.component';
 import { TicketDetailComponent } from './components/bookings/ticket-detail/ticket-detail.component';
 import { TicketDetailAdminComponent } from './components/bookings/ticket-detail-admin/ticket-detail-admin.component';
+import { VerifyComponent } from './pages/user/verify/verify.component';
 
 @NgModule({
   declarations: [
@@ -130,16 +135,20 @@ import { TicketDetailAdminComponent } from './components/bookings/ticket-detail-
     BookingDetailComponent,
     TicketDetailComponent,
     TicketDetailAdminComponent,
+    VerifyComponent,
   ],
-  imports: [ 
-    MbscModule, 
+  imports: [
     BrowserModule,
     AppRoutingModule,
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-	  ToastrModule.forRoot()
-
+    ToastrModule.forRoot(),
+    ConfirmDialogModule,
+    ButtonModule,
+    MessagesModule,
+    ToastModule,
+    BlockUIModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -3,14 +3,12 @@ package com.eticket.domain.entity.account;
 import com.eticket.domain.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.Date;
 
 @Inheritance(strategy = InheritanceType.JOINED)
-@EqualsAndHashCode(callSuper = false)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

@@ -1,21 +1,31 @@
 package com.eticket.domain.service;
 
+import com.eticket.domain.entity.event.Ticket;
 import com.eticket.domain.exception.FileStorageException;
+import com.eticket.infrastructure.mapper.TicketMap;
+import com.eticket.infrastructure.utils.Utils;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.decoder.ErrorCorrectionLevel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService {
@@ -26,6 +36,9 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Value("${prefix.uri}")
     private String prefixURI;
+
+    @Autowired
+    private TicketMap ticketMap;
 
     @Autowired
     public FileStorageServiceImpl() {
@@ -76,5 +89,45 @@ public class FileStorageServiceImpl implements FileStorageService {
         } catch (IOException ex) {
             throw new FileStorageException("Could not store file " + fileName + ". Please try again!", ex);
         }
+    }
+
+    @Override
+    public String generateQRCode(Ticket ticket) {
+        //data that we want to store in the QR code
+        String data = Utils.convertObjectToJson(ticketMap.toTicketInfomation(ticket));
+        //path where we want to get QR Code
+        String dir = "event/" + ticket.getEvent().getId() + "/" + ticket.getTicketCatalog().getId();
+        File ticketQRLocationDir = new File(uploadDir + "/" + dir);
+        if (!ticketQRLocationDir.exists()) {
+            ticketQRLocationDir.mkdirs();
+        }
+        String ticketImageName = ticket.getCode() + ".png";
+        String path = uploadDir + "/" + dir + "/" + ticketImageName;
+        //Encoding charset to be used
+        String charset = "UTF-8";
+        Map<EncodeHintType, ErrorCorrectionLevel> hashMap = new HashMap<EncodeHintType, ErrorCorrectionLevel>();
+        //generates QR code with Low level(L) error correction capability
+        hashMap.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.L);
+        //the BitMatrix class represents the 2D matrix of bits
+        //MultiFormatWriter is a factory class that finds the appropriate Writer subclass for the BarcodeFormat requested and encodes the barcode with the supplied contents.
+        BitMatrix matrix = null;
+        try {
+            matrix = new MultiFormatWriter().encode(new String(data.getBytes(charset), charset), BarcodeFormat.QR_CODE, 400, 400);
+        } catch (WriterException e) {
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            MatrixToImageWriter.writeToFile(matrix, path.substring(path.lastIndexOf('.') + 1), new File(path));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return prefixURI + dir + "/" + ticketImageName;
+    }
+
+    @Override
+    public void removeQRCode(String qrCodePath) {
+
     }
 }

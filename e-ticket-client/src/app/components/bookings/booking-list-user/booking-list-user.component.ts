@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { PrimeNGConfig } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { BookingGet } from 'src/app/model/booking.model';
 import { BookingUserService } from 'src/app/services/booking-user.service';
@@ -11,12 +13,55 @@ import { Constants } from 'src/app/utils/constants';
 })
 export class BookingListUserComponent implements OnInit {
   bookingList$: Observable<BookingGet[]> = new Observable<BookingGet[]>();
-
+  blockedDocument: boolean = false;
   constructor(
     private bookingService: BookingUserService,
+    private _router: Router,
+    private _route: ActivatedRoute,
+    private primengConfig: PrimeNGConfig
   ) { }
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
+    var paymentId = '';
+    var payerId = '';
+    var cancel = '';
+    var bookingId = '';
+    this._route.queryParams.subscribe(params => {
+      paymentId = params['paymentId'];
+      payerId = params['PayerID'];
+      cancel = params['cancel'];
+      bookingId = params['bookingId']
+    })
+   
+    if (paymentId !== undefined && payerId !== undefined) {
+      this.blockedDocument = true;
+      this.bookingService.completePayment(paymentId, payerId).subscribe({
+        next: (resp: any) => {
+          if (resp.meta.code === 200) {
+            this._router.navigate(['/booking/' + resp.data])
+          }
+        },
+        error: (err) => {
+          console.log(err);
+        }
+      });
+    }
+
+    if (cancel === 'true' && bookingId !== undefined) {
+      this.blockedDocument = true;
+      this.bookingService.cancelPayment(bookingId).subscribe({
+        next: (resp: any) => {
+          if (resp.meta.code === 200) {
+            this._router.navigate(['/booking/' + resp.data])
+          }
+        },
+        error: (err) => {
+          console.log(err);
+        }
+      });
+    }
+
     const request = {
       pageNo: 1,
       pageSize: 10,

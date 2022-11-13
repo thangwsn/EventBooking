@@ -20,7 +20,7 @@ export class BookingUserService {
     private displayBookingListSubject: BehaviorSubject<BookingGet[]> = new BehaviorSubject<BookingGet[]>([]);
     bookingList$: Observable<BookingGet[]> = this.displayBookingListSubject.asObservable();
 
-    private bookingDetail!: BookingDetail;
+    bookingDetail!: BookingDetail;
     private displayBookingDetailSubject: BehaviorSubject<BookingDetail> = new BehaviorSubject<BookingDetail>(new BookingDetail(0, '', 0, '', '', '', 0, '', 0, [], '', new Payment(0, '', '', 0), [], {}, 0));
     bookingDetail$: Observable<BookingDetail> = this.displayBookingDetailSubject.asObservable();
 
@@ -78,6 +78,11 @@ export class BookingUserService {
 
     cancelBooking(bookingId: number): Observable<any> {
         return this.http.get(`${BASE_API}/cancel-booking?bookingId=${bookingId}`, this.getHeader());
+    }
+
+    updateStatus(status: string) {
+        this.bookingDetail.statusString = status;
+        this.updateBookingDetail();
     }
 
     private updateBookingList() {

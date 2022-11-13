@@ -48,7 +48,8 @@ export class Ticket {
         public eventTitle: string,
         public startTime: number,
         public locationString: string,
-        public ticketCatalogTitle: string
+        public ticketCatalogTitle: string,
+        public qrcode: string
     ) {}
 }
 

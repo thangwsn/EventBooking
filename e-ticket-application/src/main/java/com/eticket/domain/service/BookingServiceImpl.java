@@ -10,6 +10,7 @@ import com.eticket.domain.entity.quartz.ScheduleJob;
 import com.eticket.domain.entity.quartz.ScheduleJobType;
 import com.eticket.domain.repo.*;
 import com.eticket.infrastructure.kafka.producer.KafkaSendService;
+import com.eticket.infrastructure.mail.MailService;
 import com.eticket.infrastructure.mapper.BookingMap;
 import com.eticket.infrastructure.mapper.TicketMap;
 import com.eticket.infrastructure.quartz.model.ScheduleRequest;
@@ -66,6 +67,10 @@ public class BookingServiceImpl implements BookingService {
     private ScheduleService scheduleService;
     @Autowired
     private JpaScheduleJobRepository scheduleJobRepository;
+    @Autowired
+    private FileStorageService fileStorageService;
+    @Autowired
+    private MailService mailService;
 
     @Override
     @KafkaListener(groupId = Constants.groupId, topics = Constants.BOOKING_HANDLER_TOPIC)
@@ -107,15 +112,18 @@ public class BookingServiceImpl implements BookingService {
                 bookingCreateResponse.setListTicketCode(listTicketCode);
             }
             bookingCreateResponse.setTicketNum(getBookingQuantity(bookingCreateRequest.getListItem()));
+            // send mail
+            if (event.getType().equals(EventType.FREE)) {
+                mailService.sendMailAttachment(user.getUsername(), user.getEmail(), booking.getListTicket());
+            }
         } else {
             bookingCreateResponse.setStatus(BookingStatus.REJECT);
             bookingCreateResponse.setMessage("Some of item are full");
         }
         kafkaSendService.reactorSend(Constants.BOOKING_RESPONSE_TOPIC, bookingCreateResponse, bookingCreateResponse.getBookingCode());
-
     }
 
-    @Transactional(rollbackFor = {Exception.class})
+    @Transactional(rollbackFor = {Exception.class, Throwable.class})
     Booking saveBooking(BookingCreateRequest bookingCreateRequest, EventType eventType, Event event, User user) {
         double amount = 0.0;
         Booking booking = new Booking();
@@ -146,6 +154,11 @@ public class BookingServiceImpl implements BookingService {
             ticket.setUser(user);
             ticket.setStatus(TicketStatus.RESERVED);
             ticket.setSoldTime(Utils.convertToTimeStamp(new Date().getTime()));
+        }
+        if (event.getType().equals(EventType.FREE)) {
+            for (Ticket ticket : listTicket) {
+                ticket.setQRcode(fileStorageService.generateQRCode(ticket));
+            }
         }
         booking.setEvent(event);
         booking = bookingRepository.save(booking);
@@ -206,6 +219,11 @@ public class BookingServiceImpl implements BookingService {
                 ticket.setSoldTime(null);
                 ticket.setQRcode(null);
                 ticket.setStatus(TicketStatus.AVAILABLE);
+                String QRCodePath = ticket.getQRcode();
+                if (QRCodePath != null) {
+                    ticket.setQRcode(null);
+                    fileStorageService.removeQRCode(QRCodePath);
+                }
             }
             booking.setListTicket(ticketList);
             //update ticket catalog
@@ -229,6 +247,8 @@ public class BookingServiceImpl implements BookingService {
             booking.setEvent(event);
             bookingRepository.save(booking);
             ticketRepository.saveAll(ticketList);
+            // remove ticket qr
+// coding
             // quartz schedule: cancel booking timeout job in CHARGE EVENT case
             if (event.getType().equals(EventType.FREE)) {
                 return;

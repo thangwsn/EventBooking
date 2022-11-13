@@ -1,0 +1,14 @@
+<main>
+   <div class="bg-holder overlay overlay-light" style="background-image:url(assets/img/header-bg.png);background-size:cover;background-repeat: repeat;"></div>
+    <div class="container">
+      <div class="d-flex justify-content-center py-4"> <a routerLink="/" class="d-flex align-items-center w-auto"> <img src="assets/img/logo.png" alt=""></a></div>
+       <section class="section error-404 min-vh-100 d-flex flex-column align-items-center justify-content-center">
+          <h2>{{content}} This is content</h2>
+          <button *ngIf="!backRegisterBtn" pButton pRipple type="button" label="Login" class="p-button-rounded" routerLink="/login" icon="pi pi-arrow-circle-right"></button>
+          <button *ngIf="backRegisterBtn" pButton pRipple type="button" label="Register" class="p-button-rounded" routerLink="/register" icon="pi pi-arrow-circle-left"></button>  
+          <img src="assets/img/not-found.svg" class="img-fluid py-5" alt="Page Not Found">
+          <div class="credits">Copyright <a href="https://freeetemplates.com/">E Ticket Ltc.</a></div>
+       </section>
+    </div>
+    <p-toast position="bottom-center" key="bc"></p-toast>
+ </main>

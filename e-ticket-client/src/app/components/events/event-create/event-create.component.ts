@@ -2,17 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { EventService } from 'src/app/services/event.service';
 
-import { Notifications, setOptions } from '@mobiscroll/angular';
 import { EventCreateRequest, LocationDTO } from 'src/app/model/event.model';
 import { Router } from '@angular/router';
 import { TimeConvert } from 'src/app/utils/time-convert';
 import { OrganizerService } from 'src/app/services/organizer.service';
 import { NoWhitespaceValidator } from 'src/app/utils/no-whitespace.validator';
 
-setOptions({
-  theme: 'windows',
-  themeVariant: 'light'
-});
 
 @Component({
   selector: 'app-event-create',
@@ -26,7 +21,7 @@ export class EventCreateComponent implements OnInit {
 
   selectedFiles!: FileList;
 
-  constructor(private eventService: EventService, private organizerService: OrganizerService, private fb: FormBuilder, private _router: Router, private notify: Notifications) { }
+  constructor(private eventService: EventService, private organizerService: OrganizerService, private fb: FormBuilder, private _router: Router) { }
 
   ngOnInit(): void {
     this.listEventType = this.eventService.getListEventType().subscribe({
@@ -99,29 +94,29 @@ export class EventCreateComponent implements OnInit {
     this.eventService.createEvent(eventCreateRequest, this.selectedFiles).subscribe({
       next: (response: any) => {
         if (response.meta.code == 200) {
-          this.notify.toast({
-            message: 'Create event successfully!',
-            color: 'success',
-            duration: 3000,
-            display: 'bottom'
-          });
+          // this.notify.toast({
+          //   message: 'Create event successfully!',
+          //   color: 'success',
+          //   duration: 3000,
+          //   display: 'bottom'
+          // });
           this._router.navigate(["admin/events"]);
         } else {
-          this.notify.toast({
-            message: 'Create event failure!',
-            color: 'warning',
-            duration: 3000,
-            display: 'bottom'
-          });
+          // this.notify.toast({
+          //   message: 'Create event failure!',
+          //   color: 'warning',
+          //   duration: 3000,
+          //   display: 'bottom'
+          // });
         }
       },
       error: (resp) => {
-        this.notify.toast({
-          message: 'Create event failure!',
-          color: 'warning',
-          duration: 3000,
-          display: 'bottom'
-        });
+        // this.notify.toast({
+        //   message: 'Create event failure!',
+        //   color: 'warning',
+        //   duration: 3000,
+        //   display: 'bottom'
+        // });
       }
     })
   }

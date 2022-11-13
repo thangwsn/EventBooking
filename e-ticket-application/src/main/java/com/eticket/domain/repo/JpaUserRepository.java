@@ -11,8 +11,10 @@ import java.util.Optional;
 public interface JpaUserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByUsernameAndEmailAndRemovedFalse(String username, String email);
 
-    @Query(nativeQuery = true, value = "SELECT u.userCode FROM User u ORDER BY u.userCode DESC LIMIT 1")
+    @Query(nativeQuery = true, value = "SELECT users.user_code FROM users WHERE user_code IS NOT NULL ORDER BY user_code DESC LIMIT 1")
     Optional<String> latestUserCode();
 
     Optional<User> findByUsernameAndRemovedFalse(String username);
+
+    Optional<User> findByIdAndActiveCode(Integer userId, String activeCode);
 }

@@ -1,6 +1,7 @@
 package com.eticket.infrastructure.mapper;
 
 import com.eticket.application.api.dto.booking.TicketGetResponse;
+import com.eticket.application.api.dto.booking.TicketInfomation;
 import com.eticket.domain.entity.event.Ticket;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,5 +20,17 @@ public class TicketMap {
         ticketGetResponse.setStartTime(ticket.getEvent().getStartTime().getTime());
         ticketGetResponse.setLocationString(ticket.getEvent().locationToString());
         return ticketGetResponse;
+    }
+
+    public TicketInfomation toTicketInfomation(Ticket ticket) {
+        return TicketInfomation.builder()
+                .code(ticket.getCode())
+                .catalog(ticket.getTicketCatalog().getTitle())
+                .price(ticket.getPrice())
+                .eventId(ticket.getEvent().getId())
+                .eventTitle(ticket.getEvent().getTitle())
+                .fullName(ticket.getBooking().getFullName())
+                .bookAt(ticket.getSoldTime())
+                .build();
     }
 }

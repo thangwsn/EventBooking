@@ -7,6 +7,7 @@ import com.eticket.domain.repo.JpaAccountRepository;
 import com.eticket.domain.repo.JpaEmployeeRepository;
 import com.eticket.domain.repo.JpaUserRepository;
 import com.eticket.infrastructure.kafka.producer.KafkaSendService;
+import com.eticket.infrastructure.mail.MailService;
 import com.eticket.infrastructure.security.jwt.EncryptionUtil;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
 import com.eticket.infrastructure.security.service.JwtUserDetailsService;
@@ -50,6 +51,8 @@ public class AccountServiceImpl implements AccountService {
     private ModelMapper modelMapper;
     @Autowired
     private JwtUserDetailsService userDetailService;
+    @Autowired
+    private MailService mailService;
 
     @Override
     public LoginResponse authenticate(LoginRequest loginRequest) throws Exception {
@@ -94,25 +97,24 @@ public class AccountServiceImpl implements AccountService {
             user.setRole(Role.USER);
             user.setAmountReserved(0.0);
             // save db
-            userRepository.saveAndFlush(user);
-            // send verify mail
-
+            user = userRepository.saveAndFlush(user);
+            // async send verify mail
+            mailService.sendVerificationMail(user.getId(), user.getUsername(), user.getEmail(), user.getActiveCode());
         }
         return violationList;
     }
 
     @Override
-    public boolean verifyActiveCode(VerifyCodeRequest verifyCodeRequest) {
-        boolean accept = accountRepository.existsAccountByUsernameAndEmailAndActiveCode(verifyCodeRequest.getUsername(), verifyCodeRequest.getEmail(), verifyCodeRequest.getActiveCode());
-        if (accept) {
-            User user = userRepository.findByUsernameAndEmailAndRemovedFalse(verifyCodeRequest.getUsername(), verifyCodeRequest.getEmail())
-                    .orElseThrow(() -> new RuntimeException(String.format("User not found by username %s and email %s", verifyCodeRequest.getUsername(), verifyCodeRequest.getEmail())));
-            user.setRemoved(false);
-            user.setUserCode(sequenceUserCode());
-            // save db
-            userRepository.saveAndFlush(user);
+    public boolean verifyActiveCode(Integer userId, String code) {
+        User user = userRepository.findByIdAndActiveCode(userId, code).orElse(null);
+        if (user == null) {
+            return false;
         }
-        return accept;
+        user.setRemoved(false);
+        user.setActiveCode(null);
+        user.setUserCode(sequenceUserCode());
+        userRepository.save(user);
+        return true;
     }
 
     @Override
@@ -163,7 +165,7 @@ public class AccountServiceImpl implements AccountService {
 
     private String sequenceUserCode() {
         String latestUserCode = userRepository.latestUserCode().orElse("USER000000");
-        return new StringBuffer().append(latestUserCode.substring(0, 3))
+        return new StringBuffer().append(latestUserCode.substring(0, 4))
                 .append(String.format("%06d", Integer.parseInt(latestUserCode.substring(4)) + 1))
                 .toString();
     }

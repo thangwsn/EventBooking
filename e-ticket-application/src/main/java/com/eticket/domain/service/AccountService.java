@@ -10,7 +10,7 @@ public interface AccountService {
 
     List<FieldViolation> registerUser(UserSignUpRequest userSignUpRequest);
 
-    boolean verifyActiveCode(VerifyCodeRequest verifyCodeRequest);
+    boolean verifyActiveCode(Integer userId, String code);
 
     List<FieldViolation> registerEmployee(EmployeeSignUpRequest employeeSignUpRequest);
 
