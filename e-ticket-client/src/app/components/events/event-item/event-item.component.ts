@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { EventGet } from 'app/model/event.model';
 import { Constants } from 'app/utils/constants';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-event-item',
@@ -9,7 +10,7 @@ import { Constants } from 'app/utils/constants';
 })
 export class EventItemComponent implements OnInit {
   @Input() event!: EventGet;
-  BASE_API = Constants.HOST;
+  BASE_API = environment.host;
 
   constructor() { }
 

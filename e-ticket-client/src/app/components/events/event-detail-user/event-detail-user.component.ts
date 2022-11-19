@@ -9,6 +9,7 @@ import { TokenStorageService } from 'app/services/token-storage.service';
 import { Constants } from 'app/utils/constants';
 import { TicketCatalogItemComponent } from '../ticket-catalog-item/ticket-catalog-item.component';
 import { EventWebSocketAPI } from 'app/websocket/EventWebSocketAPI';
+import { environment } from 'environments/environment';
 
 
 @Component({
@@ -19,7 +20,7 @@ import { EventWebSocketAPI } from 'app/websocket/EventWebSocketAPI';
 export class EventDetailUserComponent implements OnInit {
   @ViewChildren(TicketCatalogItemComponent) selectTicketList!: QueryList<TicketCatalogItemComponent>;
 
-  BASE_API = Constants.HOST;
+  BASE_API = environment.host;
   followClass: string = 'bi bi-heart text-danger';
   eventId!: number;
   event$: Observable<EventDetail> = new Observable<EventDetail>();
@@ -52,7 +53,6 @@ export class EventDetailUserComponent implements OnInit {
 
   ngOnDestroy(): void {
     this.eventWebSocketAPI._disconnect();
-    
   }
 
   booking() {

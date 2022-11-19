@@ -1,5 +1,4 @@
 export class Constants {
-    static HOST= 'http://localhost:8080'
 
     static EVENT_STATUS_CREATED = 'CREATED';
     static EVENT_STATUS_OPEN = 'OPEN';

@@ -4,8 +4,9 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from "@angular/core";
 import { AccountInfo, UserLoginRequest, UserSignUpRequest } from "../model/account.model";
 import { TokenStorageService } from "./token-storage.service";
+import { environment } from 'environments/environment';
 
-const BASE_API = Constants.HOST + "/api";
+const BASE_API = environment.host + "/api";
 
 const httpOptions = {
   headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' })

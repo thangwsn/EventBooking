@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Ticket } from 'app/model/booking.model';
-import { Constants } from 'app/utils/constants';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-ticket-detail',
@@ -11,7 +11,7 @@ export class TicketDetailComponent implements OnInit {
   @Input() ticket!: Ticket;
   @Input() bookingStatus!: string;
 
-  BASE_API = Constants.HOST
+  BASE_API = environment.host;
   constructor() { }
 
   ngOnInit(): void {

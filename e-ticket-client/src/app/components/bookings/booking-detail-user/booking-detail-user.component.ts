@@ -7,6 +7,7 @@ import { Observable } from 'rxjs';
 import { BookingDetail } from 'app/model/booking.model';
 import { BookingUserService } from 'app/services/booking-user.service';
 import { Constants } from 'app/utils/constants';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-booking-detail-user',
@@ -18,7 +19,7 @@ export class BookingDetailUserComponent implements OnInit {
   @ViewChild('amount') amountElement!: ElementRef;
   bookingId!: number;
   bookingDetail$: Observable<BookingDetail> = new Observable<BookingDetail>();
-  BASE_API = Constants.HOST;
+  BASE_API = environment.host;
   placePaymentForm: any = new FormGroup({});
   blockedDocument: boolean = false;
 

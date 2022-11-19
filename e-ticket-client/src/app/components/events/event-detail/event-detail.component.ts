@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { ConfirmationService, Message, MessageService, PrimeNGConfig } from 'primeng/api';
 import { EventDetail } from 'app/model/event.model';
 import { EventService } from 'app/services/event.service';
 import { Constants } from 'app/utils/constants';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-event-detail',
@@ -14,15 +15,17 @@ import { Constants } from 'app/utils/constants';
   providers: [ConfirmationService, MessageService]
 })
 export class EventDetailComponent implements OnInit {
-  BASE_API = Constants.HOST
+  BASE_API = environment.host;
   event$: Observable<EventDetail> = new Observable<EventDetail>();
   eventStatusList$: Observable<string[]> = new Observable<string[]>();
   eventId!: number;
   changeStatusForm: any = new FormGroup({})
   hiddenAddCatalog: boolean = false;
   hiddenEditCatalog: boolean = false;
+  blockedDocument: boolean = false;
 
   constructor(private _route: ActivatedRoute,
+    private _router: Router,
     private eventService: EventService,
     private fb: FormBuilder,
     private confirmationService: ConfirmationService,
@@ -137,12 +140,26 @@ export class EventDetailComponent implements OnInit {
         this.handleRemove(event.id)
       },
       reject: () => {
-        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Cancel removing!' });
+        this.messageService.add({ severity: 'info', summary: 'Cancel', detail: 'Cancel removing!' });
       }
     });
   }
 
   private handleRemove(eventId: number) {
-    // coding here
+    this.blockedDocument = true;
+    this.eventService.removeEvent(eventId).subscribe({
+      next: (resp: any) => {
+        if (resp.meta.code == 200) {
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Remove successfully!' });
+          setTimeout(() => {
+            this._router.navigate(["admin/events"]);
+          }, 500)
+        }
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'warning', summary: 'Error', detail: 'Remove failure!' });
+        this.blockedDocument = false;
+      }
+    })
   }
 }

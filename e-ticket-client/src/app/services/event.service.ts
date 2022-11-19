@@ -6,8 +6,9 @@ import { OrganizerGet } from "../model/organizer.model";
 import { Constants } from "../utils/constants";
 import { ConvertToDate } from "../utils/time-convert";
 import { TokenStorageService } from "./token-storage.service";
+import { environment } from 'environments/environment';
 
-const BASE_API_ADMIN = Constants.HOST + "/api/emp/event";
+const BASE_API_ADMIN = environment.host + "/api/emp/event";
 
 @Injectable({
     providedIn: 'root'
@@ -114,6 +115,10 @@ export class EventService {
             },
         });
         return subject.asObservable();
+    }
+
+    removeEvent(eventId: any): Observable<any> {
+        return this.http.delete(`${BASE_API_ADMIN}/${eventId}`, this.getHeader());
     }
 
     private updateEventListData() {

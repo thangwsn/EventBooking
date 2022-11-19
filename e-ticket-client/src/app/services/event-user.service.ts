@@ -6,8 +6,9 @@ import { OrganizerGet } from "../model/organizer.model";
 import { Constants } from "../utils/constants";
 import { ConvertToDate } from "../utils/time-convert";
 import { TokenStorageService } from "./token-storage.service";
+import { environment } from 'environments/environment';
 
-const BASE_API = Constants.HOST + "/api/event";
+const BASE_API = environment.host + "/api/event";
 
 @Injectable({
     providedIn: 'root'

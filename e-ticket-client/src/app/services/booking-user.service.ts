@@ -1,13 +1,12 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { BehaviorSubject, Observable, VirtualTimeScheduler } from "rxjs";
+import { BehaviorSubject, Observable } from "rxjs";
 import { BookingCreateRequest, BookingDetail, BookingGet, Payment } from "../model/booking.model";
-import { EventGet } from "../model/event.model";
-import { Constants } from "../utils/constants";
 import { ConvertToDate } from "../utils/time-convert";
 import { TokenStorageService } from "./token-storage.service";
+import { environment } from 'environments/environment';
 
-const BASE_API = Constants.HOST + "/api/booking";
+const BASE_API = environment.host + "/api/booking";
 
 @Injectable({
     providedIn: 'root'

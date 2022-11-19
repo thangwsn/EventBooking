@@ -4,15 +4,9 @@ import { BehaviorSubject, Observable } from "rxjs";
 import { OrganizerCreateRequest, OrganizerGet } from "../model/organizer.model";
 import { Constants } from "../utils/constants";
 import { TokenStorageService } from "./token-storage.service";
+import { environment } from 'environments/environment';
 
-const BASE_API = Constants.HOST + "/api/organizer";
-
-// const httpOptions = {
-//     headers: new HttpHeaders({
-//         'Content-Type': 'application/json',
-//         'Access-Control-Allow-Origin': '*'
-//     })
-// };
+const BASE_API = environment.host + "/api/organizer";
 
 @Injectable({
     providedIn: "root"
