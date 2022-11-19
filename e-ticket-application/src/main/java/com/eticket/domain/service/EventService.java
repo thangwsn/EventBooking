@@ -28,5 +28,6 @@ public interface EventService {
 
     void changeEventStatus(ChangeEventStatusRequest changeEventStatusRequest);
 
+    List<EventWebSocketDto> getAllEventForWS();
 
 }

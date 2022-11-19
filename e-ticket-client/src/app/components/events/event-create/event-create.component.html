@@ -1,4 +1,6 @@
+<p-toast position="top-right"></p-toast>
 <main id="main" class="main">
+  <p-blockUI [blocked]="blockedDocument"></p-blockUI>
   <div class="pagetitle">
     <h1>Events</h1>
     <nav>
@@ -25,50 +27,28 @@
             </div>
           </div>
           <div class="col-md-5">
-            <fieldset class="row">
-              <legend class="col-form-label col-sm-4 pt-0">Event Type</legend>
-              <div class="col-sm-8">
-                <div class="form-check" *ngFor="let type of listEventType">
-                  <input
-                    class="form-check-input"
-                    type="radio"
-                    formControlName="typeString"
-                    id="gridRadios1"
-                    [value]="type"
-                  />
-                  <label class="form-check-label" for="gridRadios1">
-                    {{ type | titlecase }}
-                  </label>
-                </div>
-              </div>
-            </fieldset>
+            <label>Event Type</label>
+            <p-selectButton
+              [options]="listEventType"
+              formControlName="typeString"
+            ></p-selectButton>
           </div>
         </div>
-        <div class="row" style="padding-right: 0">
-          <div class="col-md-5">
-            <div class="form-floating">
-              <textarea
-                class="form-control"
-                id="floatingTextarea"
-                style="height: 100px"
-                formControlName="summary"
-              ></textarea
-              ><label for="floatingTextarea">Summary</label>
-            </div>
-          </div>
-          <div class="col-md-7" style="padding-right: 0">
-            <div class="form-floating">
-              <textarea
-                class="form-control"
-                id="floatingTextarea"
-                style="height: 100px"
-                formControlName="description"
-              ></textarea
-              ><label for="floatingTextarea">Description</label>
-            </div>
-          </div>
+        <div class="row">
+          <label>Summary</label>
+          <p-editor
+            formControlName="summary"
+            [style]="{ height: '100px' }"
+          ></p-editor>
         </div>
-        <div class="col-md-12">
+        <div class="row mt-2">
+          <label>Description</label>
+          <p-editor
+            formControlName="description"
+            [style]="{ height: '200px' }"
+          ></p-editor>
+        </div>
+        <div class="row mt-5">
           <div class="form-floating">
             <input
               type="text"
@@ -79,153 +59,111 @@
             <label for="floatingName">Tags</label>
           </div>
         </div>
-        <div class="col-12">
-          <div class="form-floating">
-            <textarea
-              class="form-control"
-              id="floatingTextarea"
-              style="height: 100px"
-              formControlName="street"
-            ></textarea
-            ><label for="floatingTextarea">Address</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating">
-            <input
-              type="text"
-              class="form-control"
-              id="floatingEmail"
-              formControlName="ward"
-            />
-            <label for="floatingEmail">Ward</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating">
-            <input
-              type="text"
-              class="form-control"
-              id="floatingEmail"
-              formControlName="district"
-            />
-            <label for="floatingEmail">District</label>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <div class="form-floating">
-            <input
-              type="text"
-              class="form-control"
-              id="floatingEmail"
-              formControlName="city"
-            />
-            <label for="floatingEmail">City</label>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="row">
-            <label class="col-sm-2 col-form-label">Organizer</label>
-            <div class="col-sm-6">
-              <select
-                class="form-select"
-                aria-label="Default select example"
-                formControlName="organizerId"
-              >
-                <option  *ngFor="let organizer of listOrganizer" [value]="organizer.id">{{ organizer.name }}</option>
-              </select>
-            </div>
-            <div class="col-sm-4">
-              <div class="form-floating">
-                <input
-                  type="number"
-                  class="form-control"
-                  id="floatingMobile"
-                  formControlName="totalSlot"
-                />
-                <label for="floatingMobile">Total Slot</label>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-12">
-          <div class="row">
-            <label for="inputDate" class="col-sm-2 col-form-label"
-              >Start Time</label
-            >
-            <div class="col-sm-3">
+
+        <div class="row mt-4">
+          <div class="col-md-3">
+            <span class="p-float-label">
               <input
-                type="date"
-                class="form-control"
-                formControlName="startTime_date"
+                id="float-input"
+                type="text"
+                pInputText
+                formControlName="street"
               />
-            </div>
-            <div class="col-sm-3">
+              <label for="float-input">Address</label>
+            </span>
+          </div>
+          <div class="col-md-3">
+            <span class="p-float-label">
               <input
-                type="time"
-                class="form-control"
-                formControlName="startTime_time"
+                id="float-input"
+                type="text"
+                pInputText
+                formControlName="ward"
               />
-            </div>
-            <div class="col-sm-4">
-              <div class="form-floating">
-                <input
-                  type="number"
-                  class="form-control"
-                  id="floatingMobile"
-                  formControlName="duration"
-                />
-                <label for="floatingMobile">Duration</label>
-              </div>
-            </div>
+              <label for="float-input">Ward</label>
+            </span>
+          </div>
+          <div class="col-md-3">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                formControlName="district"
+              />
+              <label for="float-input">District</label>
+            </span>
+          </div>
+          <div class="col-md-3">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                formControlName="city"
+              />
+              <label for="float-input">City</label>
+            </span>
           </div>
         </div>
 
-        <div class="col-md-12">
-          <div class="row">
-            <label for="inputDate" class="col-sm-2 col-form-label"
-              >Launch Time</label
-            >
-            <div class="col-sm-3">
-              <input
-                type="date"
-                class="form-control"
-                formControlName="launchTime_date"
-              />
-            </div>
-            <div class="col-sm-3">
-              <input
-                type="time"
-                class="form-control"
-                formControlName="launchTime_time"
-              />
-            </div>
+        <div class="row mt-2">
+          <div class="col-sm-6">
+            <label>Organizer</label><br />
+            <p-dropdown
+              [options]="listOrganizer"
+              formControlName="organizerId"
+              placeholder="Select a organizer"
+              optionLabel="name"
+              optionValue="id"
+              [showClear]="true"
+            ></p-dropdown>
+          </div>
+          <div class="col-sm-4">
+            <label>Total Slot</label><br />
+            <p-inputNumber
+              formControlName="totalSlot"
+              mode="decimal"
+            ></p-inputNumber>
           </div>
         </div>
 
-        <div class="col-md-12">
-          <div class="row">
-            <label for="inputDate" class="col-sm-2 col-form-label"
-              >Close Time</label
-            >
-            <div class="col-sm-3">
-              <input
-                type="date"
-                class="form-control"
-                formControlName="closeTime_date"
-              />
-            </div>
-            <div class="col-sm-3">
-              <input
-                type="time"
-                class="form-control"
-                formControlName="closeTime_time"
-              />
-            </div>
+        <div class="row mt-2">
+          <div class="col-sm-3">
+            <label for="time">Start Time</label><br />
+            <p-calendar
+              formControlName="startTime"
+              [showTime]="true"
+              inputId="time"
+            ></p-calendar>
+          </div>
+          <div class="col-sm-3">
+            <label>Duration</label><br />
+            <p-inputNumber
+              formControlName="duration"
+              mode="decimal"
+              [minFractionDigits]="2"
+              [maxFractionDigits]="2"
+            ></p-inputNumber>
+          </div>
+          <div class="col-sm-3">
+            <label for="time">Launch Time</label><br />
+            <p-calendar
+              formControlName="launchTime"
+              [showTime]="true"
+              inputId="time"
+            ></p-calendar>
+          </div>
+          <div class="col-sm-3">
+            <label for="time">Close Time</label><br />
+            <p-calendar
+              formControlName="closeTime"
+              [showTime]="true"
+              inputId="time"
+            ></p-calendar>
           </div>
         </div>
-
-        <div class="col-md-12">
+        <div class="row mt-2">
           <div class="form-floating">
             <input
               type="text"
@@ -236,21 +174,26 @@
             <label for="floatingName">Video Link</label>
           </div>
         </div>
-        <div class="col-12">
-          <div class="row">
-            <label for="inputNumber" class="col-sm-2 col-form-label"
-              >Images</label
-            >
-            <div class="col-sm-10">
-              <input
-                class="form-control"
-                type="file"
-                multiple
-                id="formFile"
-                (change)="selectFiles($event)"
-              />
-            </div>
-          </div>
+
+        <div class="row">
+          <label>Images</label>
+          <p-fileUpload
+            [showUploadButton]="false"
+            [chooseLabel]="' '"
+            [cancelLabel]="' '"
+            (onSelect)="selectFiles($event)"
+            [multiple]="true"
+            accept="image/*"
+            [maxFileSize]="1000000"
+          >
+            <ng-template pTemplate="content">
+              <ul *ngIf="selectedFileArr.length">
+                <li *ngFor="let file; in: selectedFileArr">
+                  {{ file.name }} - {{ file.size }} bytes
+                </li>
+              </ul>
+            </ng-template>
+          </p-fileUpload>
         </div>
 
         <div class="text-center">

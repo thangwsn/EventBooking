@@ -22,4 +22,6 @@ public interface JpaEventRepository extends JpaRepository<Event, Integer> {
     List<Event> findByRemovedFalseAndStatus(EventStatus status, Pageable pageable);
 
     List<Event> findByRemovedFalseAndStatusAndTypeOrderByStartTimeAsc(Event status, String type, Pageable pageable);
+
+    List<Event> findByRemovedFalseAndStatusIsNot(EventStatus status);
 }

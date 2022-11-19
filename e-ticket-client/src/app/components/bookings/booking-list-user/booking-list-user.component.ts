@@ -2,9 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PrimeNGConfig } from 'primeng/api';
 import { Observable } from 'rxjs';
-import { BookingGet } from 'src/app/model/booking.model';
-import { BookingUserService } from 'src/app/services/booking-user.service';
-import { Constants } from 'src/app/utils/constants';
+import { BookingGet } from 'app/model/booking.model';
+import { BookingUserService } from 'app/services/booking-user.service';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-booking-list-user',

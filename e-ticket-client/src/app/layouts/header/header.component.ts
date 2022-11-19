@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common'
-import { TokenStorageService } from 'src/app/services/token-storage.service';
+import { TokenStorageService } from 'app/services/token-storage.service';
 import { Router } from '@angular/router';
 
 @Component({

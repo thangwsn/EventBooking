@@ -5,12 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { PrimeNGConfig } from 'primeng/api';
 import { Observable } from 'rxjs';
-import { AccountInfo } from 'src/app/model/account.model';
-import { BookingCreateRequest, ItemCreateRequest } from 'src/app/model/booking.model';
-import { AccountService } from 'src/app/services/account.service';
-import { BookingUserService } from 'src/app/services/booking-user.service';
-import { Constants } from 'src/app/utils/constants';
-import { NoWhitespaceValidator } from 'src/app/utils/no-whitespace.validator';
+import { AccountInfo } from 'app/model/account.model';
+import { BookingCreateRequest, ItemCreateRequest } from 'app/model/booking.model';
+import { AccountService } from 'app/services/account.service';
+import { BookingUserService } from 'app/services/booking-user.service';
+import { Constants } from 'app/utils/constants';
+import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 
 @Component({
   selector: 'app-checkout',

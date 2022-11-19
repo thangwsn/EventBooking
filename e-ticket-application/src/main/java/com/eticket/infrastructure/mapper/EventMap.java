@@ -1,9 +1,6 @@
 package com.eticket.infrastructure.mapper;
 
-import com.eticket.application.api.dto.event.EventDetailGetResponse;
-import com.eticket.application.api.dto.event.EventGetResponse;
-import com.eticket.application.api.dto.event.OrganizerGetResponse;
-import com.eticket.application.api.dto.event.TicketCatalogGetResponse;
+import com.eticket.application.api.dto.event.*;
 import com.eticket.domain.entity.event.Event;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,5 +50,16 @@ public class EventMap {
         eventDetailGetResponse.setFollowed(false);
         eventDetailGetResponse.setDisableBooking(false);
         return eventDetailGetResponse;
+    }
+
+    public EventWebSocketDto toEventWebSocketDto(Event event, int followNum) {
+        EventWebSocketDto eventWebSocketDto = modelMapper.map(event, EventWebSocketDto.class);
+        eventWebSocketDto.setStatusString(event.getStatus().name());
+        List<TicketCatalogGetResponse> catalogGetResponseList = event.getTicketCatalogList()
+                .stream().map(ticketCatalog -> modelMapper.map(ticketCatalog, TicketCatalogGetResponse.class))
+                .collect(Collectors.toList());
+        eventWebSocketDto.setTicketCatalogList(catalogGetResponseList);
+        eventWebSocketDto.setFollowerNum(followNum);
+        return eventWebSocketDto;
     }
 }

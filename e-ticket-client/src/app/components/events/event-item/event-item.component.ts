@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { EventGet } from 'src/app/model/event.model';
-import { Constants } from 'src/app/utils/constants';
+import { EventGet } from 'app/model/event.model';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-event-item',

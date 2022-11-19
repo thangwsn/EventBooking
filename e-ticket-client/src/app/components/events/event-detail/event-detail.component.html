@@ -25,7 +25,7 @@
               <i class="bi bi-clock"></i>
               <h3>Time</h3>
               <p>
-                {{ event.startTime | date: 'medium' }}<br />Duration
+                {{ event.startTime | date: "medium" }}<br />Duration
                 {{ event.duration }} hour<span *ngIf="event.duration >= 1"
                   >s</span
                 >
@@ -87,57 +87,52 @@
                 </h5>
               </div>
               <div class="col-sm-4 d-flex justify-content-end">
-                <button
+                <p-button
                   type="button"
-                  class="btn btn-warning"
+                  styleClass="p-button-warning"
+                  label="Edit"
                   [disabled]="
                     event.statusString === 'LIVE' ||
                     event.statusString === 'FINISH'
                   "
-                >
-                  Edit Event
-                </button>
+                ></p-button>
               </div>
               <div class="col-sm-4 d-flex justify-content-end">
-                <button
+                <p-button
                   type="button"
-                  class="btn btn-danger"
+                  styleClass="p-button-danger"
                   [disabled]="event.statusString !== 'CREATED'"
-                >
-                  Remove Event
-                </button>
+                  label="Remove"
+                  (click)="openRemoveConfirm(event)"
+                ></p-button>
               </div>
             </div>
 
             <form
               class="row mb-3"
+              *ngIf="eventStatusList$ | async as eventStatusList"
               [formGroup]="changeStatusForm"
               (ngSubmit)="changeStatusForm.valid && changeStatus()"
             >
               <div class="col-sm-7">
-                <select
-                  class="form-select"
-                  aria-label="Change this event status"
+                <p-dropdown
+                  [options]="eventStatusList"
                   formControlName="targetStatus"
-                >
-                  <option
-                    *ngFor="let status of eventStatusList$ | async"
-                    [value]="status"
-                  >
-                    {{ status | titlecase }}
-                  </option>
-                </select>
+                  placeholder="Select a organizer"
+                  optionLabel=""
+                  optionValue=""
+                  [showClear]="true"
+                ></p-dropdown>
               </div>
               <div class="col-sm-5 d-flex justify-content-end">
-                <button
+                <p-button
                   type="submit"
-                  class="btn btn-primary"
+                  styleClass="p-button-primary"
+                  label="Change Status"
                   [disabled]="
                     changeStatusForm.invalid || event.statusString === 'FINISH'
                   "
-                >
-                  Change Status
-                </button>
+                ></p-button>
               </div>
             </form>
             <br />
@@ -158,8 +153,11 @@
             <h6>Total ticket: {{ event.totalSlot }}</h6>
             <div class="accordion accordion-flush">
               <div
-                class="accordion-item" 
-                *ngFor="let ticketCatalog of event.ticketCatalogList; let i = index"
+                class="accordion-item"
+                *ngFor="
+                  let ticketCatalog of event.ticketCatalogList;
+                  let i = index
+                "
               >
                 <h2 class="accordion-header" id="flush-headingOne">
                   <button
@@ -170,22 +168,36 @@
                     aria-expanded="false"
                     aria-controls="flush-collapseOne"
                   >
-                  #{{i + 1}} &nbsp; &nbsp;{{ticketCatalog.title}}
+                    #{{ i + 1 }} &nbsp; &nbsp;{{ ticketCatalog.title }}
                   </button>
                 </h2>
                 <div
-                  id="catalog{{i + 1}}"
+                  id="catalog{{ i + 1 }}"
                   class="accordion-collapse collapse"
                   aria-labelledby="flush-headingOne"
                   data-bs-parent="#accordionFlushExample"
                 >
                   <div class="accordion-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item">{{ticketCatalog.slot}} slots</li>
-                        <li class="list-group-item">{{ticketCatalog.soldSlot}} sold ticket<span *ngIf="ticketCatalog.soldSlot > 1">s</span></li>
-                        <li class="list-group-item">{{ticketCatalog.remainSlot}} available ticket<span *ngIf="ticketCatalog.soldSlot > 1">s</span></li>
-                        <li class="list-group-item">{{ticketCatalog.price}} đ</li>
-                     </ul>
+                      <li class="list-group-item">
+                        {{ ticketCatalog.slot }} slots
+                      </li>
+                      <li class="list-group-item">
+                        {{ ticketCatalog.soldSlot }} sold ticket<span
+                          *ngIf="ticketCatalog.soldSlot > 1"
+                          >s</span
+                        >
+                      </li>
+                      <li class="list-group-item">
+                        {{ ticketCatalog.remainSlot }} available ticket<span
+                          *ngIf="ticketCatalog.soldSlot > 1"
+                          >s</span
+                        >
+                      </li>
+                      <li class="list-group-item">
+                        {{ ticketCatalog.price }} đ
+                      </li>
+                    </ul>
                   </div>
                 </div>
               </div>
@@ -199,14 +211,21 @@
       <div>
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title">{{event.title}}</h5>
-            <span><i class="bi bi-heart-fill"></i>&nbsp;{{event.followerNum}}</span>
+            <h5 class="card-title">{{ event.title }}</h5>
+            <span
+              ><i class="bi bi-heart-fill"></i>&nbsp;{{
+                event.followerNum
+              }}</span
+            >
             <div>
-                <span *ngFor="let tag of event.listTag" class="badge rounded-pill bg-light text-dark">
-                    {{tag}}
-                 </span>
+              <span
+                *ngFor="let tag of event.listTag"
+                class="badge rounded-pill bg-light text-dark"
+              >
+                {{ tag }}
+              </span>
             </div>
-            <p>{{event.summary}}</p>
+            <p [innerHTML]="event.summary"></p>
             <div
               id="carouselExampleFade"
               class="carousel slide carousel-fade"
@@ -214,15 +233,15 @@
             >
               <div class="carousel-inner">
                 <div
-                *ngFor="let image of event.imagePathList; let i = index"
-                [ngClass]="i === 0 ? 'carousel-item active' : 'carousel-item'"
-              >
-                <img
-                  [src]="BASE_API + image"
-                  class="d-block w-100"
-                  [alt]="event.title"
-                />
-              </div>
+                  *ngFor="let image of event.imagePathList; let i = index"
+                  [ngClass]="i === 0 ? 'carousel-item active' : 'carousel-item'"
+                >
+                  <img
+                    [src]="BASE_API + image"
+                    class="d-block w-100"
+                    [alt]="event.title"
+                  />
+                </div>
               </div>
               <button
                 class="carousel-control-prev"
@@ -251,7 +270,7 @@
             </div>
           </div>
           <div class="card-body">
-            <p class="card-text">{{event.description}}</p>
+            <p class="card-text" [innerHTML]="event.description"></p>
           </div>
         </div>
       </div>
@@ -260,5 +279,10 @@
       [eventId]="eventId"
       [eventType]="event.typeString"
     ></app-add-ticket-dialog>
+    <p-confirmDialog
+      [style]="{ width: '50vw' }"
+      [baseZIndex]="10000"
+    ></p-confirmDialog>
+    <p-toast></p-toast>
   </section>
 </main>

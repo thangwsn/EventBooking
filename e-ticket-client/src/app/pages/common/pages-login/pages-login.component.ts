@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Route, Router } from '@angular/router';
-import { UserLoginRequest } from 'src/app/model/account.model';
-import { AccountService } from 'src/app/services/account.service';
-import { TokenStorageService } from 'src/app/services/token-storage.service';
-import { NoWhitespaceValidator } from 'src/app/utils/no-whitespace.validator';
+import { UserLoginRequest } from 'app/model/account.model';
+import { AccountService } from 'app/services/account.service';
+import { TokenStorageService } from 'app/services/token-storage.service';
+import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 
 @Component({
   selector: 'app-pages-login',

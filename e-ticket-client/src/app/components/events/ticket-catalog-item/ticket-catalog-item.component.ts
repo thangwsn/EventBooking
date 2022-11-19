@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { TicketCatalogGetResponse } from 'src/app/model/event.model';
+import { TicketCatalogGetResponse } from 'app/model/event.model';
 
 @Component({
   selector: 'app-ticket-catalog-item',

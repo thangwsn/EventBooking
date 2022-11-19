@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
-import { BookingDetail } from 'src/app/model/booking.model';
-import { BookingService } from 'src/app/services/booking.service';
-import { Constants } from 'src/app/utils/constants';
+import { BookingDetail } from 'app/model/booking.model';
+import { BookingService } from 'app/services/booking.service';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-booking-detail',

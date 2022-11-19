@@ -1,29 +1,36 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { EventService } from 'src/app/services/event.service';
+import { PrimeNGConfig, MessageService, } from 'primeng/api';
 
-import { EventCreateRequest, LocationDTO } from 'src/app/model/event.model';
+import { EventService } from 'app/services/event.service';
+import { EventCreateRequest, LocationDTO } from 'app/model/event.model';
 import { Router } from '@angular/router';
-import { TimeConvert } from 'src/app/utils/time-convert';
-import { OrganizerService } from 'src/app/services/organizer.service';
-import { NoWhitespaceValidator } from 'src/app/utils/no-whitespace.validator';
+import { OrganizerService } from 'app/services/organizer.service';
+import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 
 
 @Component({
   selector: 'app-event-create',
   templateUrl: './event-create.component.html',
-  styleUrls: ['./event-create.component.css']
+  styleUrls: ['./event-create.component.css'],
+  providers: [MessageService]
 })
 export class EventCreateComponent implements OnInit {
   createEventForm: any = new FormGroup({});
   listOrganizer: any;
   listEventType: any;
+  selectedFileArr: any[] = [];
+  blockedDocument: boolean = false;
 
-  selectedFiles!: FileList;
-
-  constructor(private eventService: EventService, private organizerService: OrganizerService, private fb: FormBuilder, private _router: Router) { }
+  constructor(private eventService: EventService,
+    private organizerService: OrganizerService, 
+    private fb: FormBuilder, 
+    private _router: Router,
+    private primengConfig: PrimeNGConfig,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
     this.listEventType = this.eventService.getListEventType().subscribe({
       next: (resp) => {
         this.listEventType = resp;
@@ -50,26 +57,22 @@ export class EventCreateComponent implements OnInit {
       city: [''],
       organizerId: [Validators.required],
       totalSlot: [0],
-      startTime_date: [Validators.required],
-      duration: [Validators.required],
-      startTime_time: [Validators.required],
-      launchTime_date: [Validators.required],
-      launchTime_time: [Validators.required],
-      closeTime_date: [Validators.required],
-      closeTime_time: [Validators.required],
+      startTime: [Validators.required],
+      duration: [0, Validators.required],
+      launchTime: [Validators.required],
+      closeTime: [Validators.required],
       videoLink: ['']
     })
   }
 
   selectFiles(event: any) {
-    this.selectedFiles = event.target.files;
+    for(let file of event.files) {
+      this.selectedFileArr.push(file);
+    }
   }
 
   onSubmit() {
-    console.log(this.createEventForm);
-    let startTime = TimeConvert(this.createEventForm.get('startTime_date').value, this.createEventForm.get('startTime_time').value);
-    let launchTime = TimeConvert(this.createEventForm.get('launchTime_date').value, this.createEventForm.get('launchTime_time').value)
-    let closeTime = TimeConvert(this.createEventForm.get('closeTime_date').value, this.createEventForm.get('closeTime_time').value)
+    this.blockedDocument = true;
     let locationDto = new LocationDTO(
       this.createEventForm.get('street').value,
       this.createEventForm.get('ward').value,
@@ -82,41 +85,30 @@ export class EventCreateComponent implements OnInit {
       this.createEventForm.get('summary').value,
       this.createEventForm.get('description').value,
       this.createEventForm.get('listTag').value,
-      startTime,
-      launchTime,
-      closeTime,
+      this.createEventForm.get('startTime').value.getTime(),
+      this.createEventForm.get('launchTime').value.getTime(),
+      this.createEventForm.get('closeTime').value.getTime(),
       this.createEventForm.get('duration').value,
       this.createEventForm.get('totalSlot').value,
       this.createEventForm.get('organizerId').value,
       locationDto,
       this.createEventForm.get('videoLink').value
     );
-    this.eventService.createEvent(eventCreateRequest, this.selectedFiles).subscribe({
+    this.eventService.createEvent(eventCreateRequest, this.selectedFileArr).subscribe({
       next: (response: any) => {
         if (response.meta.code == 200) {
-          // this.notify.toast({
-          //   message: 'Create event successfully!',
-          //   color: 'success',
-          //   duration: 3000,
-          //   display: 'bottom'
-          // });
-          this._router.navigate(["admin/events"]);
+          this.messageService.add({severity:'success', summary: 'Success', detail: 'Create event successfully!'});
+          setTimeout(() => {
+            this._router.navigate(["admin/events"]);
+          }, 500);
         } else {
-          // this.notify.toast({
-          //   message: 'Create event failure!',
-          //   color: 'warning',
-          //   duration: 3000,
-          //   display: 'bottom'
-          // });
+          this.messageService.add({severity:'error', summary: 'Error', detail: 'Create event failure!'});
+          this.blockedDocument = false;
         }
       },
       error: (resp) => {
-        // this.notify.toast({
-        //   message: 'Create event failure!',
-        //   color: 'warning',
-        //   duration: 3000,
-        //   display: 'bottom'
-        // });
+        this.messageService.add({severity:'error', summary: 'Error', detail: 'Create event failure!'});
+        this.blockedDocument = false;
       }
     })
   }

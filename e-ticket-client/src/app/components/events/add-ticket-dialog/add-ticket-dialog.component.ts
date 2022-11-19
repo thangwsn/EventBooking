@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ToastrService } from 'ngx-toastr';
-import { EventService } from 'src/app/services/event.service';
-import { NoWhitespaceValidator } from 'src/app/utils/no-whitespace.validator';
+import { EventService } from 'app/services/event.service';
+import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 
 @Component({
   selector: 'app-add-ticket-dialog',

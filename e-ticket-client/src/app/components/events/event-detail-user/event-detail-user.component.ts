@@ -2,12 +2,14 @@ import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
-import { EventDetail } from 'src/app/model/event.model';
-import { BookingUserService } from 'src/app/services/booking-user.service';
-import { EventUserService } from 'src/app/services/event-user.service';
-import { TokenStorageService } from 'src/app/services/token-storage.service';
-import { Constants } from 'src/app/utils/constants';
+import { EventDetail } from 'app/model/event.model';
+import { BookingUserService } from 'app/services/booking-user.service';
+import { EventUserService } from 'app/services/event-user.service';
+import { TokenStorageService } from 'app/services/token-storage.service';
+import { Constants } from 'app/utils/constants';
 import { TicketCatalogItemComponent } from '../ticket-catalog-item/ticket-catalog-item.component';
+import { EventWebSocketAPI } from 'app/websocket/EventWebSocketAPI';
+
 
 @Component({
   selector: 'app-event-detail-user',
@@ -22,7 +24,8 @@ export class EventDetailUserComponent implements OnInit {
   eventId!: number;
   event$: Observable<EventDetail> = new Observable<EventDetail>();
   eventType!: string;
-
+  eventWebSocketAPI!: EventWebSocketAPI;
+  
   constructor(private _route: ActivatedRoute,
     private eventService: EventUserService,
     private bookingService: BookingUserService, 
@@ -41,11 +44,15 @@ export class EventDetailUserComponent implements OnInit {
           this.eventType = event.typeString
         }
       })
+      this.eventWebSocketAPI = new EventWebSocketAPI(this.eventService, this.eventId)
+      this.eventWebSocketAPI._connect();
     }
+    
   }
 
-  ngAfterViewInit() {
-
+  ngOnDestroy(): void {
+    this.eventWebSocketAPI._disconnect();
+    
   }
 
   booking() {

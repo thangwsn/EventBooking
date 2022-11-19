@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BookingGet } from 'src/app/model/booking.model';
-import { BookingService } from 'src/app/services/booking.service';
-import { Constants } from 'src/app/utils/constants';
+import { BookingGet } from 'app/model/booking.model';
+import { BookingService } from 'app/services/booking.service';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-booking-list',

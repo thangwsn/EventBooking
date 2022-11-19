@@ -1,16 +1,17 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
-import { EventDetail } from 'src/app/model/event.model';
-import { EventService } from 'src/app/services/event.service';
-import { Constants } from 'src/app/utils/constants';
+import { ConfirmationService, Message, MessageService, PrimeNGConfig } from 'primeng/api';
+import { EventDetail } from 'app/model/event.model';
+import { EventService } from 'app/services/event.service';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-event-detail',
   templateUrl: './event-detail.component.html',
-  styleUrls: ['./event-detail.component.css']
+  styleUrls: ['./event-detail.component.css'],
+  providers: [ConfirmationService, MessageService]
 })
 export class EventDetailComponent implements OnInit {
   BASE_API = Constants.HOST
@@ -21,12 +22,18 @@ export class EventDetailComponent implements OnInit {
   hiddenAddCatalog: boolean = false;
   hiddenEditCatalog: boolean = false;
 
-  constructor(private _route: ActivatedRoute, private eventService: EventService, private fb: FormBuilder, private toastr: ToastrService) { }
+  constructor(private _route: ActivatedRoute,
+    private eventService: EventService,
+    private fb: FormBuilder,
+    private confirmationService: ConfirmationService,
+    private primengConfig: PrimeNGConfig,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
     let paramValue = this._route.snapshot.paramMap.get('eventId');
     if (paramValue !== null) {
-      this.eventId =parseInt(paramValue);
+      this.eventId = parseInt(paramValue);
       this.eventService.fetchEventDetail(this.eventId);
       this.event$ = this.eventService.event$;
       this.updateHidden();
@@ -53,10 +60,9 @@ export class EventDetailComponent implements OnInit {
             targetStatus: ''
           })
           this.updateHidden();
-          this.toastr.success('', 'Change event status successfully!', {timeOut: 1000, newestOnTop: true, tapToDismiss: true});
-
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Update event status successfully!' });
         } else {
-          this.toastr.error('', 'Change event status failure!', {timeOut: 1000, newestOnTop: true, tapToDismiss: true});
+          this.messageService.add({ severity: 'error', summary: 'Failure', detail: 'Change event status failure!' });
         }
       }
     })
@@ -100,7 +106,7 @@ export class EventDetailComponent implements OnInit {
       }
     })
     var eventStatusClass = '';
-    switch(status) {
+    switch (status) {
       case Constants.EVENT_STATUS_CREATED:
         eventStatusClass = 'badge bg-primary'
         break;
@@ -122,4 +128,21 @@ export class EventDetailComponent implements OnInit {
     return eventStatusClass;
   }
 
+  openRemoveConfirm(event: any) {
+    this.confirmationService.confirm({
+      message: 'Are you sure that you want to delete this event?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.handleRemove(event.id)
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Success', detail: 'Cancel removing!' });
+      }
+    });
+  }
+
+  private handleRemove(eventId: number) {
+    // coding here
+  }
 }

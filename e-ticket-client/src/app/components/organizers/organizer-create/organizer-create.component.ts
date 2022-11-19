@@ -2,9 +2,9 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { OrganizerCreateRequest } from 'src/app/model/organizer.model';
-import { OrganizerService } from 'src/app/services/organizer.service';
-import { NoWhitespaceValidator } from 'src/app/utils/no-whitespace.validator';
+import { OrganizerCreateRequest } from 'app/model/organizer.model';
+import { OrganizerService } from 'app/services/organizer.service';
+import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 
 @Component({
   selector: 'app-organizer-create',

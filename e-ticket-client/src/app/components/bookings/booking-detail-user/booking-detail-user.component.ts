@@ -4,9 +4,9 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PrimeNGConfig, ConfirmationService, Message, MessageService, } from 'primeng/api';
 import { Observable } from 'rxjs';
-import { BookingDetail } from 'src/app/model/booking.model';
-import { BookingUserService } from 'src/app/services/booking-user.service';
-import { Constants } from 'src/app/utils/constants';
+import { BookingDetail } from 'app/model/booking.model';
+import { BookingUserService } from 'app/services/booking-user.service';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-booking-detail-user',

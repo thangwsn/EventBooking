@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ToastrService } from 'ngx-toastr';
 import { ConfirmationService, Message, MessageService, PrimeNGConfig } from 'primeng/api';
 import { Observable, Subject } from 'rxjs';
-import { OrganizerGet } from 'src/app/model/organizer.model';
-import { OrganizerService } from 'src/app/services/organizer.service';
+import { OrganizerGet } from 'app/model/organizer.model';
+import { OrganizerService } from 'app/services/organizer.service';
 
 @Component({
   selector: 'app-organizer-list',

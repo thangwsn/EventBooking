@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { EventGet } from 'src/app/model/event.model';
-import { EventUserService } from 'src/app/services/event-user.service';
+import { EventGet } from 'app/model/event.model';
+import { EventUserService } from 'app/services/event-user.service';
 
 @Component({
   selector: 'app-home',

@@ -112,6 +112,17 @@ export class EventUserService {
         })
     }
 
+    handleRealtimeEvent(event: any) {
+        this.event.title = event.title;
+        this.event.statusString = event.statusString;
+        this.event.totalSlot = event.totalSlot;
+        this.event.soldSlot = event.soldSlot;
+        this.event.remainSlot = event.remainSlot;
+        this.event.followerNum = event.followerNum;
+        this.event.ticketCatalogList = event.ticketCatalogList;
+        this.updateEventDetailData();
+    }
+
     private updatePopularEventList() {
         this.displayPopularEventListSubject.next(this.popularEventList);
     }

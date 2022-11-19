@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { UserSignUpRequest } from 'src/app/model/account.model';
-import { AccountService } from 'src/app/services/account.service';
-import { NoWhitespaceValidator } from 'src/app/utils/no-whitespace.validator';
+import { UserSignUpRequest } from 'app/model/account.model';
+import { AccountService } from 'app/services/account.service';
+import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 
 @Component({
   selector: 'app-pages-register',

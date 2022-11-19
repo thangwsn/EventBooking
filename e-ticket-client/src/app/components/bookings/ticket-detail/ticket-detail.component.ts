@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { Ticket } from 'src/app/model/booking.model';
-import { Constants } from 'src/app/utils/constants';
+import { Ticket } from 'app/model/booking.model';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-ticket-detail',

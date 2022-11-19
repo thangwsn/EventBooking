@@ -1,6 +1,8 @@
 package com.eticket.domain.service;
 
 import com.eticket.application.api.dto.event.*;
+import com.eticket.application.websocket.observer.MessageType;
+import com.eticket.application.websocket.observer.Observable;
 import com.eticket.domain.entity.account.Employee;
 import com.eticket.domain.entity.account.User;
 import com.eticket.domain.entity.booking.BookingStatus;
@@ -34,7 +36,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class EventServiceImpl implements EventService {
+public class EventServiceImpl extends Observable<EventServiceImpl> implements EventService {
     @Autowired
     private JpaEventRepository eventRepository;
     @Autowired
@@ -205,14 +207,10 @@ public class EventServiceImpl implements EventService {
             follow.setUser(user);
             follow.setEvent(event);
             follow.setRemoved(false);
-            followRepository.saveAndFlush(follow);
-            // send kafka topic or socket
-//            NotificationEventMessage message = NotificationEventMessage.builder()
-//                    .type(NotificationEventType.FOLLOW)
-//                    .eventId(eventId)
-//                    .message(user.getUsername() + " just followed this event.")
-//                    .build();
-//            kafkaSendService.reactorSend(Constants.NOTIFICATION_EVENT_TOPIC, message, Utils.generateUUID());
+            follow = followRepository.saveAndFlush(follow);
+        }
+        if (!follow.isRemoved()) {
+            notifyObservers(this, eventId, "", MessageType.FOLLOW);
         }
     }
 
@@ -272,6 +270,13 @@ public class EventServiceImpl implements EventService {
         eventRepository.saveAndFlush(event);
         // quartz schedule remove job
         cancelEventJob(event, changeEventStatusRequest.getTargetStatus());
+    }
+
+    @Override
+    public List<EventWebSocketDto> getAllEventForWS() {
+        List<Event> events = eventRepository.findByRemovedFalseAndStatusIsNot(EventStatus.FINISH);
+        List<EventWebSocketDto> list = events.stream().map(e -> eventMap.toEventWebSocketDto(e, getFollowNum(e.getId()))).collect(Collectors.toList());
+        return list;
     }
 
     private void generateAndSaveTicketList(TicketCatalog ticketCatalog) {

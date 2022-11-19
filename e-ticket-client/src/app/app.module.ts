@@ -9,6 +9,13 @@ import { MessagesModule } from 'primeng/messages';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { BlockUIModule } from 'primeng/blockui';
+import { CalendarModule } from 'primeng/calendar';
+import {InputNumberModule} from 'primeng/inputnumber';
+import { DropdownModule } from 'primeng/dropdown';
+import {SelectButtonModule} from 'primeng/selectbutton';
+import {FileUploadModule} from 'primeng/fileupload';
+import {InputTextModule} from 'primeng/inputtext';
+import {EditorModule} from 'primeng/editor';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -148,7 +155,14 @@ import { VerifyComponent } from './pages/user/verify/verify.component';
     ButtonModule,
     MessagesModule,
     ToastModule,
-    BlockUIModule
+    BlockUIModule,
+    CalendarModule,
+    InputNumberModule,
+    DropdownModule,
+    SelectButtonModule,
+    FileUploadModule,
+    InputTextModule,
+    EditorModule
   ],
   providers: [],
   bootstrap: [AppComponent]

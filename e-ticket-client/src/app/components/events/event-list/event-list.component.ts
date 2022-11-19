@@ -1,20 +1,25 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { EventGet } from 'src/app/model/event.model';
-import { EventService } from 'src/app/services/event.service';
-import { Constants } from 'src/app/utils/constants';
+import { PrimeNGConfig, MessageService, } from 'primeng/api';
+
+import { EventGet } from 'app/model/event.model';
+import { EventService } from 'app/services/event.service';
+import { Constants } from 'app/utils/constants';
 
 @Component({
   selector: 'app-event-list',
   templateUrl: './event-list.component.html',
-  styleUrls: ['./event-list.component.css']
+  styleUrls: ['./event-list.component.css'],
+  providers: [MessageService]
 })
 export class EventListComponent implements OnInit {
   eventList$: Observable<EventGet[]> = new Observable<EventGet[]>();
 
-  constructor(private eventService: EventService) { }
+  constructor(private eventService: EventService, private primengConfig: PrimeNGConfig,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
     this.eventService.fetchEventListForAdmin();
     this.eventList$ = this.eventService.eventList$;
   }

@@ -46,7 +46,7 @@ export class EventService {
         })
     }
 
-    createEvent(eventCreateRequest: EventCreateRequest, selectedFiles: FileList): Observable<any> {
+    createEvent(eventCreateRequest: EventCreateRequest, selectedFiles: any[]): Observable<any> {
         this.httpOptions = this.getHeaderMultipart();
         const formData: FormData = new FormData();
         for (let i = 0; i < selectedFiles.length; i++) {

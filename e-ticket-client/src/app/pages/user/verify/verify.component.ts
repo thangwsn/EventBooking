@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService, PrimeNGConfig } from 'primeng/api';
-import { AccountService } from 'src/app/services/account.service';
+import { AccountService } from 'app/services/account.service';
 
 @Component({
   selector: 'app-verify',
