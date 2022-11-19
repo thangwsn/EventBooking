@@ -108,9 +108,13 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
     @Override
     public void removeEvent(Integer eventId) {
         Event event = eventRepository.findByIdAndRemovedFalse(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event is not found"));
-        event.setRemoved(true);
-        eventRepository.saveAndFlush(event);
+                .orElseThrow(() -> new RuntimeException("Event is not found"));
+        if (event.getStatus().equals(EventStatus.CREATED)) {
+            event.setRemoved(true);
+            eventRepository.saveAndFlush(event);
+        } else {
+            throw new RuntimeException("Can not remove");
+        }
     }
 
     @Override
