@@ -106,12 +106,22 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void removeEvent(Integer eventId) {
         Event event = eventRepository.findByIdAndRemovedFalse(eventId)
                 .orElseThrow(() -> new RuntimeException("Event is not found"));
         if (event.getStatus().equals(EventStatus.CREATED)) {
             event.setRemoved(true);
+            List<TicketCatalog> ticketCatalogList = event.getTicketCatalogList();
+            if (ticketCatalogList.size() > 0) {
+                ticketCatalogList.forEach(t -> {
+                    t.setRemoved(true);
+                });
+                event.setTicketCatalogList(ticketCatalogList);
+            }
             eventRepository.saveAndFlush(event);
+            // delete ticket
+            ticketRepository.deleteAllByEvent(event);
         } else {
             throw new RuntimeException("Can not remove");
         }

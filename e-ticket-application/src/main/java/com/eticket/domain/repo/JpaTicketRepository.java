@@ -1,6 +1,7 @@
 package com.eticket.domain.repo;
 
 import com.eticket.domain.entity.booking.Booking;
+import com.eticket.domain.entity.event.Event;
 import com.eticket.domain.entity.event.Ticket;
 import com.eticket.domain.entity.event.TicketCatalog;
 import com.eticket.domain.entity.event.TicketStatus;
@@ -18,4 +19,6 @@ public interface JpaTicketRepository extends JpaRepository<Ticket, Integer> {
     long countByTicketCatalogAndStatus(TicketCatalog ticketCatalog, TicketStatus status);
 
     List<Ticket> findAllByBooking(Booking booking);
+
+    void deleteAllByEvent(Event event);
 }
