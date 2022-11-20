@@ -1,7 +1,8 @@
 import { Component, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
 import { Observable } from 'rxjs';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
+
 import { EventDetail } from 'app/model/event.model';
 import { BookingUserService } from 'app/services/booking-user.service';
 import { EventUserService } from 'app/services/event-user.service';
@@ -15,7 +16,8 @@ import { environment } from 'environments/environment';
 @Component({
   selector: 'app-event-detail-user',
   templateUrl: './event-detail-user.component.html',
-  styleUrls: ['./event-detail-user.component.css']
+  styleUrls: ['./event-detail-user.component.css'],
+  providers: [MessageService]
 })
 export class EventDetailUserComponent implements OnInit {
   @ViewChildren(TicketCatalogItemComponent) selectTicketList!: QueryList<TicketCatalogItemComponent>;
@@ -26,15 +28,32 @@ export class EventDetailUserComponent implements OnInit {
   event$: Observable<EventDetail> = new Observable<EventDetail>();
   eventType!: string;
   eventWebSocketAPI!: EventWebSocketAPI;
+
+  responsiveOptions:any[] = [
+    {
+        breakpoint: '1024px',
+        numVisible: 5
+    },
+    {
+        breakpoint: '768px',
+        numVisible: 3
+    },
+    {
+        breakpoint: '560px',
+        numVisible: 1
+    }
+];
   
   constructor(private _route: ActivatedRoute,
     private eventService: EventUserService,
     private bookingService: BookingUserService, 
-    private toastr: ToastrService, 
     private _router: Router,
-    private tokenService: TokenStorageService) { }
+    private tokenService: TokenStorageService,
+    private primengConfig: PrimeNGConfig,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
     let paramValue = this._route.snapshot.paramMap.get('eventId');
     if (paramValue !== null) {
       this.eventId = parseInt(paramValue);
@@ -45,7 +64,7 @@ export class EventDetailUserComponent implements OnInit {
           this.eventType = event.typeString
         }
       })
-      this.eventWebSocketAPI = new EventWebSocketAPI(this.eventService, this.eventId)
+      this.eventWebSocketAPI = new EventWebSocketAPI(this.eventService, this.eventId, this)
       this.eventWebSocketAPI._connect();
     }
     
@@ -61,11 +80,11 @@ export class EventDetailUserComponent implements OnInit {
       totalSelectTicket += item.quantity
     })
     if (totalSelectTicket === 0) {
-      this.toastr.warning('', 'Select less than 1 ticket!', { timeOut: 4000, newestOnTop: true, tapToDismiss: true });
+      this.messageService.add({ severity: 'warn', detail: 'Select less than 1 ticket!' });
       return;
     }
     if (this.eventType === Constants.EVENT_TYPE_FREE && totalSelectTicket > 1) {
-      this.toastr.warning('', 'With free event, only booking a ticket per user!', { timeOut: 4000, newestOnTop: true, tapToDismiss: true });
+      this.messageService.add({ severity: 'warn', detail: 'With free event, only booking a ticket per user!' });
       return;
     }
     let listItem: any = this.selectTicketList.filter(item => item.quantity > 0).map(item => {
@@ -152,6 +171,14 @@ export class EventDetailUserComponent implements OnInit {
       return Constants.FOLLOW_CLASS
     }
     return Constants.UN_FOLLOW_CLASS
+  }
+
+  displayNotify(notify: any) {
+    if (notify.type === 'FOLLOW') {
+      this.messageService.add({ severity: 'success', key: 'notify', life: 1000, detail: notify.message });
+    } else if (notify.type === 'BOOKING') {
+      this.messageService.add({ severity: 'info', key: 'notify', life: 1000, detail: notify.message });
+    }   
   }
 
 }

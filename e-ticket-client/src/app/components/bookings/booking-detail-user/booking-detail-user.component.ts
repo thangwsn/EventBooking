@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { PrimeNGConfig, ConfirmationService, Message, MessageService, } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { BookingDetail } from 'app/model/booking.model';
@@ -88,9 +88,6 @@ export class BookingDetailUserComponent implements OnInit {
   pendingBooking(bookingStatus: string, eventStatus: string, bookingTimeout: number): boolean {
     if (bookingStatus === Constants.BOOKING_STATUS_PENDING
       && (eventStatus === Constants.EVENT_STATUS_OPEN || eventStatus === Constants.EVENT_STATUS_SOLD)) {
-      return true;
-    }
-    if (bookingTimeout > 0 && bookingTimeout <= new Date().getTime()) {
       return true;
     }
     return false;

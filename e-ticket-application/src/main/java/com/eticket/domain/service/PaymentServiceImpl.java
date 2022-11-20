@@ -1,6 +1,8 @@
 package com.eticket.domain.service;
 
 import com.eticket.application.api.dto.booking.BookingPaymentRequest;
+import com.eticket.application.websocket.observer.MessageType;
+import com.eticket.application.websocket.observer.Observable;
 import com.eticket.domain.entity.account.User;
 import com.eticket.domain.entity.booking.Booking;
 import com.eticket.domain.entity.booking.BookingStatus;
@@ -24,7 +26,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Service
-public class PaymentServiceImpl implements PaymentService {
+public class PaymentServiceImpl extends Observable<PaymentServiceImpl> implements PaymentService {
     @Autowired
     private PayPalService payPalService;
     @Autowired
@@ -72,6 +74,8 @@ public class PaymentServiceImpl implements PaymentService {
         for (Ticket ticket : ticketList) {
             ticket.setQRcode(fileStorageService.generateQRCode(ticket));
         }
+        // notify
+        notifyObservers(this, booking.getEvent().getId(), booking.getUser().getUsername() + " has booked ", MessageType.BOOKING);
         // send an email for all ticket
         mailService.sendMailAttachment(user.getUsername(), user.getEmail(), ticketList);
         booking.setListTicket(ticketList);

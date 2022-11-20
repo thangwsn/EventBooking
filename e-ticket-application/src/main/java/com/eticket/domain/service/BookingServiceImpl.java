@@ -1,6 +1,8 @@
 package com.eticket.domain.service;
 
 import com.eticket.application.api.dto.booking.*;
+import com.eticket.application.websocket.observer.MessageType;
+import com.eticket.application.websocket.observer.Observable;
 import com.eticket.domain.entity.account.Account;
 import com.eticket.domain.entity.account.Role;
 import com.eticket.domain.entity.account.User;
@@ -36,7 +38,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class BookingServiceImpl implements BookingService {
+public class BookingServiceImpl extends Observable<BookingServiceImpl> implements BookingService {
     @Autowired
     private KafkaSendService kafkaSendService;
     @Autowired
@@ -112,9 +114,12 @@ public class BookingServiceImpl implements BookingService {
                 bookingCreateResponse.setListTicketCode(listTicketCode);
             }
             bookingCreateResponse.setTicketNum(getBookingQuantity(bookingCreateRequest.getListItem()));
-            // send mail
+
             if (event.getType().equals(EventType.FREE)) {
+                // send mail
                 mailService.sendMailAttachment(user.getUsername(), user.getEmail(), booking.getListTicket());
+                // notify
+                notifyObservers(this, event.getId(), user.getUsername() + " has booked", MessageType.BOOKING);
             }
         } else {
             bookingCreateResponse.setStatus(BookingStatus.REJECT);

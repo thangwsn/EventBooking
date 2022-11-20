@@ -224,7 +224,7 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
             follow = followRepository.saveAndFlush(follow);
         }
         if (!follow.isRemoved()) {
-            notifyObservers(this, eventId, "", MessageType.FOLLOW);
+            notifyObservers(this, eventId, username + "has followed", MessageType.FOLLOW);
         }
     }
 

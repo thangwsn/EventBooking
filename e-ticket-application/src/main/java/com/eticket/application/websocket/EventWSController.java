@@ -22,18 +22,18 @@ public class EventWSController implements Observer<EventServiceImpl> {
         this.eventService.subscribe(this);
     }
 
-    @Scheduled(fixedDelay = 3000)
+    @Scheduled(fixedDelay = 30000)
     void sendEventDetailInterval() {
         List<EventWebSocketDto> eventList = eventService.getAllEventForWS();
         eventList.forEach(e -> {
-            System.out.println(Utils.convertObjectToJson(e));
             this.simpMessagingTemplate.convertAndSendToUser(e.getId().toString(), "/event-update", Utils.convertObjectToJson(e));
         });
     }
 
     @Override
-    public void handle(Notification<EventServiceImpl> notification) {
+    public void handle(Notification notification) {
         String notificationJson = Utils.convertObjectToJson(notification);
-        this.simpMessagingTemplate.convertAndSendToUser(notification.eventId.toString(), "/notify/event", notificationJson);
+        System.out.println(notificationJson);
+        this.simpMessagingTemplate.convertAndSendToUser(notification.eventId.toString(), "/notify", notificationJson);
     }
 }

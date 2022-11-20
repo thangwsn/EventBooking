@@ -16,6 +16,8 @@ import {SelectButtonModule} from 'primeng/selectbutton';
 import {FileUploadModule} from 'primeng/fileupload';
 import {InputTextModule} from 'primeng/inputtext';
 import {EditorModule} from 'primeng/editor';
+import {ImageModule} from 'primeng/image';
+import {GalleriaModule} from 'primeng/galleria'
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -162,7 +164,9 @@ import { VerifyComponent } from './pages/user/verify/verify.component';
     SelectButtonModule,
     FileUploadModule,
     InputTextModule,
-    EditorModule
+    EditorModule,
+    ImageModule,
+    GalleriaModule
   ],
   providers: [],
   bootstrap: [AppComponent]

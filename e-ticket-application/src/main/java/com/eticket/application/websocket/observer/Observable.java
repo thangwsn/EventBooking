@@ -1,6 +1,8 @@
 package com.eticket.application.websocket.observer;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -14,7 +16,7 @@ public class Observable<T> {
 
     protected void notifyObservers(T source, Integer eventId, String message, MessageType type) {
         for (Observer<T> o : observers) {
-            o.handle(new Notification<T>(source, eventId, message, type));
+            o.handle(new Notification(eventId, message, type, new Timestamp(new Date().getTime())));
         }
     }
 }
