@@ -15,4 +15,14 @@ public interface AccountService {
     List<FieldViolation> registerEmployee(EmployeeSignUpRequest employeeSignUpRequest);
 
     AccountInfoResponse getAccountInfo();
+
+    ListUserGetResponse getListUser(UserGetRequest userGetRequest);
+
+    UserDetailResponse getUserDetail(Integer userId);
+
+    ListEmployeeGetResponse getListEmployee(EmployeeGetRequest employeeGetRequest);
+
+    EmployeeDetailResponse getEmployeeDetail(Integer employeeId);
+
+    void removeEmployee(Integer employeeId);
 }

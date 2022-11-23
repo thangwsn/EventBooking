@@ -6,17 +6,22 @@ import com.eticket.domain.entity.account.*;
 import com.eticket.domain.repo.JpaAccountRepository;
 import com.eticket.domain.repo.JpaEmployeeRepository;
 import com.eticket.domain.repo.JpaUserRepository;
-import com.eticket.infrastructure.kafka.producer.KafkaSendService;
 import com.eticket.infrastructure.mail.MailService;
+import com.eticket.infrastructure.mapper.EmployeeMap;
+import com.eticket.infrastructure.mapper.UserMap;
 import com.eticket.infrastructure.security.jwt.EncryptionUtil;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
 import com.eticket.infrastructure.security.service.JwtUserDetailsService;
+import com.eticket.infrastructure.utils.Constants;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.kafka.common.errors.AuthenticationException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -33,8 +38,6 @@ import java.util.stream.Collectors;
 @Service
 public class AccountServiceImpl implements AccountService {
     private static final Logger logger = LoggerFactory.getLogger(AccountServiceImpl.class);
-    @Autowired
-    private KafkaSendService kafkaSendService;
     @Autowired
     private JpaAccountRepository accountRepository;
     @Autowired
@@ -53,6 +56,10 @@ public class AccountServiceImpl implements AccountService {
     private JwtUserDetailsService userDetailService;
     @Autowired
     private MailService mailService;
+    @Autowired
+    private UserMap userMap;
+    @Autowired
+    private EmployeeMap employeeMap;
 
     @Override
     public LoginResponse authenticate(LoginRequest loginRequest) throws Exception {
@@ -155,6 +162,51 @@ public class AccountServiceImpl implements AccountService {
         return modelMapper.map(account, AccountInfoResponse.class);
     }
 
+    @Override
+    public ListUserGetResponse getListUser(UserGetRequest request) {
+        String sortField = request.getSortField();
+        Sort sort = request.getSortDirection().equalsIgnoreCase(Constants.DESC_SORT) ? Sort.by(sortField).descending() : Sort.by(sortField).ascending();
+        Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), sort);
+        List<User> listUser = userRepository.findByRemovedFalse(pageable);
+        List<UserGetResponse> listUserGetResponse = listUser.stream().map(u -> userMap.toUserGetResponse(u)).collect(Collectors.toList());
+        return new ListUserGetResponse(listUserGetResponse.size(), listUserGetResponse);
+    }
+
+    @Override
+    public UserDetailResponse getUserDetail(Integer userId) {
+        Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken()).orElseThrow(() -> new RuntimeException("User Not Found"));
+        boolean userView = account.getRole().equals(Role.USER);
+        if (userView && !account.getId().equals(userId)) {
+            throw new org.springframework.security.core.AuthenticationException("") {
+            };
+        }
+        User user = userRepository.findByIdAndRemovedFalse(userId).orElseThrow(() -> new RuntimeException(""));
+        return userMap.toUserDetailResponse(user, getBookingNum(userId), getFollowedNum(userId));
+    }
+
+    @Override
+    public ListEmployeeGetResponse getListEmployee(EmployeeGetRequest request) {
+        String sortField = request.getSortField();
+        Sort sort = request.getSortDirection().equalsIgnoreCase(Constants.DESC_SORT) ? Sort.by(sortField).descending() : Sort.by(sortField).ascending();
+        Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), sort);
+        List<Employee> employeeList = employeeRepository.findByRemovedFalse(pageable);
+        List<EmployeeGetResponse> employeeGetResponses = employeeList.stream().map(e -> employeeMap.toEmployeeGetResponse(e)).collect(Collectors.toList());
+        return new ListEmployeeGetResponse(employeeGetResponses.size(), employeeGetResponses);
+    }
+
+    @Override
+    public EmployeeDetailResponse getEmployeeDetail(Integer employeeId) {
+        Employee employee = employeeRepository.findByRemovedFalseAndId(employeeId).orElseThrow(() -> new RuntimeException(""));
+        return employeeMap.toEmployeeDetailResponse(employee);
+    }
+
+    @Override
+    public void removeEmployee(Integer employeeId) {
+        Employee employee = employeeRepository.findByRemovedFalseAndId(employeeId).orElseThrow(() -> new RuntimeException(""));
+        employee.setRemoved(true);
+        employeeRepository.saveAndFlush(employee);
+    }
+
     private boolean existsUsername(String username) {
         return accountRepository.existsAccountByUsernameAndRemovedFalse(username);
     }
@@ -175,5 +227,13 @@ public class AccountServiceImpl implements AccountService {
         return new StringBuffer().append(latestEmployeeCode.substring(0, 3))
                 .append(String.format("%06d", Integer.parseInt(latestEmployeeCode.substring(4)) + 1))
                 .toString();
+    }
+
+    private int getBookingNum(Integer userId) {
+        return 0;
+    }
+
+    private int getFollowedNum(Integer userId) {
+        return 0;
     }
 }

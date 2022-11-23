@@ -33,19 +33,12 @@ public class AccountApiController {
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
-    @PostMapping("/verify")
-    public String verifyCodeSignUp(@RequestParam("user_id") Integer userId, @RequestParam("code") String code) {
-        boolean accept = accountService.verifyActiveCode(userId, code);
-        return "";
-    }
-
-    @PostMapping("/signup-employee")
-    public ResponseEntity<BaseResponse> registerEmployee(@Valid @RequestBody EmployeeSignUpRequest employeeSignUpRequest) {
-        List<FieldViolation> violationList = accountService.registerEmployee(employeeSignUpRequest);
-        if (violationList.size() > 0) {
-            ResponseEntity.ok(BaseResponse.ofInvalid(violationList));
+    @GetMapping("/verify-register")
+    public ResponseEntity<BaseResponse> verifyRegister(@RequestParam("user_id") Integer userId, @RequestParam("active_code") String activeCode) {
+        boolean verified = accountService.verifyActiveCode(userId, activeCode);
+        if (!verified) {
+            return ResponseEntity.ok(BaseResponse.ofInvalid(verified));
         }
-        ;
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
@@ -59,18 +52,54 @@ public class AccountApiController {
         return null;
     }
 
+    @PostMapping("/forgot_password")
+    public ResponseEntity<?> forgotPassword() {
+        return null;
+    }
+
     @GetMapping("/account-info")
     public ResponseEntity<BaseResponse<AccountInfoResponse>> getAccountInfo() {
         AccountInfoResponse response = accountService.getAccountInfo();
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
-    @GetMapping("/verify-register")
-    public ResponseEntity<BaseResponse> verifyRegister(@RequestParam("user_id") Integer userId, @RequestParam("active_code") String activeCode) {
-        boolean verified = accountService.verifyActiveCode(userId, activeCode);
-        if (!verified) {
-            return ResponseEntity.ok(BaseResponse.ofInvalid(verified));
+    @PostMapping("/users")
+    public ResponseEntity<BaseResponse<ListUserGetResponse>> getUserList(@RequestBody UserGetRequest userGetRequest) {
+        ListUserGetResponse response = accountService.getListUser(userGetRequest);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
+    }
+
+    @GetMapping("/users/{user_id}")
+    public ResponseEntity<BaseResponse<UserDetailResponse>> getDetailUser(@PathVariable("user_id") Integer userId) {
+        UserDetailResponse response = accountService.getUserDetail(userId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
+    }
+
+    @PostMapping("/signup-employee")
+    public ResponseEntity<BaseResponse> registerEmployee(@Valid @RequestBody EmployeeSignUpRequest employeeSignUpRequest) {
+        List<FieldViolation> violationList = accountService.registerEmployee(employeeSignUpRequest);
+        if (violationList.size() > 0) {
+            ResponseEntity.ok(BaseResponse.ofInvalid(violationList));
         }
+        ;
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
+    }
+
+    @PostMapping("/employees")
+    public ResponseEntity<BaseResponse<ListEmployeeGetResponse>> getListEmployee(@RequestBody EmployeeGetRequest employeeGetRequest) {
+        ListEmployeeGetResponse response = accountService.getListEmployee(employeeGetRequest);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
+    }
+
+    @GetMapping("/employees/{employee_id}")
+    public ResponseEntity<BaseResponse<EmployeeDetailResponse>> getDetailEmployee(@PathVariable("employee_id") Integer employeeId) {
+        EmployeeDetailResponse employeeDetailResponse = accountService.getEmployeeDetail(employeeId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(employeeDetailResponse));
+    }
+
+    @DeleteMapping("/employees/{employee_id}")
+    public ResponseEntity<BaseResponse> removeEmployee(@PathVariable("employee_id") Integer employeeId) {
+        accountService.removeEmployee(employeeId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 }

@@ -53,6 +53,11 @@ public class EventApiController {
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
+    @PutMapping("/{event_id}/ticket-catalog")
+    public ResponseEntity<?> editTicketCatalog(@PathVariable("event_id") Integer eventId, @RequestBody TicketCatalogUpdateRequest ticketCatalogUpdateRequest) {
+        return null;
+    }
+
     @PostMapping("/change-status")
     public ResponseEntity<BaseResponse<Void>> changeEventStatus(@RequestBody ChangeEventStatusRequest changeEventStatusRequest) {
         eventService.changeEventStatus(changeEventStatusRequest);

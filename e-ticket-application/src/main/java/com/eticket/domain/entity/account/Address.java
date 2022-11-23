@@ -24,4 +24,8 @@ public class Address {
     private String district;
     @Column(name = "city")
     private String city;
+
+    public String toAddressString() {
+        return street + ", " + ward + ", " + district + ", " + city;
+    }
 }

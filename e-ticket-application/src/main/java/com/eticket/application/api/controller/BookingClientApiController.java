@@ -86,4 +86,14 @@ public class BookingClientApiController {
         BookingDetailResponse response = bookingService.getBookingDetail(bookingId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
+
+    @DeleteMapping("/{booking_id}")
+    public ResponseEntity<BaseResponse> removeCanceledBooking(@PathVariable("booking_id") Integer bookingId) {
+        return null;
+    }
+
+    @GetMapping("/ticket/{user_id}")
+    public ResponseEntity<?> getListTicketByUser(@PathVariable("user_id") Integer userId) {
+        return null;
+    }
 }

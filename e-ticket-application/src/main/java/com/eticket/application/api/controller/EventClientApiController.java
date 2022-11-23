@@ -38,4 +38,9 @@ public class EventClientApiController {
         eventService.toggleFollow(eventId, jwtUtils.getUserNameFromJwtToken());
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
+
+    @GetMapping("/followed/{user_id}")
+    public ResponseEntity<BaseResponse<ListEventGetResponse>> getListFollowedEventByUser(@PathVariable("user_id") Integer userId) {
+        return null;
+    }
 }

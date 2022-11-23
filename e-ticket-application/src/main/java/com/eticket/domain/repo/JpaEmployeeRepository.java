@@ -1,10 +1,12 @@
 package com.eticket.domain.repo;
 
 import com.eticket.domain.entity.account.Employee;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -13,4 +15,8 @@ public interface JpaEmployeeRepository extends JpaRepository<Employee, Integer> 
     Optional<String> latestEmployeeCode();
 
     Optional<Employee> findByUsernameAndRemovedFalse(String username);
+
+    List<Employee> findByRemovedFalse(Pageable pageable);
+
+    Optional<Employee> findByRemovedFalseAndId(Integer employeeId);
 }
