@@ -13,4 +13,6 @@ public interface JpaFollowRepository extends JpaRepository<Follow, Integer> {
     Optional<Follow> findByUserIdAndEventIdAndRemovedFalse(Integer userId, Integer eventId);
 
     Integer countByEventIdAndRemovedFalse(Integer eventId);
+
+    Integer countByUserIdAndRemovedFalse(Integer userId);
 }

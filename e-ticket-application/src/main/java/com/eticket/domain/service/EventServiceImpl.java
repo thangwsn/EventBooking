@@ -9,6 +9,9 @@ import com.eticket.domain.entity.booking.BookingStatus;
 import com.eticket.domain.entity.event.*;
 import com.eticket.domain.entity.quartz.ScheduleJob;
 import com.eticket.domain.entity.quartz.ScheduleJobType;
+import com.eticket.domain.exception.AuthenticationException;
+import com.eticket.domain.exception.EventRemoveException;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.repo.*;
 import com.eticket.infrastructure.mapper.EventMap;
 import com.eticket.infrastructure.quartz.model.ScheduleRequest;
@@ -16,8 +19,6 @@ import com.eticket.infrastructure.quartz.service.ScheduleService;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
 import com.eticket.infrastructure.utils.Constants;
 import com.eticket.infrastructure.utils.Utils;
-import org.apache.kafka.common.errors.AuthenticationException;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -70,17 +71,16 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void registerEvent(MultipartFile[] files, String data) {
+    public void registerEvent(MultipartFile[] files, String data) throws AuthenticationException, ResourceNotFoundException {
         EventCreateRequest eventCreateRequest = Utils.readObjectFromJsonFormat(data, EventCreateRequest.class);
         Event event = modelMapper.map(eventCreateRequest, Event.class);
         event.setRemoved(false);
         String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
         if (usernameFromJwtToken.isEmpty()) {
-            throw new AuthenticationException("Employee is not found!") {
-            };
+            throw new AuthenticationException("401 Unauthorized");
         }
         Employee employee = employeeRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
-                .orElseThrow(() -> new RuntimeException("Employee is not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found employee by username is %s ", usernameFromJwtToken)));
         event.setUpdateBy(employee);
         event.setType(EventType.valueOf(eventCreateRequest.getTypeString()));
         event.setOrganizer(organizerRepository.findByIdAndRemovedFalse(eventCreateRequest.getOrganizerId()).get());
@@ -107,9 +107,9 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void removeEvent(Integer eventId) {
+    public void removeEvent(Integer eventId) throws ResourceNotFoundException, EventRemoveException {
         Event event = eventRepository.findByIdAndRemovedFalse(eventId)
-                .orElseThrow(() -> new RuntimeException("Event is not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
         if (event.getStatus().equals(EventStatus.CREATED)) {
             event.setRemoved(true);
             List<TicketCatalog> ticketCatalogList = event.getTicketCatalogList();
@@ -123,16 +123,16 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
             // delete ticket
             ticketRepository.deleteAllByEvent(event);
         } else {
-            throw new RuntimeException("Can not remove");
+            throw new EventRemoveException(String.format("Can not remove event with id %s ", eventId));
         }
     }
 
     @Override
     @Transactional(rollbackFor = {Exception.class})
-    public void addTicketCatalog(Integer eventId, TicketCatalogRequest ticketCatalogRequest) {
+    public void addTicketCatalog(Integer eventId, TicketCatalogRequest ticketCatalogRequest) throws ResourceNotFoundException {
         int totalSlot = 0;
         Event event = eventRepository.findByIdAndRemovedFalse(eventId)
-                .orElseThrow(() -> new ResourceNotFoundException("Event is not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
         TicketCatalog ticketCatalog = modelMapper.map(ticketCatalogRequest, TicketCatalog.class);
         ticketCatalog.setSoldSlot(0);
         ticketCatalog.setRemainSlot(ticketCatalog.getSlot());
@@ -158,18 +158,18 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
     }
 
     @Override
-    public EventDetailGetResponse getEventById(Integer eventId) {
+    public EventDetailGetResponse getEventById(Integer eventId) throws ResourceNotFoundException {
         Event event = eventRepository.findByIdAndRemovedFalse(eventId)
-                .orElseThrow(() -> new RuntimeException("Event is not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
         return eventMap.toEventDetailGetResponse(event, getFollowNum(eventId), false);
     }
 
     @Override
-    public EventDetailGetResponse getEventByIdFromClientSide(Integer eventId) {
+    public EventDetailGetResponse getEventByIdFromClientSide(Integer eventId) throws ResourceNotFoundException {
         boolean isFollowed = false;
         boolean isDisableBooking = false;
         Event event = eventRepository.findByIdAndRemovedFalseAndStatusIsNot(eventId, EventStatus.CREATED)
-                .orElseThrow(() -> new RuntimeException("Event is not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
         String username = jwtUtils.getUserNameFromJwtToken();
         Optional<User> userOptional = userRepository.findByUsernameAndRemovedFalse(username);
         if (userOptional.isPresent()) {
@@ -234,9 +234,10 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
     }
 
     @Override
-    public List<String> getListEventStatus(Integer eventId) {
+    public List<String> getListEventStatus(Integer eventId) throws ResourceNotFoundException {
         List<String> listEventStatus = Arrays.asList(EventStatus.values()).stream().map((item) -> item.name()).collect(Collectors.toList());
-        Event event = eventRepository.findByIdAndRemovedFalse(eventId).orElseThrow(() -> new ResourceNotFoundException("Event is not found"));
+        Event event = eventRepository.findByIdAndRemovedFalse(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
         String status = event.getStatus().name();
         if (status.equals("OPEN") || status.equals("CLOSE")) {
             listEventStatus.remove("CREATED");
@@ -262,8 +263,9 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
     }
 
     @Override
-    public void changeEventStatus(ChangeEventStatusRequest changeEventStatusRequest) {
-        Event event = eventRepository.findByIdAndRemovedFalse(changeEventStatusRequest.getEventId()).orElseThrow(() -> new ResourceNotFoundException("Event is not found"));
+    public void changeEventStatus(ChangeEventStatusRequest changeEventStatusRequest) throws ResourceNotFoundException {
+        Event event = eventRepository.findByIdAndRemovedFalse(changeEventStatusRequest.getEventId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", changeEventStatusRequest.getEventId())));
         String eventStatus = event.getStatus().name();
         if (eventStatus.equals(changeEventStatusRequest.getTargetStatus())) {
             return;

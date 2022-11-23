@@ -16,7 +16,7 @@ public class BookingErrors {
     /**
      * 401
      */
-
+    public static final BookingBusinessError UNAUTHORIZED = new BookingBusinessError(401, "You aren’t authenticated–either not authenticated at all or authenticated incorrectly", HttpStatus.UNAUTHORIZED);
     /**
      * 403
      */

@@ -3,9 +3,10 @@ package com.eticket.domain.service;
 import com.eticket.application.api.dto.FieldViolation;
 import com.eticket.application.api.dto.account.*;
 import com.eticket.domain.entity.account.*;
-import com.eticket.domain.repo.JpaAccountRepository;
-import com.eticket.domain.repo.JpaEmployeeRepository;
-import com.eticket.domain.repo.JpaUserRepository;
+import com.eticket.domain.entity.booking.BookingStatus;
+import com.eticket.domain.exception.AuthenticationException;
+import com.eticket.domain.exception.ResourceNotFoundException;
+import com.eticket.domain.repo.*;
 import com.eticket.infrastructure.mail.MailService;
 import com.eticket.infrastructure.mapper.EmployeeMap;
 import com.eticket.infrastructure.mapper.UserMap;
@@ -14,7 +15,6 @@ import com.eticket.infrastructure.security.jwt.JwtUtils;
 import com.eticket.infrastructure.security.service.JwtUserDetailsService;
 import com.eticket.infrastructure.utils.Constants;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.kafka.common.errors.AuthenticationException;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +44,10 @@ public class AccountServiceImpl implements AccountService {
     private JpaUserRepository userRepository;
     @Autowired
     private JpaEmployeeRepository employeeRepository;
+    @Autowired
+    private JpaBookingRepository bookingRepository;
+    @Autowired
+    private JpaFollowRepository followRepository;
     @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
@@ -151,14 +155,13 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountInfoResponse getAccountInfo() {
+    public AccountInfoResponse getAccountInfo() throws AuthenticationException, ResourceNotFoundException {
         String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
         if (usernameFromJwtToken.isEmpty()) {
-            throw new AuthenticationException("Account is not found!") {
-            };
+            throw new AuthenticationException("401 Unauthorized!");
         }
         Account account = accountRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
-                .orElseThrow(() -> new RuntimeException(String.format("Account not found by username %s ", usernameFromJwtToken)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found account by username is %s ", usernameFromJwtToken)));
         return modelMapper.map(account, AccountInfoResponse.class);
     }
 
@@ -173,14 +176,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public UserDetailResponse getUserDetail(Integer userId) {
-        Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken()).orElseThrow(() -> new RuntimeException("User Not Found"));
+    public UserDetailResponse getUserDetail(Integer userId) throws AuthenticationException, ResourceNotFoundException {
+        Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken())
+                .orElseThrow(() -> new AuthenticationException("401 Unauthorized!"));
         boolean userView = account.getRole().equals(Role.USER);
         if (userView && !account.getId().equals(userId)) {
-            throw new org.springframework.security.core.AuthenticationException("") {
-            };
+            throw new RuntimeException("");
         }
-        User user = userRepository.findByIdAndRemovedFalse(userId).orElseThrow(() -> new RuntimeException(""));
+        User user = userRepository.findByIdAndRemovedFalse(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found user by userId is %s ", userId)));
         return userMap.toUserDetailResponse(user, getBookingNum(userId), getFollowedNum(userId));
     }
 
@@ -195,8 +199,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public EmployeeDetailResponse getEmployeeDetail(Integer employeeId) {
-        Employee employee = employeeRepository.findByRemovedFalseAndId(employeeId).orElseThrow(() -> new RuntimeException(""));
+    public EmployeeDetailResponse getEmployeeDetail(Integer employeeId) throws ResourceNotFoundException {
+        Employee employee = employeeRepository.findByRemovedFalseAndId(employeeId).orElseThrow(() -> new ResourceNotFoundException(String.format("Not found employee by employeeId is %s ", employeeId)));
         return employeeMap.toEmployeeDetailResponse(employee);
     }
 
@@ -230,10 +234,10 @@ public class AccountServiceImpl implements AccountService {
     }
 
     private int getBookingNum(Integer userId) {
-        return 0;
+        return bookingRepository.countBookingByRemovedFalseAndStatusAndUserId(BookingStatus.COMPLETED, userId);
     }
 
     private int getFollowedNum(Integer userId) {
-        return 0;
+        return followRepository.countByUserIdAndRemovedFalse(userId);
     }
 }

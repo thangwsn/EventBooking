@@ -11,6 +11,7 @@ import com.eticket.domain.entity.booking.PaymentType;
 import com.eticket.domain.entity.event.Ticket;
 import com.eticket.domain.entity.quartz.ScheduleJob;
 import com.eticket.domain.entity.quartz.ScheduleJobType;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.repo.*;
 import com.eticket.infrastructure.mail.MailService;
 import com.eticket.infrastructure.paypal.PayPalService;
@@ -58,13 +59,13 @@ public class PaymentServiceImpl extends Observable<PaymentServiceImpl> implement
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer completePayment(String paymentId, String payerId) {
+    public Integer completePayment(String paymentId, String payerId) throws ResourceNotFoundException {
         Map<String, Object> response = payPalService.completePayment(paymentId, payerId);
         Payment payment = (Payment) response.get("payment");
         Integer bookingId = Integer.parseInt(payment.getTransactions().get(0).getDescription());
         // handle save db
         Booking booking = bookingRepository.findByIdAndRemovedFalse(bookingId)
-                .orElseThrow(() -> new RuntimeException(String.format("Booking %d not found ", bookingId)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found booking by id is %s ", bookingId)));
         User user = booking.getUser();
         if (user == null) {
             throw new RuntimeException("");

@@ -10,6 +10,9 @@ import com.eticket.domain.entity.booking.*;
 import com.eticket.domain.entity.event.*;
 import com.eticket.domain.entity.quartz.ScheduleJob;
 import com.eticket.domain.entity.quartz.ScheduleJobType;
+import com.eticket.domain.exception.AuthenticationException;
+import com.eticket.domain.exception.AuthorizationException;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.repo.*;
 import com.eticket.infrastructure.kafka.producer.KafkaSendService;
 import com.eticket.infrastructure.mail.MailService;
@@ -26,8 +29,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -76,11 +77,13 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
 
     @Override
     @KafkaListener(groupId = Constants.groupId, topics = Constants.BOOKING_HANDLER_TOPIC)
-    public void handleBooking(String message) {
+    public void handleBooking(String message) throws ResourceNotFoundException {
         // coding
         BookingCreateRequest bookingCreateRequest = Utils.readObjectFromJsonFormat(message, BookingCreateRequest.class);
-        User user = userRepository.findByUsernameAndRemovedFalse(bookingCreateRequest.getUsername()).orElseThrow(() -> new RuntimeException("User is not found!"));
-        Event event = eventRepository.findByIdAndRemovedFalse(bookingCreateRequest.getEventId()).orElseThrow(() -> new RuntimeException("Event is not found"));
+        User user = userRepository.findByUsernameAndRemovedFalse(bookingCreateRequest.getUsername())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found user by username is %s ", bookingCreateRequest.getUsername())));
+        Event event = eventRepository.findByIdAndRemovedFalse(bookingCreateRequest.getEventId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by event id is %s ", bookingCreateRequest.getEventId())));
         BookingCreateResponse bookingCreateResponse = new BookingCreateResponse();
         bookingCreateResponse.setBookingCode(bookingCreateRequest.getBookingCode());
         Booking booking;
@@ -129,7 +132,7 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
     }
 
     @Transactional(rollbackFor = {Exception.class, Throwable.class})
-    Booking saveBooking(BookingCreateRequest bookingCreateRequest, EventType eventType, Event event, User user) {
+    Booking saveBooking(BookingCreateRequest bookingCreateRequest, EventType eventType, Event event, User user) throws ResourceNotFoundException {
         double amount = 0.0;
         Booking booking = new Booking();
         booking.setCode(bookingCreateRequest.getBookingCode());
@@ -145,7 +148,8 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
         List<Ticket> listTicket = new ArrayList<>();
         List<BookingDetail> bookingDetailList = new ArrayList<>();
         for (ItemCreateRequest ticketCatalog : bookingCreateRequest.getListItem()) {
-            TicketCatalog ticketCatalog1 = ticketCatalogRepository.findByIdAndRemovedFalse(ticketCatalog.getTicketCatalogId()).orElseThrow(() -> new RuntimeException("Ticket Catalog is not found"));
+            TicketCatalog ticketCatalog1 = ticketCatalogRepository.findByIdAndRemovedFalse(ticketCatalog.getTicketCatalogId())
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found ticket catalog by id is %s ", ticketCatalog.getTicketCatalogId())));
             amount += ticketCatalog.getQuantity() * ticketCatalog1.getPrice();
             List<Ticket> list = ticketRepository.getListTicketByTicketCatalog(ticketCatalog.getTicketCatalogId(), TicketStatus.AVAILABLE.name(), ticketCatalog.getQuantity());
             listTicket.addAll(list);
@@ -171,7 +175,8 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
         ticketRepository.saveAll(listTicket);
 
         for (ItemCreateRequest ticketCatalog : bookingCreateRequest.getListItem()) {
-            TicketCatalog ticketCatalog1 = ticketCatalogRepository.findByIdAndRemovedFalse(ticketCatalog.getTicketCatalogId()).orElseThrow(() -> new RuntimeException("Ticket Catalog is not found"));
+            TicketCatalog ticketCatalog1 = ticketCatalogRepository.findByIdAndRemovedFalse(ticketCatalog.getTicketCatalogId())
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found ticket catalog by id is %s ", ticketCatalog.getTicketCatalogId())));
             bookingDetailList.add(BookingDetail.builder().booking(booking).quantity(ticketCatalog.getQuantity()).ticketCatalog(ticketCatalog1).build());
         }
         bookingDetailRepository.saveAll(bookingDetailList);
@@ -188,20 +193,19 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void cancelBooking(Integer bookingId, boolean withAuth) {
+    public void cancelBooking(Integer bookingId, boolean withAuth) throws AuthenticationException, AuthorizationException, ResourceNotFoundException {
         User user = new User();
         if (withAuth) {
             String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
             user = userRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
-                    .orElseThrow(() -> new RuntimeException(String.format("Account not found by username %s ", usernameFromJwtToken)));
+                    .orElseThrow(() -> new com.eticket.domain.exception.AuthenticationException("401 Unauthorized"));
             if (!user.getRole().equals(Role.USER)) {
-                throw new AuthenticationException("Unauthoraiztion") {
-                };
+                throw new AuthorizationException("Unauthorization");
             }
         }
 
         Booking booking = bookingRepository.findByIdAndRemovedFalse(bookingId)
-                .orElseThrow(() -> new RuntimeException(String.format("Booking %d not found ", bookingId)));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found booking by id is %s ", bookingId)));
         if (booking.getStatus().equals(BookingStatus.CANCEL)) {
             return;
         }
@@ -211,7 +215,7 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
             return;
         }
         if (withAuth && !user.getId().equals(booking.getUser().getId())) {
-            return;
+            throw new AuthorizationException("Unauthorization");
         }
         if ((booking.getStatus().equals(BookingStatus.COMPLETED) && event.getType().equals(EventType.FREE))
                 || (booking.getStatus().equals(BookingStatus.PENDING))) {
@@ -267,11 +271,11 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
     }
 
     @Override
-    public ListBookingGetResponse getListBooking(BookingGetRequest request) {
+    public ListBookingGetResponse getListBooking(BookingGetRequest request) throws AuthenticationException {
         String sortField = request.getSortField();
         Sort sort = request.getSortDirection().equalsIgnoreCase(Constants.DESC_SORT) ? Sort.by(sortField).descending() : Sort.by(sortField).ascending();
         Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), sort);
-        Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken()).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+        Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken()).orElseThrow(() -> new AuthenticationException("401 Unauthorized"));
         boolean userView = account.getRole().equals(Role.USER);
         List<Booking> bookingList;
         if (userView) {
@@ -295,15 +299,17 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
     }
 
     @Override
-    public BookingDetailResponse getBookingDetail(Integer bookingId) {
-        Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken()).orElseThrow(() -> new UsernameNotFoundException("User Not Found"));
+    public BookingDetailResponse getBookingDetail(Integer bookingId) throws AuthenticationException, ResourceNotFoundException {
+        Account account = accountRepository.findByUsernameAndRemovedFalse(jwtUtils.getUserNameFromJwtToken()).orElseThrow(() -> new AuthenticationException("401 Unauthorized"));
         boolean userView = account.getRole().equals(Role.USER);
         Booking booking;
         if (userView) {
             User user = userRepository.findByUsernameAndRemovedFalse(account.getUsername()).get();
-            booking = bookingRepository.findByIdAndUserAndRemovedFalse(bookingId, user).orElseThrow(() -> new RuntimeException(""));
+            booking = bookingRepository.findByIdAndUserAndRemovedFalse(bookingId, user)
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found booking by id is %s ", bookingId)));
         } else {
-            booking = bookingRepository.findByIdAndRemovedFalse(bookingId).orElseThrow(() -> new RuntimeException(""));
+            booking = bookingRepository.findByIdAndRemovedFalse(bookingId)
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found booking by id is %s ", bookingId)));
         }
         List<BookingDetail> ticketCalalogItem = bookingDetailRepository.findAllByBooking(booking);
         List<BookingCatalogItem> bookingCatalogItems = ticketCalalogItem.stream().map(item -> new BookingCatalogItem(item.getTicketCatalog().getId(), item.getTicketCatalog().getTitle(), item.getTicketCatalog().getPrice(), item.getQuantity())).collect(Collectors.toList());

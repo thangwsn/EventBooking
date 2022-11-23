@@ -4,6 +4,8 @@ import com.eticket.application.api.dto.BaseResponse;
 import com.eticket.application.api.dto.booking.BookingDetailResponse;
 import com.eticket.application.api.dto.booking.BookingGetRequest;
 import com.eticket.application.api.dto.booking.ListBookingGetResponse;
+import com.eticket.domain.exception.AuthenticationException;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,13 +19,13 @@ public class BookingApiController {
     private BookingService bookingService;
 
     @PostMapping("/get-list-booking")
-    public ResponseEntity<BaseResponse<ListBookingGetResponse>> getListBooking(@RequestBody BookingGetRequest bookingGetRequest) {
+    public ResponseEntity<BaseResponse<ListBookingGetResponse>> getListBooking(@RequestBody BookingGetRequest bookingGetRequest) throws AuthenticationException {
         ListBookingGetResponse response = bookingService.getListBooking(bookingGetRequest);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
     @GetMapping("/{booking_id}")
-    public ResponseEntity<BaseResponse<BookingDetailResponse>> getBookingDetail(@PathVariable("booking_id") Integer bookingId) {
+    public ResponseEntity<BaseResponse<BookingDetailResponse>> getBookingDetail(@PathVariable("booking_id") Integer bookingId) throws AuthenticationException, ResourceNotFoundException {
         BookingDetailResponse response = bookingService.getBookingDetail(bookingId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }

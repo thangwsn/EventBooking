@@ -3,6 +3,7 @@ package com.eticket.domain.service;
 import com.eticket.application.api.dto.event.*;
 import com.eticket.domain.entity.account.Employee;
 import com.eticket.domain.entity.event.Organizer;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.repo.JpaEmployeeRepository;
 import com.eticket.domain.repo.JpaEventRepository;
 import com.eticket.domain.repo.JpaFollowRepository;
@@ -39,17 +40,16 @@ public class OrganizerServiceImpl implements OrganizerService {
     private JwtUtils jwtUtils;
 
     @Override
-    public boolean registerOrganizer(OrganizerCreateRequest organizerCreateRequest) {
+    public boolean registerOrganizer(OrganizerCreateRequest organizerCreateRequest) throws ResourceNotFoundException {
         Organizer organizer = modelMapper.map(organizerCreateRequest, Organizer.class);
         organizer.setRemoved(false);
         String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
         if (usernameFromJwtToken.isEmpty()) {
-            throw new AuthenticationException("Employee is not found!") {
+            throw new AuthenticationException("401 Unauthorized") {
             };
         }
         Employee employee = employeeRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
-                .orElseThrow(() -> new AuthenticationException("Employee is not found!") {
-                });
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found employee by username is %s ", usernameFromJwtToken)));
         organizer.setUpdateByEmployee(employee);
         organizerRepository.saveAndFlush(organizer);
         return true;

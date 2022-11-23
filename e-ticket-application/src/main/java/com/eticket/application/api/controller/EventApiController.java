@@ -2,6 +2,9 @@ package com.eticket.application.api.controller;
 
 import com.eticket.application.api.dto.BaseResponse;
 import com.eticket.application.api.dto.event.*;
+import com.eticket.domain.exception.AuthenticationException;
+import com.eticket.domain.exception.EventRemoveException;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +22,7 @@ public class EventApiController {
     private EventService eventService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<Void>> addNewEvent(@RequestParam("files") MultipartFile[] files, @RequestParam("data") String data) {
+    public ResponseEntity<BaseResponse<Void>> addNewEvent(@RequestParam("files") MultipartFile[] files, @RequestParam("data") String data) throws AuthenticationException, ResourceNotFoundException {
         eventService.registerEvent(files, data);
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
@@ -30,7 +33,7 @@ public class EventApiController {
     }
 
     @DeleteMapping("/{event_id}")
-    public ResponseEntity<?> removeEvent(@PathVariable("event_id") Integer eventId) {
+    public ResponseEntity<?> removeEvent(@PathVariable("event_id") Integer eventId) throws EventRemoveException, ResourceNotFoundException {
         eventService.removeEvent(eventId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
@@ -42,13 +45,13 @@ public class EventApiController {
     }
 
     @GetMapping("/{event_id}")
-    public ResponseEntity<BaseResponse<EventDetailGetResponse>> getEvent(@PathVariable("event_id") Integer eventId) {
+    public ResponseEntity<BaseResponse<EventDetailGetResponse>> getEvent(@PathVariable("event_id") Integer eventId) throws ResourceNotFoundException {
         EventDetailGetResponse response = eventService.getEventById(eventId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
     @PostMapping("/{event_id}/ticket-catalog")
-    public ResponseEntity<BaseResponse<TicketCatalogGetResponse>> addTicketCatalog(@PathVariable("event_id") Integer eventId, @RequestBody TicketCatalogRequest ticketCatalogRequest) {
+    public ResponseEntity<BaseResponse<TicketCatalogGetResponse>> addTicketCatalog(@PathVariable("event_id") Integer eventId, @RequestBody TicketCatalogRequest ticketCatalogRequest) throws ResourceNotFoundException {
         eventService.addTicketCatalog(eventId, ticketCatalogRequest);
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
@@ -59,7 +62,7 @@ public class EventApiController {
     }
 
     @PostMapping("/change-status")
-    public ResponseEntity<BaseResponse<Void>> changeEventStatus(@RequestBody ChangeEventStatusRequest changeEventStatusRequest) {
+    public ResponseEntity<BaseResponse<Void>> changeEventStatus(@RequestBody ChangeEventStatusRequest changeEventStatusRequest) throws ResourceNotFoundException {
         eventService.changeEventStatus(changeEventStatusRequest);
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
@@ -71,7 +74,7 @@ public class EventApiController {
     }
 
     @GetMapping("/status/{event_id}")
-    public ResponseEntity getListEventStatus(@PathVariable("event_id") Integer eventId) {
+    public ResponseEntity getListEventStatus(@PathVariable("event_id") Integer eventId) throws ResourceNotFoundException {
         List<String> response = eventService.getListEventStatus(eventId);
         return ResponseEntity.ok(response);
     }

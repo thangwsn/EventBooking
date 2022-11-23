@@ -3,6 +3,8 @@ package com.eticket.application.api.controller;
 import com.eticket.application.api.dto.BaseResponse;
 import com.eticket.application.api.dto.FieldViolation;
 import com.eticket.application.api.dto.account.*;
+import com.eticket.domain.exception.AuthenticationException;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +60,7 @@ public class AccountApiController {
     }
 
     @GetMapping("/account-info")
-    public ResponseEntity<BaseResponse<AccountInfoResponse>> getAccountInfo() {
+    public ResponseEntity<BaseResponse<AccountInfoResponse>> getAccountInfo() throws AuthenticationException, ResourceNotFoundException {
         AccountInfoResponse response = accountService.getAccountInfo();
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
@@ -70,7 +72,7 @@ public class AccountApiController {
     }
 
     @GetMapping("/users/{user_id}")
-    public ResponseEntity<BaseResponse<UserDetailResponse>> getDetailUser(@PathVariable("user_id") Integer userId) {
+    public ResponseEntity<BaseResponse<UserDetailResponse>> getDetailUser(@PathVariable("user_id") Integer userId) throws AuthenticationException, ResourceNotFoundException {
         UserDetailResponse response = accountService.getUserDetail(userId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
@@ -92,7 +94,7 @@ public class AccountApiController {
     }
 
     @GetMapping("/employees/{employee_id}")
-    public ResponseEntity<BaseResponse<EmployeeDetailResponse>> getDetailEmployee(@PathVariable("employee_id") Integer employeeId) {
+    public ResponseEntity<BaseResponse<EmployeeDetailResponse>> getDetailEmployee(@PathVariable("employee_id") Integer employeeId) throws ResourceNotFoundException {
         EmployeeDetailResponse employeeDetailResponse = accountService.getEmployeeDetail(employeeId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(employeeDetailResponse));
     }

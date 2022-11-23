@@ -2,6 +2,9 @@ package com.eticket.application.api.controller;
 
 import com.eticket.application.api.dto.BaseResponse;
 import com.eticket.application.api.dto.booking.*;
+import com.eticket.domain.exception.AuthenticationException;
+import com.eticket.domain.exception.AuthorizationException;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.service.BookingService;
 import com.eticket.domain.service.PaymentService;
 import com.eticket.infrastructure.kafka.consumer.KafkaReceiverSingletonBooking;
@@ -64,25 +67,25 @@ public class BookingClientApiController {
     }
 
     @PostMapping("/complete-payment")
-    public ResponseEntity<BaseResponse> completePayment(@RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId) {
+    public ResponseEntity<BaseResponse> completePayment(@RequestParam("paymentId") String paymentId, @RequestParam("payerId") String payerId) throws ResourceNotFoundException {
         Integer bookingId = paymentService.completePayment(paymentId, payerId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(bookingId));
     }
 
     @GetMapping("/cancel-booking")
-    public ResponseEntity<BaseResponse> cancelBooking(@RequestParam("bookingId") Integer bookingId) {
+    public ResponseEntity<BaseResponse> cancelBooking(@RequestParam("bookingId") Integer bookingId) throws AuthenticationException, AuthorizationException, ResourceNotFoundException {
         bookingService.cancelBooking(bookingId, true);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(bookingId));
     }
 
     @PostMapping("/get-list-booking")
-    public ResponseEntity<BaseResponse<ListBookingGetResponse>> getListBooking(@RequestBody BookingGetRequest bookingGetRequest) {
+    public ResponseEntity<BaseResponse<ListBookingGetResponse>> getListBooking(@RequestBody BookingGetRequest bookingGetRequest) throws AuthenticationException {
         ListBookingGetResponse response = bookingService.getListBooking(bookingGetRequest);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
     @GetMapping("/{booking_id}")
-    public ResponseEntity<BaseResponse<BookingDetailResponse>> getBookingDetail(@PathVariable("booking_id") Integer bookingId) {
+    public ResponseEntity<BaseResponse<BookingDetailResponse>> getBookingDetail(@PathVariable("booking_id") Integer bookingId) throws AuthenticationException, ResourceNotFoundException {
         BookingDetailResponse response = bookingService.getBookingDetail(bookingId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }

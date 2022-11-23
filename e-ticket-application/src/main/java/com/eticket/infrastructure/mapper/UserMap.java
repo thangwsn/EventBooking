@@ -18,7 +18,9 @@ public class UserMap {
 
     public UserDetailResponse toUserDetailResponse(User user, int bookingNum, int followedNum) {
         UserDetailResponse userDetailResponse = modelMapper.map(user, UserDetailResponse.class);
-        userDetailResponse.setAddressString(user.getAddress().toAddressString());
+        if (user.getAddress() != null) {
+            userDetailResponse.setAddressString(user.getAddress().toAddressString());
+        }
         userDetailResponse.setBookingNum(bookingNum);
         userDetailResponse.setFollowedNum(followedNum);
         return userDetailResponse;

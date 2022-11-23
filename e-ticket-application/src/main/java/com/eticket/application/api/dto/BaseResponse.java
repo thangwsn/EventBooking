@@ -2,7 +2,6 @@ package com.eticket.application.api.dto;
 
 
 import com.eticket.domain.exception.BookingBusinessError;
-import com.eticket.domain.exception.BookingException;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -13,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
  * Base Response for RestAPI
  */
 @Data
@@ -52,7 +50,7 @@ public class BaseResponse<T> {
     }
 
     public static <T> BaseResponse<T> ofInvalid(T data) {
-        BaseResponse<T> response =  new BaseResponse<T>();
+        BaseResponse<T> response = new BaseResponse<T>();
         response.data = data;
         response.meta.code = INVALID_CODE;
         response.meta.message = "Invalid";
@@ -73,10 +71,6 @@ public class BaseResponse<T> {
         response.meta.message = (message != null) ? message : errorCode.getMessage();
         response.meta.errors = (errors != null) ? new ArrayList<>(errors) : null;
         return response;
-    }
-
-    public static BaseResponse<Void> ofFailed(BookingException exception) {
-        return ofFailed(exception.getErrorCode(), exception.getMessage());
     }
 
     @Data

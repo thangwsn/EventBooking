@@ -14,7 +14,6 @@ import java.util.Date;
 public class EmployeeDetailResponse {
     private Integer id;
     private String username;
-    private String password;
     private String email;
     private String mobile;
     private String fullName;

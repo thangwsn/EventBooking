@@ -5,6 +5,7 @@ import com.eticket.application.api.dto.event.ListOrganizerGetResponse;
 import com.eticket.application.api.dto.event.OrganizerCreateRequest;
 import com.eticket.application.api.dto.event.OrganizerGetDetailResponse;
 import com.eticket.application.api.dto.event.OrganizerUpdateRequest;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.service.OrganizerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class OrganizerApiController {
     private OrganizerService organizerSevice;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<Void>> addNewOrganizer(@Valid @RequestBody OrganizerCreateRequest organizerCreateRequest) {
+    public ResponseEntity<BaseResponse<Void>> addNewOrganizer(@Valid @RequestBody OrganizerCreateRequest organizerCreateRequest) throws ResourceNotFoundException {
         boolean accept = organizerSevice.registerOrganizer(organizerCreateRequest);
         if (!accept) {
             throw new IllegalArgumentException();

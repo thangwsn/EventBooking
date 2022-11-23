@@ -18,7 +18,9 @@ public class EmployeeMap {
 
     public EmployeeDetailResponse toEmployeeDetailResponse(Employee employee) {
         EmployeeDetailResponse employeeDetailResponse = modelMapper.map(employee, EmployeeDetailResponse.class);
-        employeeDetailResponse.setAddressString(employee.getAddress().toAddressString());
+        if (employee.getAddress() != null) {
+            employeeDetailResponse.setAddressString(employee.getAddress().toAddressString());
+        }
         return employeeDetailResponse;
     }
 }

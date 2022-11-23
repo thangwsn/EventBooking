@@ -4,6 +4,7 @@ import com.eticket.application.api.dto.BaseResponse;
 import com.eticket.application.api.dto.event.EventDetailGetResponse;
 import com.eticket.application.api.dto.event.EventGetRequest;
 import com.eticket.application.api.dto.event.ListEventGetResponse;
+import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.service.EventService;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class EventClientApiController {
     }
 
     @GetMapping("/{event_id}")
-    public ResponseEntity<BaseResponse<EventDetailGetResponse>> getEvent(@PathVariable("event_id") Integer eventId) {
+    public ResponseEntity<BaseResponse<EventDetailGetResponse>> getEvent(@PathVariable("event_id") Integer eventId) throws ResourceNotFoundException {
         EventDetailGetResponse response = eventService.getEventByIdFromClientSide(eventId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
