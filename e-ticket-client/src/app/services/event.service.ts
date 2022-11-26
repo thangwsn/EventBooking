@@ -3,7 +3,6 @@ import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
 import { EventCreateRequest, EventDetail, EventGet } from "../model/event.model";
 import { OrganizerGet } from "../model/organizer.model";
-import { Constants } from "../utils/constants";
 import { ConvertToDate } from "../utils/time-convert";
 import { TokenStorageService } from "./token-storage.service";
 import { environment } from 'environments/environment';
@@ -126,7 +125,6 @@ export class EventService {
     }
 
     private updateEventDetailData() {
-        console.log(this.event);
         this.displayEventDetailSubject.next(this.event);
     }
 

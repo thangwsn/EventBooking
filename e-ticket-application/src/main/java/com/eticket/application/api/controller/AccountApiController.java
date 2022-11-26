@@ -65,9 +65,9 @@ public class AccountApiController {
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<BaseResponse<ListUserGetResponse>> getUserList(@RequestBody UserGetRequest userGetRequest) {
-        ListUserGetResponse response = accountService.getListUser(userGetRequest);
+    @GetMapping("/users")
+    public ResponseEntity<BaseResponse<ListUserGetResponse>> getUserList() {
+        ListUserGetResponse response = accountService.getListUser();
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
@@ -87,9 +87,9 @@ public class AccountApiController {
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
-    @PostMapping("/employees")
-    public ResponseEntity<BaseResponse<ListEmployeeGetResponse>> getListEmployee(@RequestBody EmployeeGetRequest employeeGetRequest) {
-        ListEmployeeGetResponse response = accountService.getListEmployee(employeeGetRequest);
+    @GetMapping("/employees")
+    public ResponseEntity<BaseResponse<ListEmployeeGetResponse>> getListEmployee() {
+        ListEmployeeGetResponse response = accountService.getListEmployee();
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 

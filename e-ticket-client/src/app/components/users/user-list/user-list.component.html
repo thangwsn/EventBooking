@@ -1,1 +1,114 @@
-<p>user-list works!</p>
+<main id="main" class="main">
+  <div class="pagetitle">
+    <h1>Users</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+        <li class="breadcrumb-item">Users</li>
+      </ol>
+    </nav>
+  </div>
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">User List</h5>
+            <p-table
+              styleClass="p-datatable-striped"
+              [tableStyle]="{ 'min-width': '50rem' }"
+              #dt
+              *ngIf="userList$ | async as userList"
+              [value]="userList"
+              [rows]="10"
+              [paginator]="true"
+              [globalFilterFields]="[
+                'userCode',
+                'username',
+                'email',
+                'fullName'
+              ]"
+              [rowHover]="true"
+              dataKey="id"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              [showCurrentPageReport]="true"
+            >
+              <ng-template pTemplate="caption">
+                <div class="p-d-flex p-ai-center p-jc-between">
+                  <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input
+                      pInputText
+                      type="text"
+                      (input)="applyFilterGlobal($event, 'contains')"
+                      placeholder="Search..."
+                    />
+                  </span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="userCode">
+                    User Code <p-sortIcon field="userCode"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="username">
+                    Username <p-sortIcon field="username"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="fullName">
+                    Full Name <p-sortIcon field="fullName"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="email">
+                    Email <p-sortIcon field="email"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="mobile">
+                    Mobile <p-sortIcon field="mobile"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="amountReserved">
+                    Amount Reserved
+                    <p-sortIcon field="amountReserved"></p-sortIcon>
+                  </th>
+
+                  <th></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-user>
+                <tr>
+                  <td>{{ user.userCode }}</td>
+                  <td>{{ user.username }}</td>
+                  <td>{{ user.fullName }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>{{ user.mobile }}</td>
+                  <td>{{ user.amountReserved }}</td>
+                  <td>
+                    <button
+                      pButton
+                      pRipple
+                      icon="pi pi-eye"
+                      class="p-button-rounded p-button-info p-mr-2"
+                      (click)="detailUser(user.id)"
+                    ></button>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p-dialog
+      [(visible)]="userDetailDialog"
+      [style]="{ width: '60vw' }"
+      header="User Detail"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <app-user-detail [userDetail]="userDetail"></app-user-detail>
+      </ng-template>
+
+      <ng-template pTemplate="footer">
+        <button pButton pRipple label="Close" class="p-button-info mt-2" (click)="closeDialog()"></button>
+      </ng-template>
+    </p-dialog>
+  </section>
+</main>

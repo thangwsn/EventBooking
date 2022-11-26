@@ -13,15 +13,11 @@ import com.eticket.infrastructure.mapper.UserMap;
 import com.eticket.infrastructure.security.jwt.EncryptionUtil;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
 import com.eticket.infrastructure.security.service.JwtUserDetailsService;
-import com.eticket.infrastructure.utils.Constants;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
@@ -166,11 +162,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ListUserGetResponse getListUser(UserGetRequest request) {
-        String sortField = request.getSortField();
-        Sort sort = request.getSortDirection().equalsIgnoreCase(Constants.DESC_SORT) ? Sort.by(sortField).descending() : Sort.by(sortField).ascending();
-        Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), sort);
-        List<User> listUser = userRepository.findByRemovedFalse(pageable);
+    public ListUserGetResponse getListUser() {
+        List<User> listUser = userRepository.findByRemovedFalse();
         List<UserGetResponse> listUserGetResponse = listUser.stream().map(u -> userMap.toUserGetResponse(u)).collect(Collectors.toList());
         return new ListUserGetResponse(listUserGetResponse.size(), listUserGetResponse);
     }
@@ -189,11 +182,8 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public ListEmployeeGetResponse getListEmployee(EmployeeGetRequest request) {
-        String sortField = request.getSortField();
-        Sort sort = request.getSortDirection().equalsIgnoreCase(Constants.DESC_SORT) ? Sort.by(sortField).descending() : Sort.by(sortField).ascending();
-        Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), sort);
-        List<Employee> employeeList = employeeRepository.findByRemovedFalse(pageable);
+    public ListEmployeeGetResponse getListEmployee() {
+        List<Employee> employeeList = employeeRepository.findByRemovedFalse();
         List<EmployeeGetResponse> employeeGetResponses = employeeList.stream().map(e -> employeeMap.toEmployeeGetResponse(e)).collect(Collectors.toList());
         return new ListEmployeeGetResponse(employeeGetResponses.size(), employeeGetResponses);
     }

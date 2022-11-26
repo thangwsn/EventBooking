@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ConfirmationService, Message, MessageService, PrimeNGConfig } from 'primeng/api';
-import { Observable, Subject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { OrganizerGet } from 'app/model/organizer.model';
 import { OrganizerService } from 'app/services/organizer.service';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-organizer-list',
@@ -15,7 +16,7 @@ import { OrganizerService } from 'app/services/organizer.service';
   providers: [ConfirmationService, MessageService]
 })
 export class OrganizerListComponent implements OnInit {
-
+  @ViewChild('dt') dt!: Table;
   organizerList$: Observable<OrganizerGet[]> = new Observable<OrganizerGet[]>();
   msgs: Message[] = [];
 
@@ -31,8 +32,8 @@ export class OrganizerListComponent implements OnInit {
     this.organizerList$ = this.organizerService.organizerList$;
   }
 
-  ngOnDestroy(): void {
-
+  applyFilterGlobal($event: any, stringVal: any) {
+    this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
   openRemoveConfirm(organizer: OrganizerGet) {

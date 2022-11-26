@@ -1,10 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
 import { PrimeNGConfig, MessageService, } from 'primeng/api';
 
 import { EventGet } from 'app/model/event.model';
 import { EventService } from 'app/services/event.service';
 import { Constants } from 'app/utils/constants';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-event-list',
@@ -13,6 +14,7 @@ import { Constants } from 'app/utils/constants';
   providers: [MessageService]
 })
 export class EventListComponent implements OnInit {
+  @ViewChild('dt') dt!: Table;
   eventList$: Observable<EventGet[]> = new Observable<EventGet[]>();
 
   constructor(private eventService: EventService, private primengConfig: PrimeNGConfig,
@@ -22,6 +24,10 @@ export class EventListComponent implements OnInit {
     this.primengConfig.ripple = true;
     this.eventService.fetchEventListForAdmin();
     this.eventList$ = this.eventService.eventList$;
+  }
+
+  applyFilterGlobal($event: any, stringVal: any) {
+    this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
   getClassOfEventType(type: string) {

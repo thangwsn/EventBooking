@@ -24,4 +24,5 @@ public class UserDetailResponse {
     private String userCode;
     private int bookingNum;
     private int followedNum;
+    private String address;
 }

@@ -1,37 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { DashboardComponent } from './pages/admin/dashboard/dashboard.component';
-import { AlertsComponent } from './components/alerts/alerts.component';
-import { AccordionComponent } from './components/accordion/accordion.component';
-import { BadgesComponent } from './components/badges/badges.component';
-import { BreadcrumbsComponent } from './components/breadcrumbs/breadcrumbs.component';
-import { ButtonsComponent } from './components/buttons/buttons.component';
-import { CardsComponent } from './components/cards/cards.component';
-import { CarouselComponent } from './components/carousel/carousel.component';
-import { ChartsApexchartsComponent } from './components/charts-apexcharts/charts-apexcharts.component';
-import { ChartsChartjsComponent } from './components/charts-chartjs/charts-chartjs.component';
-import { FormsEditorsComponent } from './components/forms-editors/forms-editors.component';
-import { FormsElementsComponent } from './components/forms-elements/forms-elements.component';
-import { FormsLayoutsComponent } from './components/forms-layouts/forms-layouts.component';
-import { IconsBootstrapComponent } from './components/icons-bootstrap/icons-bootstrap.component';
-import { IconsBoxiconsComponent } from './components/icons-boxicons/icons-boxicons.component';
-import { IconsRemixComponent } from './components/icons-remix/icons-remix.component';
-import { ListGroupComponent } from './components/list-group/list-group.component';
-import { ModalComponent } from './components/modal/modal.component';
-import { PaginationComponent } from './components/pagination/pagination.component';
-import { ProgressComponent } from './components/progress/progress.component';
-import { SpinnersComponent } from './components/spinners/spinners.component';
-import { TablesDataComponent } from './components/tables-data/tables-data.component';
-import { TablesGeneralComponent } from './components/tables-general/tables-general.component';
-import { TabsComponent } from './components/tabs/tabs.component';
-import { TooltipsComponent } from './components/tooltips/tooltips.component';
 import { PagesBlankComponent } from './pages/common/pages-blank/pages-blank.component';
 import { PagesContactComponent } from './pages/pages-contact/pages-contact.component';
 import { PagesError404Component } from './pages/common/pages-error404/pages-error404.component';
 import { PagesFaqComponent } from './pages/pages-faq/pages-faq.component';
 import { PagesLoginComponent } from './pages/common/pages-login/pages-login.component';
 import { PagesRegisterComponent } from './pages/user/pages-register/pages-register.component';
-import { UsersProfileComponent } from './pages/user/users-profile/users-profile.component';
 import { OrganizerCreateComponent } from './components/organizers/organizer-create/organizer-create.component';
 import { OrganizerDetailComponent } from './components/organizers/organizer-detail/organizer-detail.component';
 import { EventListComponent } from './components/events/event-list/event-list.component';
@@ -48,34 +23,11 @@ import { BookingDetailUserComponent } from './components/bookings/booking-detail
 import { BookingListComponent } from './components/bookings/booking-list/booking-list.component';
 import { BookingDetailComponent } from './components/bookings/booking-detail/booking-detail.component';
 import { VerifyComponent } from './pages/user/verify/verify.component';
+import { UserProfileComponent } from './components/users/user-profile/user-profile.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent},
   { path: 'dashboard', component: DashboardComponent },
-  { path: 'alerts', component: AlertsComponent },
-  { path: 'accordion', component: AccordionComponent },
-  { path: 'badges', component: BadgesComponent },
-  { path: 'breadcrumbs', component: BreadcrumbsComponent },
-  { path: 'buttons', component: ButtonsComponent },
-  { path: 'cards', component: CardsComponent },
-  { path: 'carousel', component: CarouselComponent },
-  { path: 'charts-apexcharts', component: ChartsApexchartsComponent },
-  { path: 'charts-chartjs', component: ChartsChartjsComponent },
-  { path: 'form-editors', component: FormsEditorsComponent },
-  { path: 'form-elements', component: FormsElementsComponent },
-  { path: 'form-layouts', component: FormsLayoutsComponent },
-  { path: 'icons-bootstrap', component: IconsBootstrapComponent },
-  { path: 'icons-boxicons', component: IconsBoxiconsComponent },
-  { path: 'icons-remix', component: IconsRemixComponent },
-  { path: 'list-group', component: ListGroupComponent },
-  { path: 'modal', component: ModalComponent },
-  { path: 'pagination', component: PaginationComponent },
-  { path: 'progress', component: ProgressComponent },
-  { path: 'spinners', component: SpinnersComponent },
-  { path: 'tables-data', component: TablesDataComponent },
-  { path: 'tables-general', component: TablesGeneralComponent },
-  { path: 'tabs', component: TabsComponent },
-  { path: 'tooltips', component: TooltipsComponent },
   { path: 'pages-blank', component: PagesBlankComponent },
   { path: 'pages-contact', component: PagesContactComponent },
   { path: 'pages-error404', component: PagesError404Component },
@@ -84,7 +36,6 @@ const routes: Routes = [
   { path: 'login', component: PagesLoginComponent },
   { path: 'register', component: PagesRegisterComponent },
   { path: 'verify-register', component: VerifyComponent},
-  { path: 'user-profile', component: UsersProfileComponent },
   { path: 'admin/organizers', component: OrganizerListComponent},
   { path: 'admin/organizers/create', component: OrganizerCreateComponent},
   { path: 'admin/organizers/:organizerId', component: OrganizerDetailComponent},
@@ -98,7 +49,10 @@ const routes: Routes = [
   { path: 'booking', component: BookingListUserComponent},
   { path: 'booking/:bookingId', component: BookingDetailUserComponent},
   { path: 'admin/bookings', component: BookingListComponent}, 
-  { path: 'admin/bookings/:bookingId', component: BookingDetailComponent}
+  { path: 'admin/bookings/:bookingId', component: BookingDetailComponent},
+  { path: 'admin/users', component: UserListComponent},
+  { path: 'admin/employees', component: EmployeeListComponent},
+  { path: 'profile', component: UserProfileComponent}
 ];
 
 @NgModule({

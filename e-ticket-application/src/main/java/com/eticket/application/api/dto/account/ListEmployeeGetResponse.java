@@ -11,5 +11,5 @@ import java.util.List;
 @NoArgsConstructor
 public class ListEmployeeGetResponse {
     private int size;
-    private List<EmployeeGetResponse> listEmployee;
+    private List<EmployeeGetResponse> employeeList;
 }

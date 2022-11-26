@@ -18,11 +18,11 @@ public interface AccountService {
 
     AccountInfoResponse getAccountInfo() throws AuthenticationException, ResourceNotFoundException;
 
-    ListUserGetResponse getListUser(UserGetRequest userGetRequest);
+    ListUserGetResponse getListUser();
 
     UserDetailResponse getUserDetail(Integer userId) throws AuthenticationException, ResourceNotFoundException;
 
-    ListEmployeeGetResponse getListEmployee(EmployeeGetRequest employeeGetRequest);
+    ListEmployeeGetResponse getListEmployee();
 
     EmployeeDetailResponse getEmployeeDetail(Integer employeeId) throws ResourceNotFoundException;
 
