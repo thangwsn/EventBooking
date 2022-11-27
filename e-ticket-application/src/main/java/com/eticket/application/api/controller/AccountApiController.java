@@ -50,8 +50,18 @@ public class AccountApiController {
     }
 
     @PostMapping("/change-password")
-    public ResponseEntity<?> changePassword() {
-        return null;
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) throws AuthenticationException, ResourceNotFoundException {
+        List<FieldViolation> violationList = accountService.changePassword(changePasswordRequest);
+        if (violationList.size() > 0) {
+            return ResponseEntity.ok(BaseResponse.ofInvalid(violationList));
+        }
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
+    }
+
+    @GetMapping("/update-token")
+    public ResponseEntity<BaseResponse<LoginResponse>> updateToken() throws AuthenticationException {
+        LoginResponse response = accountService.updateToken();
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
     @PostMapping("/forgot_password")
@@ -74,6 +84,12 @@ public class AccountApiController {
     @GetMapping("/users/{user_id}")
     public ResponseEntity<BaseResponse<UserDetailResponse>> getDetailUser(@PathVariable("user_id") Integer userId) throws AuthenticationException, ResourceNotFoundException {
         UserDetailResponse response = accountService.getUserDetail(userId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
+    }
+
+    @GetMapping("/user-profile")
+    public ResponseEntity<BaseResponse<UserProfileResponse>> getUserProfile() throws AuthenticationException, ResourceNotFoundException {
+        UserProfileResponse response = accountService.getUserProfile();
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 

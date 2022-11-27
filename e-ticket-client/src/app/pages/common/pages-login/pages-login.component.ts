@@ -19,7 +19,10 @@ export class PagesLoginComponent implements OnInit {
   errorMessage = '';
   role: string = '';
 
-  constructor(private fb: FormBuilder, private accountService: AccountService, private tokenStorageService: TokenStorageService, private _router: Router) { }
+  constructor(private fb: FormBuilder, 
+    private accountService: AccountService, 
+    private tokenStorageService: TokenStorageService, 
+    private _router: Router) { }
 
   ngOnInit(): void {
     if (this.tokenStorageService.getToken()) {
@@ -63,7 +66,6 @@ export class PagesLoginComponent implements OnInit {
     this.accountService.login(userLoginRequest).subscribe({
       next: (response: { data: { jwtToken: string; username: any; role: any; }; }) => {
         this.tokenStorageService.saveToken(response.data.jwtToken);
-        console.log(response);
         this.tokenStorageService.saveUser({ username: response.data.username, role: response.data.role });
         this.isLoggedIn = true;
         this.isLoginFailed = false;

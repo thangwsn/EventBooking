@@ -201,6 +201,51 @@ public class AccountServiceImpl implements AccountService {
         employeeRepository.saveAndFlush(employee);
     }
 
+    @Override
+    public UserProfileResponse getUserProfile() throws AuthenticationException, ResourceNotFoundException {
+        String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
+        if (usernameFromJwtToken.isEmpty()) {
+            throw new AuthenticationException("401 Unauthorized!");
+        }
+        User user = userRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found user by username is %s ", usernameFromJwtToken)));
+        return userMap.toUserProfileResponse(user);
+    }
+
+    @Override
+    public List<FieldViolation> changePassword(ChangePasswordRequest changePasswordRequest) throws AuthenticationException, ResourceNotFoundException {
+        String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
+        if (usernameFromJwtToken.isEmpty()) {
+            throw new AuthenticationException("401 Unauthorized!");
+        }
+        Account account = accountRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found account by username is %s ", usernameFromJwtToken)));
+        List<FieldViolation> violationList = new ArrayList<>();
+        if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), account.getPassword())) {
+            violationList.add(new FieldViolation("currentPassword", "Current password is not match"));
+            return violationList;
+        }
+        account.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
+        accountRepository.save(account);
+        return violationList;
+    }
+
+    @Override
+    public LoginResponse updateToken() throws AuthenticationException {
+        String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
+        if (usernameFromJwtToken.isEmpty()) {
+            throw new AuthenticationException("401 Unauthorized!");
+        }
+        final UserDetails userDetails = userDetailService
+                .loadUserByUsername(usernameFromJwtToken);
+        final String token = jwtUtils.generateToken(userDetails);
+        String role = userDetails.getAuthorities().stream()
+                .map(item -> item.getAuthority())
+                .collect(Collectors.toList()).get(0);
+        LoginResponse loginResponse = new LoginResponse(userDetails.getUsername(), role, EncryptionUtil.encrypt(token));
+        return loginResponse;
+    }
+
     private boolean existsUsername(String username) {
         return accountRepository.existsAccountByUsernameAndRemovedFalse(username);
     }

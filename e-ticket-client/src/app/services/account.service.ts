@@ -1,8 +1,7 @@
-import { Constants } from "../utils/constants";
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from "@angular/core";
-import { AccountInfo, UserLoginRequest, UserSignUpRequest } from "../model/account.model";
+import { AccountInfo, ChangePasswordRequest, UserLoginRequest, UserSignUpRequest } from "../model/account.model";
 import { TokenStorageService } from "./token-storage.service";
 import { environment } from 'environments/environment';
 
@@ -47,6 +46,14 @@ export class AccountService {
 
   verifyRegisterUser(userId: number, activeCode: string): Observable<any> {
     return this.http.get(`${BASE_API}/verify-register?user_id=${userId}&active_code=${activeCode}`);
+  }
+
+  changePassword(request: ChangePasswordRequest): Observable<any> {
+    return this.http.post(`${BASE_API}/change-password`, request, this.getHeader());
+  }
+
+  updateToken(): Observable<any> {
+    return this.http.get(`${BASE_API}/update-token`, this.getHeader());
   }
 
   private getHeader() {

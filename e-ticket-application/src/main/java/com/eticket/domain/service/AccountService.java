@@ -27,4 +27,10 @@ public interface AccountService {
     EmployeeDetailResponse getEmployeeDetail(Integer employeeId) throws ResourceNotFoundException;
 
     void removeEmployee(Integer employeeId);
+
+    UserProfileResponse getUserProfile() throws AuthenticationException, ResourceNotFoundException;
+
+    List<FieldViolation> changePassword(ChangePasswordRequest changePasswordRequest) throws AuthenticationException, ResourceNotFoundException;
+
+    LoginResponse updateToken() throws AuthenticationException;
 }

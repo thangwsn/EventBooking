@@ -1,4 +1,9 @@
-<section class="section profile container py-0" style="margin-top: -10rem !important">
+<section
+  class="section profile container py-0"
+  style="margin-top: -10rem !important"
+  *ngIf="userProfile$ | async as userProfile"
+>
+  <p-blockUI [blocked]="blockedDocument"></p-blockUI>
   <div class="row">
     <div class="col-xl-4">
       <div class="card">
@@ -10,8 +15,8 @@
             alt="Profile"
             class="rounded-circle"
           />
-          <h2>Jassa</h2>
-          <h3>Web Designer</h3>
+          <h2>{{ userProfile.username }}</h2>
+          <h3>{{ userProfile.userCode }}</h3>
           <div class="social-links mt-2">
             <a href="#" class="twitter"><i class="bi bi-twitter"></i></a>
             <a href="#" class="facebook"><i class="bi bi-facebook"></i></a>
@@ -27,6 +32,7 @@
           <ul class="nav nav-tabs nav-tabs-bordered">
             <li class="nav-item">
               <button
+                #overview
                 class="nav-link active"
                 data-bs-toggle="tab"
                 data-bs-target="#profile-overview"
@@ -47,68 +53,44 @@
               <button
                 class="nav-link"
                 data-bs-toggle="tab"
-                data-bs-target="#profile-settings"
-              >
-                Settings
-              </button>
-            </li>
-            <li class="nav-item">
-              <button
-                class="nav-link"
-                data-bs-toggle="tab"
                 data-bs-target="#profile-change-password"
               >
                 Change Password
               </button>
             </li>
           </ul>
-          <div class="tab-content pt-2">
+          <div class="tab-content pt-4">
             <div
               class="tab-pane fade show active profile-overview"
               id="profile-overview"
             >
-              <h5 class="card-title">About</h5>
-              <p class="small fst-italic">
-                Sunt est soluta temporibus accusantium neque nam maiores cumque
-                temporibus. Tempora libero non est unde veniam est qui dolor. Ut
-                sunt iure rerum quae quisquam autem eveniet perspiciatis odit.
-                Fuga sequi sed ea saepe at unde.
-              </p>
-              <h5 class="card-title">Profile Details</h5>
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Full Name</div>
-                <div class="col-lg-9 col-md-8">Jassa</div>
+                <div class="col-lg-9 col-md-8">{{ userProfile.fullName }}</div>
               </div>
               <div class="row">
-                <div class="col-lg-3 col-md-4 label">Company</div>
-                <div class="col-lg-9 col-md-8">Therichpost</div>
+                <div class="col-lg-3 col-md-4 label">Date of Birth</div>
+                <div class="col-lg-9 col-md-8">
+                  {{ userProfile.dateOfBirth | date }}
+                </div>
               </div>
               <div class="row">
-                <div class="col-lg-3 col-md-4 label">Job</div>
-                <div class="col-lg-9 col-md-8">Web Designer</div>
-              </div>
-              <div class="row">
-                <div class="col-lg-3 col-md-4 label">Country</div>
-                <div class="col-lg-9 col-md-8">USA</div>
+                <div class="col-lg-3 col-md-4 label">Gender</div>
+                <div class="col-lg-9 col-md-8">{{ userProfile.gender }}</div>
               </div>
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Address</div>
-                <div class="col-lg-9 col-md-8">Ludhiana, Punjab, India</div>
+                <div class="col-lg-9 col-md-8">
+                  {{ userProfile.address.toString() }}
+                </div>
               </div>
               <div class="row">
-                <div class="col-lg-3 col-md-4 label">Phone</div>
-                <div class="col-lg-9 col-md-8">(436) 486-3538 x29071</div>
+                <div class="col-lg-3 col-md-4 label">Mobile</div>
+                <div class="col-lg-9 col-md-8">{{ userProfile.mobile }}</div>
               </div>
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Email</div>
-                <div class="col-lg-9 col-md-8">
-                  <a
-                    href="/cdn-cgi/l/email-protection"
-                    class="__cf_email__"
-                    data-cfemail="e982c788878d8c9b9a8687a98c91888499858cc78a8684"
-                    >[email&#160;protected]</a
-                  >
-                </div>
+                <div class="col-lg-9 col-md-8">{{ userProfile.email }}</div>
               </div>
             </div>
             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
@@ -149,21 +131,6 @@
                       id="fullName"
                       value="Jassa"
                     />
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="about" class="col-md-4 col-lg-3 col-form-label"
-                    >About</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <textarea
-                      name="about"
-                      class="form-control"
-                      id="about"
-                      style="height: 100px"
-                    >
-Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Tempora libero non est unde veniam est qui dolor. Ut sunt iure rerum quae quisquam autem eveniet perspiciatis odit. Fuga sequi sed ea saepe at unde.</textarea
-                    >
                   </div>
                 </div>
                 <div class="row mb-3">
@@ -315,68 +282,11 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
                 </div>
               </form>
             </div>
-            <div class="tab-pane fade pt-3" id="profile-settings">
-              <form>
-                <div class="row mb-3">
-                  <label for="fullName" class="col-md-4 col-lg-3 col-form-label"
-                    >Email Notifications</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="changesMade"
-                        checked
-                      />
-                      <label class="form-check-label" for="changesMade">
-                        Changes made to your account
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="newProducts"
-                        checked
-                      />
-                      <label class="form-check-label" for="newProducts">
-                        Information on new products and services
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="proOffers"
-                      />
-                      <label class="form-check-label" for="proOffers">
-                        Marketing and promo offers
-                      </label>
-                    </div>
-                    <div class="form-check">
-                      <input
-                        class="form-check-input"
-                        type="checkbox"
-                        id="securityNotify"
-                        checked
-                        disabled
-                      />
-                      <label class="form-check-label" for="securityNotify">
-                        Security alerts
-                      </label>
-                    </div>
-                  </div>
-                </div>
-                <div class="text-center">
-                  <button type="submit" class="btn btn-primary">
-                    Save Changes
-                  </button>
-                </div>
-              </form>
-            </div>
             <div class="tab-pane fade pt-3" id="profile-change-password">
-              <form>
+              <form
+                [formGroup]="changePasswordForm"
+                (ngSubmit)="changePasswordForm.valid && changePasswordSubmit()"
+              >
                 <div class="row mb-3">
                   <label
                     for="currentPassword"
@@ -385,7 +295,7 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
-                      name="password"
+                      formControlName="currentPassword"
                       type="password"
                       class="form-control"
                       id="currentPassword"
@@ -400,7 +310,7 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
-                      name="newpassword"
+                      formControlName="newPassword"
                       type="password"
                       class="form-control"
                       id="newPassword"
@@ -415,7 +325,7 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
-                      name="renewpassword"
+                      formControlName="againPassword"
                       type="password"
                       class="form-control"
                       id="renewPassword"
@@ -423,9 +333,14 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
                   </div>
                 </div>
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary">
-                    Change Password
-                  </button>
+                  <button
+                    pButton
+                    pRipple
+                    label="Change Password"
+                    class="p-button-info mb-4"
+                    type="submit"
+                    [disabled]="changePasswordForm.invalid"
+                  ></button>
                 </div>
               </form>
             </div>
@@ -434,4 +349,9 @@ Sunt est soluta temporibus accusantium neque nam maiores cumque temporibus. Temp
       </div>
     </div>
   </div>
+  <p-confirmDialog
+    [style]="{ width: '50vw' }"
+    [baseZIndex]="10000"
+  ></p-confirmDialog>
+  <p-toast></p-toast>
 </section>

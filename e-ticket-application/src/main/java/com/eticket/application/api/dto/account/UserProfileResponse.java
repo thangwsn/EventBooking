@@ -1,5 +1,6 @@
 package com.eticket.application.api.dto.account;
 
+import com.eticket.domain.entity.account.Address;
 import com.eticket.domain.entity.account.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,7 +11,7 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDetailResponse {
+public class UserProfileResponse {
     private Integer id;
     private String username;
     private String email;
@@ -19,9 +20,6 @@ public class UserDetailResponse {
     private Gender gender;
     private Date dateOfBirth;
     private String imageUrl;
-    private String addressString;
-    private double amountReserved;
     private String userCode;
-    private int bookingNum;
-    private int followedNum;
+    private Address address;
 }

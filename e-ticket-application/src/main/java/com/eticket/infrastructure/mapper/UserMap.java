@@ -2,6 +2,7 @@ package com.eticket.infrastructure.mapper;
 
 import com.eticket.application.api.dto.account.UserDetailResponse;
 import com.eticket.application.api.dto.account.UserGetResponse;
+import com.eticket.application.api.dto.account.UserProfileResponse;
 import com.eticket.domain.entity.account.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,5 +25,9 @@ public class UserMap {
         userDetailResponse.setBookingNum(bookingNum);
         userDetailResponse.setFollowedNum(followedNum);
         return userDetailResponse;
+    }
+
+    public UserProfileResponse toUserProfileResponse(User user) {
+        return modelMapper.map(user, UserProfileResponse.class);
     }
 }
