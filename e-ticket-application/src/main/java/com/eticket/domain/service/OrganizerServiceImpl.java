@@ -40,8 +40,8 @@ public class OrganizerServiceImpl implements OrganizerService {
     private JwtUtils jwtUtils;
 
     @Override
-    public boolean registerOrganizer(OrganizerCreateRequest organizerCreateRequest) throws ResourceNotFoundException {
-        Organizer organizer = modelMapper.map(organizerCreateRequest, Organizer.class);
+    public boolean registerOrganizer(OrganizerCreateRequest organizerCreateDto) throws ResourceNotFoundException {
+        Organizer organizer = modelMapper.map(organizerCreateDto, Organizer.class);
         organizer.setRemoved(false);
         String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
         if (usernameFromJwtToken.isEmpty()) {
@@ -86,6 +86,36 @@ public class OrganizerServiceImpl implements OrganizerService {
                 .collect(Collectors.toList());
         response.setListEvent(listEvent);
         return response;
+    }
+
+    @Override
+    public OrganizerUpdateDto getOrganizerForEdit(Integer organizerId) throws ResourceNotFoundException {
+        Organizer organizer = organizerRepository.findByIdAndRemovedFalse(organizerId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("Not found organizer by id is %s ", organizerId)));
+        OrganizerUpdateDto response = modelMapper.map(organizer, OrganizerUpdateDto.class);
+        return response;
+    }
+
+    @Override
+    public void updateOrganizer(Integer organizerId, OrganizerUpdateDto organizerUpdateRequest) throws ResourceNotFoundException {
+        Organizer organizer = organizerRepository.findByIdAndRemovedFalse(organizerId).
+                orElseThrow(() -> new ResourceNotFoundException(String.format("Not found organizer by id is %s ", organizerId)));
+        organizer.setName(organizerUpdateRequest.getName());
+        organizer.setEmail(organizerUpdateRequest.getEmail());
+        organizer.setMobile(organizerUpdateRequest.getMobile());
+        organizer.setRepresentative(organizerUpdateRequest.getRepresentative());
+        organizer.setAddress(organizerUpdateRequest.getAddress());
+        organizer.setSummary(organizerUpdateRequest.getSummary());
+        organizer.setTaxCode(organizerUpdateRequest.getTaxCode());
+        String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
+        if (usernameFromJwtToken.isEmpty()) {
+            throw new AuthenticationException("401 Unauthorized") {
+            };
+        }
+        Employee employee = employeeRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found employee by username is %s ", usernameFromJwtToken)));
+        organizer.setUpdateByEmployee(employee);
+        organizerRepository.saveAndFlush(organizer);
     }
 
     private int getFollowNum(Integer eventId) {

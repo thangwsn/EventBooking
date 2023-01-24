@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Observable } from 'rxjs';
-import { EventGet } from 'app/model/event.model';
+import { EventGet, EventSearchRequest } from 'app/model/event.model';
 import { EventUserService } from 'app/services/event-user.service';
+import { Constants } from 'app/utils/constants';
+import { Router } from '@angular/router';
+import { environment } from 'environments/environment';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +18,9 @@ export class HomeComponent implements OnInit {
 
   liveEventList$: Observable<EventGet[]> = new Observable<EventGet[]>();
 
-  constructor(private eventService: EventUserService) { }
+  BASE_API: string = environment.host;
+
+  constructor(private eventService: EventUserService, private _router: Router) { }
 
   ngOnInit(): void {
     this.eventService.fetchPopularEventList();
@@ -26,4 +31,24 @@ export class HomeComponent implements OnInit {
     this.liveEventList$ = this.eventService.liveEventList$;
   }
 
+  viewAllPopular() {
+    this.eventService.defaultSearch = false;
+    this.eventService.isEndEventList = false;
+    this.eventService.eventSearchRequest = new EventSearchRequest(1, 2, 'soldSlot', 'desc', '', Constants.EVENT_STATUS_OPEN, '', -1);
+    this._router.navigate(['/event']);
+  }
+
+  viewAllUpcomingSearch() {
+    this.eventService.defaultSearch = false;
+    this.eventService.isEndEventList = false;
+    this.eventService.eventSearchRequest = new EventSearchRequest(1, 2, 'startTime', 'asc', '', Constants.EVENT_STATUS_OPEN, '', -1);
+    this._router.navigate(['/event']);
+  }  
+
+  viewAllLiveSearch() {
+    this.eventService.defaultSearch = false;
+    this.eventService.isEndEventList = false;
+    this.eventService.eventSearchRequest = new EventSearchRequest(1, 2, 'startTime', 'desc', '', Constants.EVENT_STATUS_LIVE, '', -1);
+    this._router.navigate(['/event']);
+  }  
 }

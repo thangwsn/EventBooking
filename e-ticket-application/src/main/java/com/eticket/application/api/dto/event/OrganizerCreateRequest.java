@@ -15,6 +15,7 @@ import javax.validation.constraints.Pattern;
 @NoArgsConstructor
 @Valid
 public class OrganizerCreateRequest {
+    private Integer id;
     @NotBlank
     private String name;
     @NotBlank

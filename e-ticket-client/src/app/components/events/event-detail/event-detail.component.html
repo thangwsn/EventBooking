@@ -18,7 +18,7 @@
             <div class="info-box card">
               <i class="bi bi-geo-alt"></i>
               <h3>Location</h3>
-              <p>{{ event.locationString }}<br /></p>
+              <p [innerText]="locationString(event)"></p>
             </div>
           </div>
           <div class="col-lg-6">
@@ -96,6 +96,11 @@
                     event.statusString === 'LIVE' ||
                     event.statusString === 'FINISH'
                   "
+                  (click)="
+                    (event.statusString !== 'LIVE' &&
+                      event.statusString !== 'FINISH') &&
+                      openEditEventDialog()
+                  "
                 ></p-button>
               </div>
               <div class="col-sm-4 d-flex justify-content-end">
@@ -104,7 +109,9 @@
                   styleClass="p-button-danger"
                   [disabled]="event.statusString !== 'CREATED'"
                   label="Remove"
-                  (click)="(event.statusString === 'CREATED') && openRemoveConfirm(event)"
+                  (click)="
+                    event.statusString === 'CREATED' && openRemoveConfirm(event)
+                  "
                 ></p-button>
               </div>
             </div>
@@ -119,7 +126,7 @@
                 <p-dropdown
                   [options]="eventStatusList"
                   formControlName="targetStatus"
-                  placeholder="Select a organizer"
+                  placeholder="Change Event Status"
                   optionLabel=""
                   optionValue=""
                   [showClear]="true"
@@ -137,21 +144,16 @@
               </div>
             </form>
             <br />
-            <h5>
-              Ticket Catalog &nbsp;
-              <span
-                class="text-primary"
-                data-bs-toggle="modal"
-                data-bs-target="#add-ticket-modal"
-                [hidden]="hiddenAddCatalog"
-                ><i class="bi bi-plus-circle"></i
-              ></span>
-              &nbsp;
-              <span class="text-primary"
-                ><i class="bi bi-pencil-fill" [hidden]="hiddenEditCatalog"></i
-              ></span>
-            </h5>
+            <h5>Ticket Catalog</h5>
             <h6>Total ticket: {{ event.totalSlot }}</h6>
+            <button
+              pButton
+              [hidden]="hiddenAddCatalog"
+              icon="pi pi-plus"
+              class="p-button-rounded"
+              (click)="openAddTicketCatalogDialog()"
+            ></button>
+
             <div class="accordion accordion-flush">
               <div
                 class="accordion-item"
@@ -178,27 +180,46 @@
                   aria-labelledby="flush-headingOne"
                   data-bs-parent="#accordionFlushExample"
                 >
-                  <div class="accordion-body">
-                    <ul class="list-group list-group-flush">
-                      <li class="list-group-item">
-                        {{ ticketCatalog.slot }} slots
-                      </li>
-                      <li class="list-group-item">
-                        {{ ticketCatalog.soldSlot }} sold ticket<span
-                          *ngIf="ticketCatalog.soldSlot > 1"
-                          >s</span
-                        >
-                      </li>
-                      <li class="list-group-item">
-                        {{ ticketCatalog.remainSlot }} available ticket<span
-                          *ngIf="ticketCatalog.soldSlot > 1"
-                          >s</span
-                        >
-                      </li>
-                      <li class="list-group-item">
-                        {{ ticketCatalog.price }} đ
-                      </li>
-                    </ul>
+                  <div class="accordion-body row">
+                    <div class="col-md-10">
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item">
+                          {{ ticketCatalog.slot }} slots
+                        </li>
+                        <li class="list-group-item">
+                          {{ ticketCatalog.soldSlot }} sold ticket<span
+                            *ngIf="ticketCatalog.soldSlot > 1"
+                            >s</span
+                          >
+                        </li>
+                        <li class="list-group-item">
+                          {{ ticketCatalog.remainSlot }} available ticket<span
+                            *ngIf="ticketCatalog.soldSlot > 1"
+                            >s</span
+                          >
+                        </li>
+                        <li class="list-group-item">
+                          {{ ticketCatalog.price }} <i class="bi bi-currency-dollar"></i>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="col-md-2">
+                      <button
+                        pButton
+                        icon="pi pi-pencil"
+                        [hidden]="hiddenEditCatalog"
+                        class="p-button-rounded p-button-warning"
+                        (click)="openEditTicketCatalogDialog(ticketCatalog)"
+                      ></button>
+                      <br />
+                      <button
+                        pButton
+                        icon="pi pi-trash"
+                        [hidden]="ticketCatalog.soldSlot > 0"
+                        class="p-button-rounded p-button-danger"
+                        (click)="openConfirmDialog(ticketCatalog)"
+                      ></button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -239,7 +260,7 @@
                 >
                   <img
                     [src]="BASE_API + image"
-                    class="d-block w-100"
+                    class="d-block w-50"
                     [alt]="event.title"
                   />
                 </div>
@@ -273,13 +294,105 @@
           <div class="card-body">
             <p class="card-text" [innerHTML]="event.description"></p>
           </div>
+          <iframe *ngIf="event.videoLink != ''" [class.thumbnail]="'thumbnail'" [src]="safeSrc" width="50%" height="500" frameborder="0" webkitallowfullscreen mozallowfullscreen
+      allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"></iframe>
         </div>
       </div>
     </div>
-    <app-add-ticket-dialog
-      [eventId]="eventId"
-      [eventType]="event.typeString"
-    ></app-add-ticket-dialog>
+
+    <p-dialog
+      [(visible)]="addTicketCatalogDialog"
+      [style]="{ width: '50vw' }"
+      header="Add Ticket Catalog"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <app-add-ticket-dialog
+          #addTicketCatalog
+          [eventId]="eventId"
+          [eventType]="event.typeString"
+        ></app-add-ticket-dialog>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Add"
+          class="p-button-info mt-2"
+          (click)="submitAddTicketCatalog()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Close"
+          class="p-button-info mt-2"
+          (click)="closeAddTicketCatalogDialog()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+
+    <p-dialog
+      [(visible)]="editTicketCatalogDialog"
+      [style]="{ width: '50vw' }"
+      header="Edit Ticket Catalog"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <app-edit-ticket-dialog
+          #editTicketCatalog
+          [eventId]="eventId"
+          [eventType]="event.typeString"
+          [ticketCatalog]="ticketCatalog"
+        ></app-edit-ticket-dialog>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Update"
+          class="p-button-info mt-2"
+          (click)="submitEditTicketCatalog()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Close"
+          class="p-button-info mt-2"
+          (click)="closeEditTicketCatalogDialog()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+
+    <p-dialog
+      [(visible)]="editEventDialog"
+      [style]="{ width: '80vw' }"
+      header="Edit Event"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <app-event-edit #edit_event [eventDetail]="event"></app-event-edit>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Update"
+          class="p-button-info mt-2"
+          (click)="submitEditEvent()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Close"
+          class="p-button-info mt-2"
+          (click)="closeEditEventDialog()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+
     <p-confirmDialog
       [style]="{ width: '50vw' }"
       [baseZIndex]="10000"

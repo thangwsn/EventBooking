@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { EventGet } from 'app/model/event.model';
+import { EventUserService } from 'app/services/event-user.service';
 import { Constants } from 'app/utils/constants';
 import { environment } from 'environments/environment';
 
@@ -12,7 +13,7 @@ export class EventItemComponent implements OnInit {
   @Input() event!: EventGet;
   BASE_API = environment.host;
 
-  constructor() { }
+  constructor(private eventService : EventUserService) { }
 
   ngOnInit(): void {
   }
@@ -40,6 +41,11 @@ export class EventItemComponent implements OnInit {
         eventStatusClass = 'badge bg-light text-dark'
     }
     return eventStatusClass;
+  }
+
+  getEventDetail(eventId: number) {
+    this.eventService.fetchEventDetail(eventId);
+    window.scroll(0, 0);
   }
 
 }

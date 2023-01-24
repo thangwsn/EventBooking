@@ -1,104 +1,112 @@
 <main id="main" class="main">
-    <div class="pagetitle">
-      <h1>Employees</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
-          <li class="breadcrumb-item">Employees</li>
-        </ol>
-      </nav>
-    </div>
-    <section class="section">
-      <div class="row">
-        <div class="col-lg-12">
-          <div class="card">
-            <div class="card-body">
-              <h5 class="card-title">Employee List</h5>
-              <button
+  <div class="pagetitle">
+    <h1>Employees</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+        <li class="breadcrumb-item">Employees</li>
+      </ol>
+    </nav>
+  </div>
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="card">
+          <div class="card-body">
+            <h5 class="card-title">Employee List</h5>
+            <button
               pButton
               pRipple
               label="New Employee"
               icon="pi pi-plus"
               class="p-button-info mb-4"
-              routerLink="create"
+              (click)="openEmployeeCreateDialog()"
             ></button>
-              <p-table
-              styleClass="p-datatable-striped" [tableStyle]="{'min-width': '50rem'}"
-                #dt
-                *ngIf="employeeList$ | async as employeeList"
-                [value]="employeeList"
-                [rows]="10"
-                [paginator]="true"
-                [globalFilterFields]="[
-                  'employeeCode',
-                  'username',
-                  'email',
-                  'fullName',
-                  'position'
-                ]"
-                [rowHover]="true"
-                dataKey="id"
-                currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-                [showCurrentPageReport]="true"
-              >
-                <ng-template pTemplate="caption">
-                  <div class="p-d-flex p-ai-center p-jc-between">
-                    <span class="p-input-icon-left">
-                      <i class="pi pi-search"></i>
-                      <input
-                        pInputText
-                        type="text"
-                        (input)="applyFilterGlobal($event, 'contains')"
-                        placeholder="Search..."
-                      />
-                    </span>
-                  </div>
-                </ng-template>
-                <ng-template pTemplate="header">
-                  <tr>
-                    <th pSortableColumn="employeeCode">
-                      Employee Code <p-sortIcon field="employeeCode"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="username">
-                      Username <p-sortIcon field="username"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="fullName">
-                      Full Name <p-sortIcon field="fullName"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="email">
-                      Email <p-sortIcon field="email"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="mobile">
-                      Mobile <p-sortIcon field="mobile"></p-sortIcon>
-                    </th>
-                    <th pSortableColumn="position">
-                      Position <p-sortIcon field="position"></p-sortIcon>
-                    </th>        
-                    <th></th>
-                  </tr>
-                </ng-template>
-                <ng-template pTemplate="body" let-employee>
-                  <tr>
-                    <td>{{ employee.employeeCode }}</td>
-                    <td>{{ employee.username }}</td>
-                    <td>{{ employee.fullName }}</td>
-                    <td>{{employee.email}}</td>
-                    <td>{{employee.mobile}}</td>
-                    <td>{{employee.position}}</td>
-                    <td>
-                      <button
-                        pButton
-                        pRipple
-                        icon="pi pi-eye"
-                        class="p-button-rounded p-button-info p-mr-2"
-                        (click)="openEmployeeDetail(employee.id)"
-                      ></button> &nbsp;
-                      <button
+            <p-table
+              styleClass="p-datatable-striped"
+              [tableStyle]="{ 'min-width': '50rem' }"
+              #dt
+              *ngIf="employeeList$ | async as employeeList"
+              [value]="employeeList"
+              [rows]="10"
+              [paginator]="true"
+              [globalFilterFields]="[
+                'employeeCode',
+                'username',
+                'email',
+                'fullName',
+                'position'
+              ]"
+              [rowHover]="true"
+              dataKey="id"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+              [showCurrentPageReport]="true"
+            >
+              <ng-template pTemplate="caption">
+                <div class="p-d-flex p-ai-center p-jc-between">
+                  <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input
+                      pInputText
+                      type="text"
+                      (input)="applyFilterGlobal($event, 'contains')"
+                      placeholder="Search..."
+                    />
+                  </span>
+                </div>
+              </ng-template>
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="employeeCode">
+                    Employee Code <p-sortIcon field="employeeCode"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="username">
+                    Username <p-sortIcon field="username"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="fullName">
+                    Full Name <p-sortIcon field="fullName"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="email">
+                    Email <p-sortIcon field="email"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="mobile">
+                    Mobile <p-sortIcon field="mobile"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="position">
+                    Position <p-sortIcon field="position"></p-sortIcon>
+                  </th>
+                  <th pSortableColumn="role">
+                    Role <p-sortIcon field="role"></p-sortIcon>
+                  </th>
+                  <th></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-employee>
+                <tr>
+                  <td>{{ employee.employeeCode }}</td>
+                  <td>{{ employee.username }}</td>
+                  <td>{{ employee.fullName }}</td>
+                  <td>{{ employee.email }}</td>
+                  <td>{{ employee.mobile }}</td>
+                  <td>{{ employee.position }}</td>
+                  <td>{{ employee.role }}</td>
+                  <td>
+                    <button
+                      pButton
+                      pRipple
+                      icon="pi pi-eye"
+                      class="p-button-rounded p-button-info p-mr-2"
+                      (click)="detailEmployee(employee.id)"
+                    ></button>
+                    &nbsp;
+                    <button
                       pButton
                       pRipple
                       icon="pi pi-pencil"
                       class="p-button-rounded p-button-warning p-mr-2"
-                    ></button> &nbsp;
+                      (click)="openEditEmployeeDialog(employee.id)"
+                    ></button>
+                    &nbsp;
                     <button
                       pButton
                       pRipple
@@ -106,76 +114,101 @@
                       class="p-button-rounded p-button-danger p-mr-2"
                       (click)="openRemoveConfirm(employee)"
                     ></button>
-                    </td>
-                  </tr>
-                </ng-template>
-              </p-table>
-              <p-confirmDialog
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+            <p-confirmDialog
               [style]="{ width: '50vw' }"
               [baseZIndex]="10000"
             ></p-confirmDialog>
-            </div>
           </div>
         </div>
       </div>
-      <p-dialog
-      [(visible)]="employeeDialog"
+    </div>
+    <p-dialog
+      [(visible)]="employeeDetailDialog"
       [style]="{ width: '60vw' }"
-      header="Product Details"
+      header="Employee Detail"
       [modal]="true"
       styleClass="p-fluid"
     >
       <ng-template pTemplate="content">
-        <div class="p-field">
-          <label for="name">{{employeeDetail.username}}</label>
-          <!-- <input type="text" pInputText id="name" [(ngModel)]="product.name" required autofocus /> -->
-          <!-- <small class="p-invalid" *ngIf="submitted && !product.name">Name is required.</small> -->
-        </div>
-        <div class="p-field">
-          <label for="description">Description</label>
-          <!-- <textarea id="description" pInputTextarea [(ngModel)]="product.description" required rows="3" cols="20"></textarea> -->
-        </div>
-
-        <div class="p-field">
-          <label class="p-mb-3">Category</label>
-          <div class="p-formgrid p-grid">
-            <div class="p-field-radiobutton p-col-6">
-              <!-- <p-radioButton id="category1" name="category" value="Accessories" [(ngModel)]="product.category"></p-radioButton> -->
-              <label for="category1">Accessories</label>
-            </div>
-            <div class="p-field-radiobutton p-col-6">
-              <!-- <p-radioButton id="category2" name="category" value="Clothing" [(ngModel)]="product.category"></p-radioButton> -->
-              <label for="category2">Clothing</label>
-            </div>
-            <div class="p-field-radiobutton p-col-6">
-              <!-- <p-radioButton id="category3" name="category" value="Electronics" [(ngModel)]="product.category"></p-radioButton> -->
-              <label for="category3">Electronics</label>
-            </div>
-            <div class="p-field-radiobutton p-col-6">
-              <!-- <p-radioButton id="category4" name="category" value="Fitness" [(ngModel)]="product.category"></p-radioButton> -->
-              <label for="category4">Fitness</label>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-formgrid p-grid">
-          <div class="p-field p-col">
-            <label for="price">Price</label>
-            <!-- <p-inputNumber id="price" [(ngModel)]="product.price" mode="currency" currency="USD" locale="en-US"></p-inputNumber> -->
-          </div>
-          <div class="p-field p-col">
-            <label for="quantity">Quantity</label>
-            <!-- <p-inputNumber id="quantity" [(ngModel)]="product.quantity"></p-inputNumber> -->
-          </div>
-        </div>
+        <app-employee-detail
+          [employeeDetail]="employeeDetail"
+        ></app-employee-detail>
       </ng-template>
-
       <ng-template pTemplate="footer">
-        <!-- <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button> -->
-        <!-- <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" (click)="saveProduct()"></button> -->
+        <button
+          pButton
+          pRipple
+          label="Close"
+          class="p-button-info mt-2"
+          (click)="closeDetailDialog()"
+        ></button>
       </ng-template>
     </p-dialog>
-      <p-toast></p-toast>
-    </section>
-  </main>
-  
+
+    <p-dialog
+      [(visible)]="employeeEditDialog"
+      [style]="{ width: '60vw' }"
+      header="Update Employee"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <app-employee-edit
+          #employee_edit
+          [employeeEdit]="employeeEdit"
+        ></app-employee-edit>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Update"
+          class="p-button-info mt-2"
+          (click)="submitUpdateEmployee()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Close"
+          class="p-button-info mt-2"
+          (click)="closeEditDialog()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+
+    <p-dialog
+      [(visible)]="employeeCreateDialog"
+      [style]="{ width: '60vw' }"
+      header="New Employee"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <app-employee-create
+          #employee_create
+        ></app-employee-create>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Submit"
+          class="p-button-info mt-2"
+          (click)="submitCreateEmployee()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Close"
+          class="p-button-info mt-2"
+          (click)="closeCreateDialog()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+    <p-toast></p-toast>
+  </section>
+</main>

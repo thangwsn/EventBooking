@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { MessageService, PrimeNGConfig } from 'primeng/api';
 
-import { EventDetail } from 'app/model/event.model';
+import { EventDetail, EventGet } from 'app/model/event.model';
 import { BookingUserService } from 'app/services/booking-user.service';
 import { EventUserService } from 'app/services/event-user.service';
 import { TokenStorageService } from 'app/services/token-storage.service';
@@ -11,6 +11,7 @@ import { Constants } from 'app/utils/constants';
 import { TicketCatalogItemComponent } from '../ticket-catalog-item/ticket-catalog-item.component';
 import { EventWebSocketAPI } from 'app/websocket/EventWebSocketAPI';
 import { environment } from 'environments/environment';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 
 @Component({
@@ -26,6 +27,10 @@ export class EventDetailUserComponent implements OnInit {
   followClass: string = 'bi bi-heart text-danger';
   eventId!: number;
   event$: Observable<EventDetail> = new Observable<EventDetail>();
+  liveEventList$: Observable<EventGet[]> = new Observable<EventGet[]>();
+
+  safeSrc!: SafeResourceUrl;
+
   eventType!: string;
   eventWebSocketAPI!: EventWebSocketAPI;
 
@@ -50,18 +55,25 @@ export class EventDetailUserComponent implements OnInit {
     private _router: Router,
     private tokenService: TokenStorageService,
     private primengConfig: PrimeNGConfig,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
+    window.scroll(0, 0);
     this.primengConfig.ripple = true;
     let paramValue = this._route.snapshot.paramMap.get('eventId');
     if (paramValue !== null) {
       this.eventId = parseInt(paramValue);
+      console.log(this.eventId);
       this.eventService.fetchEventDetail(this.eventId);
       this.event$ = this.eventService.event$;
       this.event$.subscribe({
         next: (event) => {
+          this.safeSrc =  this.sanitizer.bypassSecurityTrustResourceUrl(event.videoLink);
           this.eventType = event.typeString
+          const organizerId = event.organizer.id;
+          this.eventService.fetchFromOrganizerEventList(organizerId);
+          this.liveEventList$ = this.eventService.fromOrganizerEventList$;
         }
       })
       this.eventWebSocketAPI = new EventWebSocketAPI(this.eventService, this.eventId, this)
@@ -69,6 +81,8 @@ export class EventDetailUserComponent implements OnInit {
     }
     
   }
+
+  
 
   ngOnDestroy(): void {
     this.eventWebSocketAPI._disconnect();

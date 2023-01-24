@@ -4,6 +4,7 @@ import com.eticket.application.api.dto.BaseResponse;
 import com.eticket.application.api.dto.event.EventDetailGetResponse;
 import com.eticket.application.api.dto.event.EventGetRequest;
 import com.eticket.application.api.dto.event.ListEventGetResponse;
+import com.eticket.domain.exception.AuthenticationException;
 import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.service.EventService;
 import com.eticket.infrastructure.security.jwt.JwtUtils;
@@ -40,8 +41,9 @@ public class EventClientApiController {
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
-    @GetMapping("/followed/{user_id}")
-    public ResponseEntity<BaseResponse<ListEventGetResponse>> getListFollowedEventByUser(@PathVariable("user_id") Integer userId) {
-        return null;
+    @GetMapping("/followed")
+    public ResponseEntity<BaseResponse<ListEventGetResponse>> getListFollowedEventByUser() throws AuthenticationException, ResourceNotFoundException {
+        ListEventGetResponse response = eventService.getFollowedEventList();
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 }

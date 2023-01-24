@@ -19,12 +19,18 @@
         [formGroup]="createEventForm"
         (ngSubmit)="createEventForm.valid && onSubmit()"
       >
-        <div class="row mb-2">
+        <div class="row mb-2 mt-4">
           <div class="col-md-7">
-            <div class="form-floating">
-              <input type="text" class="form-control" formControlName="title" />
-              <label for="floatingName">Event Title</label>
-            </div>
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                formControlName="title"
+                class="form-control"
+              />
+              <label for="float-input">Title</label>
+            </span>
           </div>
           <div class="col-md-5">
             <label>Event Type</label>
@@ -49,15 +55,16 @@
           ></p-editor>
         </div>
         <div class="row mt-5">
-          <div class="form-floating">
+          <span class="p-float-label">
             <input
+              id="float-input"
               type="text"
-              class="form-control"
-              id="floatingName"
+              pInputText
               formControlName="listTag"
+              class="form-control"
             />
-            <label for="floatingName">Tags</label>
-          </div>
+            <label for="float-input">Tags</label>
+          </span>
         </div>
 
         <div class="row mt-4">
@@ -198,13 +205,17 @@
 
         <div class="text-center">
           <button
+            pButton
             type="submit"
-            class="btn btn-primary"
             [disabled]="createEventForm.invalid"
-          >
-            Submit
-          </button>
-          <button type="reset" class="btn btn-secondary">Reset</button>
+            label="Submit"
+          ></button>
+          <button
+            pButton
+            type="reset"
+            class="p-button-secondary"
+            label="Reset"
+          ></button>
         </div>
       </form>
     </div>

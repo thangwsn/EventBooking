@@ -52,9 +52,6 @@ export class Address {
         public district: string,
         public city: string
     ) { }
-    toString(): string {
-        return `${this.street}, ${this.ward}, ${this.district}, ${this.city}`;
-    }
 }
 
 export class UserProfile {
@@ -79,6 +76,15 @@ export class ChangePasswordRequest {
     ) { }
 }
 
+export class UpdateInformationRequest {
+    constructor(
+        public fullName: string,
+        public gender: string,
+        public dateOfBirth: number,
+        public address: Address
+    ) {}
+}
+
 export class Employee {
     constructor(
         public id: number,
@@ -87,7 +93,8 @@ export class Employee {
         public mobile: string,
         public fullName: string,
         public employeeCode: string,
-        public position: string
+        public position: string,
+        public role: String
     ) { }
 }
 
@@ -99,6 +106,46 @@ export class EmployeeDetail {
         public mobile: string,
         public fullName: string,
         public employeeCode: string,
-        public position: string
+        public gender: string,
+        public dateOfBirth: number,
+        public imageUrl: string,
+        public address: string,
+        public position: string,
+        public joinDate: number,
+        public role: String
+    ) { }
+}
+
+export class EmployeeEdit {
+    constructor(
+        public id: number,
+        public username: string,
+        public email: string,
+        public mobile: string,
+        public fullName: string,
+        public employeeCode: string,
+        public gender: string,
+        public dateOfBirth: number,
+        public imageUrl: string,
+        public address: Address,
+        public position: string,
+        public joinDate: number,
+        public role: String
+    ) { }
+}
+
+export class EmployeeCreate {
+    constructor(
+        public username: string,
+        public email: string,
+        public mobile: string,
+        public fullName: string,
+        public gender: string,
+        public dateOfBirth: number,
+        public imageUrl: string,
+        public address: Address,
+        public position: string,
+        public joinDate: number,
+        public role: String
     ) { }
 }

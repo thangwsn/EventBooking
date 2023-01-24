@@ -1,0 +1,130 @@
+<div class="card">
+  <div class="card-body">
+    <form
+      class="row g-3 mt-4"
+      [formGroup]="editEventForm"
+      (ngSubmit)="editEventForm.valid && onSubmit()"
+    >
+      <div class="row mb-4">
+        <span class="p-float-label">
+          <input pInputText formControlName="title" />
+          <label>Event Title</label>
+        </span>
+      </div>
+
+      <div class="row mb-4">
+        <label>Summary</label>
+        <p-editor
+          formControlName="summary"
+          [style]="{ height: '100px' }"
+        ></p-editor>
+      </div>
+      <div class="row mb-4">
+        <label>Description</label>
+        <p-editor
+          formControlName="description"
+          [style]="{ height: '200px' }"
+        ></p-editor>
+      </div>
+      <div class="row mb-4">
+        <span class="p-float-label">
+          <input pInputText formControlName="listTag" />
+          <label>Tags</label>
+        </span>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-md-3">
+          <span class="p-float-label">
+            <input id="float-input" pInputText formControlName="street" />
+            <label for="float-input">Address</label>
+          </span>
+        </div>
+        <div class="col-md-3">
+          <span class="p-float-label">
+            <input id="float-input" pInputText formControlName="ward" />
+            <label for="float-input">Ward</label>
+          </span>
+        </div>
+        <div class="col-md-3">
+          <span class="p-float-label">
+            <input
+              id="float-input"
+              type="text"
+              pInputText
+              formControlName="district"
+            />
+            <label for="float-input">District</label>
+          </span>
+        </div>
+        <div class="col-md-3">
+          <span class="p-float-label">
+            <input
+              id="float-input"
+              type="text"
+              pInputText
+              formControlName="city"
+            />
+            <label for="float-input">City</label>
+          </span>
+        </div>
+      </div>
+
+      <div class="row mb-4">
+        <div class="col-sm-6">
+          <label>Organizer</label><br />
+          <p-dropdown
+            [options]="listOrganizer"
+            formControlName="organizerId"
+            placeholder="Select a organizer"
+            optionLabel="name"
+            optionValue="id"
+            [showClear]="true"
+          ></p-dropdown>
+        </div>
+      </div>
+
+      <div class="row mb-5">
+        <div class="col-sm-3">
+          <label for="time">Start Time</label><br />
+          <p-calendar
+            formControlName="startTime"
+            [showTime]="true"
+            inputId="time"
+          ></p-calendar>
+        </div>
+        <div class="col-sm-3">
+          <label>Duration</label><br />
+          <p-inputNumber
+            formControlName="duration"
+            mode="decimal"
+            [minFractionDigits]="2"
+            [maxFractionDigits]="2"
+          ></p-inputNumber>
+        </div>
+        <div class="col-sm-3">
+          <label for="time">Launch Time</label><br />
+          <p-calendar
+            formControlName="launchTime"
+            [showTime]="true"
+            inputId="time"
+          ></p-calendar>
+        </div>
+        <div class="col-sm-3">
+          <label for="time">Close Time</label><br />
+          <p-calendar
+            formControlName="closeTime"
+            [showTime]="true"
+            inputId="time"
+          ></p-calendar>
+        </div>
+      </div>
+      <div class="row">
+        <div class="p-float-label">
+          <input pInputText formControlName="videoLink" />
+          <label>Video Link</label>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

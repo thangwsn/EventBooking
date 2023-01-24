@@ -1,5 +1,6 @@
 package com.eticket.domain.service;
 
+import com.eticket.application.api.dto.FieldViolation;
 import com.eticket.application.api.dto.event.*;
 import com.eticket.application.websocket.observer.MessageType;
 import com.eticket.application.websocket.observer.Observable;
@@ -12,7 +13,9 @@ import com.eticket.domain.entity.quartz.ScheduleJobType;
 import com.eticket.domain.exception.AuthenticationException;
 import com.eticket.domain.exception.EventRemoveException;
 import com.eticket.domain.exception.ResourceNotFoundException;
+import com.eticket.domain.exception.TicketCatalogException;
 import com.eticket.domain.repo.*;
+import com.eticket.infrastructure.file.FileStorageService;
 import com.eticket.infrastructure.mapper.EventMap;
 import com.eticket.infrastructure.quartz.model.ScheduleRequest;
 import com.eticket.infrastructure.quartz.service.ScheduleService;
@@ -139,8 +142,8 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
         ticketCatalog.setEvent(event);
         ticketCatalog.setRemoved(false);
         ticketCatalog = ticketCatalogRepository.saveAndFlush(ticketCatalog);
-        generateAndSaveTicketList(ticketCatalog);
-        totalSlot = ticketCatalogRepository.sumSlotByEventId(eventId);
+        generateAndSaveTicketList(ticketCatalog, 1, ticketCatalog.getSlot());
+        totalSlot = ticketCatalogRepository.sumSlotByEventId(eventId).orElse(0);
 
         event.setTotalSlot(totalSlot);
         event.setRemainSlot(totalSlot - event.getSoldSlot());
@@ -161,6 +164,8 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
     public EventDetailGetResponse getEventById(Integer eventId) throws ResourceNotFoundException {
         Event event = eventRepository.findByIdAndRemovedFalse(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
+        List<TicketCatalog> ticketCatalogList = ticketCatalogRepository.findByRemovedFalseAndEvent(event);
+        event.setTicketCatalogList(ticketCatalogList);
         return eventMap.toEventDetailGetResponse(event, getFollowNum(eventId), false);
     }
 
@@ -168,7 +173,7 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
     public EventDetailGetResponse getEventByIdFromClientSide(Integer eventId) throws ResourceNotFoundException {
         boolean isFollowed = false;
         boolean isDisableBooking = false;
-        Event event = eventRepository.findByIdAndRemovedFalseAndStatusIsNot(eventId, EventStatus.CREATED)
+        Event event = eventRepository.findByIdAndRemovedFalse(eventId)
                 .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
         String username = jwtUtils.getUserNameFromJwtToken();
         Optional<User> userOptional = userRepository.findByUsernameAndRemovedFalse(username);
@@ -189,7 +194,36 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
         String sortField = request.getSortField();
         Sort sort = request.getSortDirection().equalsIgnoreCase(Constants.DESC_SORT) ? Sort.by(sortField).descending() : Sort.by(sortField).ascending();
         Pageable pageable = PageRequest.of(request.getPageNo() - 1, request.getPageSize(), sort);
-        List<Event> events = eventRepository.findByRemovedFalseAndStatus(EventStatus.valueOf(request.getStatus()), pageable);
+        List<Event> events;
+        if (request.getOrganizerId() == null || request.getOrganizerId() < 0) {
+            if (request.getType() == null || request.getType().isEmpty()) {
+                if (request.getStatus() == null || request.getStatus().isEmpty()) {
+                    events = eventRepository.findByRemovedFalseAndTitleContaining(request.getSearchKey(), pageable);
+                } else {
+                    events = eventRepository.findByRemovedFalseAndTitleContainingAndStatus(request.getSearchKey(), EventStatus.valueOf(request.getStatus()), pageable);
+                }
+            } else {
+                if (request.getStatus() == null || request.getStatus().isEmpty()) {
+                    events = eventRepository.findByRemovedFalseAndTitleContainingAndType(request.getSearchKey(), EventType.valueOf(request.getType()), pageable);
+                } else {
+                    events = eventRepository.findByRemovedFalseAndTitleContainingAndStatusAndType(request.getSearchKey(), EventStatus.valueOf(request.getStatus()), EventType.valueOf(request.getType()), pageable);
+                }
+            }
+        } else {
+            if (request.getType() == null || request.getType().isEmpty()) {
+                if (request.getStatus() == null || request.getStatus().isEmpty()) {
+                    events = eventRepository.findByRemovedFalseAndTitleContainingAndOrganizerId(request.getSearchKey(), request.getOrganizerId(), pageable);
+                } else {
+                    events = eventRepository.findByRemovedFalseAndTitleContainingAndStatusAndOrganizerId(request.getSearchKey(), EventStatus.valueOf(request.getStatus()), request.getOrganizerId(), pageable);
+                }
+            } else {
+                if (request.getStatus() == null || request.getStatus().isEmpty()) {
+                    events = eventRepository.findByRemovedFalseAndTitleContainingAndTypeAndOrganizerId(request.getSearchKey(), EventType.valueOf(request.getType()), request.getOrganizerId(), pageable);
+                } else {
+                    events = eventRepository.findByRemovedFalseAndTitleContainingAndStatusAndTypeAndOrganizerId(request.getSearchKey(), EventStatus.valueOf(request.getStatus()), EventType.valueOf(request.getType()), request.getOrganizerId(), pageable);
+                }
+            }
+        }
         List<EventGetResponse> eventGetResponses = new ArrayList<>();
         for (Event event : events) {
             eventGetResponses.add(eventMap.toEventGetResponse(event, getFollowNum(event.getId()), true));
@@ -290,15 +324,144 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
 
     @Override
     public List<EventWebSocketDto> getAllEventForWS() {
-        List<Event> events = eventRepository.findByRemovedFalseAndStatusIsNot(EventStatus.FINISH);
+        List<Event> events = eventRepository.findByRemovedFalseAndStatusIsNot(EventStatus.FINISHED);
         List<EventWebSocketDto> list = events.stream().map(e -> eventMap.toEventWebSocketDto(e, getFollowNum(e.getId()))).collect(Collectors.toList());
         return list;
     }
 
-    private void generateAndSaveTicketList(TicketCatalog ticketCatalog) {
+    @Override
+    @Transactional(rollbackFor = {Exception.class})
+    public void updateTicketCatalog(Integer ticketCatalogId, TicketCatalogUpdateRequest ticketCatalogUpdateRequest) throws ResourceNotFoundException, TicketCatalogException {
+        TicketCatalog ticketCatalog = ticketCatalogRepository.findByIdAndRemovedFalse(ticketCatalogId).orElseThrow(() -> new ResourceNotFoundException(String.format("Not found ticket catalog by id is %s ", ticketCatalogId)));
+        Event event = eventRepository.findByIdAndRemovedFalse(ticketCatalog.getEvent().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", ticketCatalog.getEvent().getId())));
+        ticketCatalog.setTitle(ticketCatalogUpdateRequest.getTitle());
+        if (ticketCatalog.getSoldSlot() > ticketCatalogUpdateRequest.getSlot()) {
+            throw new TicketCatalogException("updated slot must be greate or equal current sold slot");
+        }
+        ticketCatalog.setSlot(ticketCatalogUpdateRequest.getSlot());
+        ticketCatalog.setRemainSlot(ticketCatalog.getSlot() - ticketCatalog.getSoldSlot());
+        ticketCatalog.setRemark(ticketCatalogUpdateRequest.getRemark());
+        ticketCatalogRepository.saveAndFlush(ticketCatalog);
+        updateTicketList(ticketCatalog);
+        int totalSlot = ticketCatalogRepository.sumSlotByEventId(ticketCatalog.getEvent().getId()).orElse(0);
+        event.setTotalSlot(totalSlot);
+        event.setRemainSlot(totalSlot - event.getSoldSlot());
+        eventRepository.saveAndFlush(event);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void removeTicketCatalog(Integer ticketCatalogId) throws ResourceNotFoundException, TicketCatalogException {
+        TicketCatalog ticketCatalog = ticketCatalogRepository.findByIdAndRemovedFalse(ticketCatalogId).orElseThrow(() -> new ResourceNotFoundException(String.format("Not found ticket catalog by id is %s ", ticketCatalogId)));
+        if (ticketCatalog.getSoldSlot() > 0) {
+            throw new TicketCatalogException("Can not remove!");
+        }
+        ticketCatalog.setRemoved(true);
+        List<Ticket> ticketList = ticketRepository.findAllByTicketCatalogId(ticketCatalogId);
+        ticketRepository.deleteAll(ticketList);
+        ticketCatalogRepository.saveAndFlush(ticketCatalog);
+        int totalSlot = ticketCatalogRepository.sumSlotByEventId(ticketCatalog.getEvent().getId()).orElse(0);
+        Event event = eventRepository.findByIdAndRemovedFalse(ticketCatalog.getEvent().getId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", ticketCatalog.getEvent().getId())));
+        event.setTotalSlot(totalSlot);
+        event.setRemainSlot(totalSlot - event.getSoldSlot());
+        eventRepository.saveAndFlush(event);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public List<FieldViolation> updateEvent(Integer eventId, EventUpdateRequest eventUpdateRequest) throws ResourceNotFoundException {
+        List<FieldViolation> violationList = new ArrayList<>();
+        Event event = eventRepository.findByIdAndRemovedFalse(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found event by id is %s ", eventId)));
+        event.setTitle(eventUpdateRequest.getTitle());
+        event.setSummary(eventUpdateRequest.getSummary());
+        event.setDescription(eventUpdateRequest.getDescription());
+        event.setListTag(eventUpdateRequest.getListTag());
+        Location location = modelMapper.map(eventUpdateRequest.getLocationDto(), Location.class);
+        if (event.getLocation() != null) {
+            location.setId(event.getLocation().getId());
+        }
+        event.setLocation(location);
+        if (event.getOrganizer().getId() != eventUpdateRequest.getOrganizerId()) {
+            Organizer organizer = organizerRepository.findByIdAndRemovedFalse(eventUpdateRequest.getOrganizerId())
+                    .orElseThrow(() -> new ResourceNotFoundException(String.format("Not found organizer by id is %s ", eventUpdateRequest.getOrganizerId())));
+            event.setOrganizer(organizer);
+        }
+        event.setVideoLink(eventUpdateRequest.getVideoLink());
+        // compare with current time
+        if (event.getStatus().equals(EventStatus.CREATED) || event.getStatus().equals(EventStatus.OPENED) || event.getStatus().equals(EventStatus.SOLD) || event.getStatus().equals(EventStatus.CLOSED)) {
+            if (event.getLaunchTime().getTime() != eventUpdateRequest.getLaunchTimeMs()) {
+                cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
+                ScheduleJob eventOpenJob = ScheduleJob.builder().jobKey(Utils.generateUUID()).objectId(event.getId()).type(ScheduleJobType.EVENT_OPEN).removed(false).build();
+                scheduleJobRepository.save(eventOpenJob);
+                event.setLaunchTime(Utils.convertToTimeStamp(eventUpdateRequest.getLaunchTimeMs()));
+                scheduleService.scheduleJob(new ScheduleRequest(eventOpenJob.getJobKey(), Constants.JOB_GROUP_EVENT, Constants.TRIGGER_EVENT, eventOpenJob.getType(), eventOpenJob.getObjectId(), event.getLaunchTime()));
+            }
+            if (event.getCloseTime().getTime() != eventUpdateRequest.getCloseTimeMs()) {
+                cancelSingleEventJob(eventId, ScheduleJobType.EVENT_CLOSE);
+                ScheduleJob eventOpenJob = ScheduleJob.builder().jobKey(Utils.generateUUID()).objectId(event.getId()).type(ScheduleJobType.EVENT_CLOSE).removed(false).build();
+                scheduleJobRepository.save(eventOpenJob);
+                event.setLaunchTime(Utils.convertToTimeStamp(eventUpdateRequest.getCloseTimeMs()));
+                scheduleService.scheduleJob(new ScheduleRequest(eventOpenJob.getJobKey(), Constants.JOB_GROUP_EVENT, Constants.TRIGGER_EVENT, eventOpenJob.getType(), eventOpenJob.getObjectId(), event.getCloseTime()));
+            }
+            if (event.getStartTime().getTime() != eventUpdateRequest.getStartTimeMs()) {
+                cancelSingleEventJob(eventId, ScheduleJobType.EVENT_LIVE);
+                ScheduleJob eventOpenJob = ScheduleJob.builder().jobKey(Utils.generateUUID()).objectId(event.getId()).type(ScheduleJobType.EVENT_LIVE).removed(false).build();
+                scheduleJobRepository.save(eventOpenJob);
+                event.setLaunchTime(Utils.convertToTimeStamp(eventUpdateRequest.getStartTimeMs()));
+                scheduleService.scheduleJob(new ScheduleRequest(eventOpenJob.getJobKey(), Constants.JOB_GROUP_EVENT, Constants.TRIGGER_EVENT, eventOpenJob.getType(), eventOpenJob.getObjectId(), event.getStartTime()));
+            }
+            eventRepository.saveAndFlush(event);
+        }
+        return violationList;
+    }
+
+    @Override
+    public ListEventGetResponse getFollowedEventList() throws AuthenticationException, ResourceNotFoundException {
+        String usernameFromJwtToken = jwtUtils.getUserNameFromJwtToken();
+        if (usernameFromJwtToken.isEmpty()) {
+            throw new AuthenticationException("401 Unauthorized");
+        }
+        User user = userRepository.findByUsernameAndRemovedFalse(usernameFromJwtToken).orElseThrow(() -> new ResourceNotFoundException(String.format("Not found user by username is %s ", usernameFromJwtToken)));
+        List<Follow> followList = followRepository.findByUserIdAndRemovedFalse(user.getId());
+        List<Event> events = followList.stream().map(follow -> follow.getEvent()).collect(Collectors.toList());
+        List<EventGetResponse> eventGetResponses = new ArrayList<>();
+        for (Event event : events) {
+            eventGetResponses.add(eventMap.toEventGetResponse(event, getFollowNum(event.getId()), true));
+        }
+        return new ListEventGetResponse(eventGetResponses.size(), eventGetResponses);
+    }
+
+    private void updateTicketList(TicketCatalog ticketCatalog) {
+        long availableTicket = ticketRepository.countByTicketCatalogAndStatus(ticketCatalog, TicketStatus.AVAILABLE);
+        if (availableTicket < ticketCatalog.getRemainSlot()) {
+            // generate ticket
+            addTicketList(ticketCatalog, ticketCatalog.getRemainSlot() - (int) availableTicket);
+        } else if (availableTicket > ticketCatalog.getRemainSlot()) {
+            // remove ticket
+            removeTicketList(ticketCatalog, (int) availableTicket - ticketCatalog.getRemainSlot());
+        }
+    }
+
+    private void addTicketList(TicketCatalog ticketCatalog, int addedSlot) {
+        String lastestCode = ticketRepository.lastestTicketCodeByTicketCatalogId(ticketCatalog.getId());
+        String num = lastestCode.substring(10);
+        System.out.println("lastest code: " + num);
+        Integer startNum = Integer.parseInt(num) + 1;
+        generateAndSaveTicketList(ticketCatalog, startNum, startNum + addedSlot - 1);
+    }
+
+    private void removeTicketList(TicketCatalog ticketCatalog, int removedSlot) {
+        List<Ticket> ticketList = ticketRepository.getListTicketByTicketCatalogDesc(ticketCatalog.getId(), TicketStatus.AVAILABLE.name(), removedSlot);
+        ticketRepository.deleteAll(ticketList);
+    }
+
+    private void generateAndSaveTicketList(TicketCatalog ticketCatalog, int startNum, int slot) {
         String prefixCode = String.format("E%04d%04dN", ticketCatalog.getEvent().getId(), ticketCatalog.getId());
         List<Ticket> tickets = new ArrayList<>();
-        for (int num = 1; num <= ticketCatalog.getSlot(); num++) {
+        for (int num = startNum; num <= slot; num++) {
             String code = prefixCode + String.format("%05d", num);
             Ticket ticket = Ticket.builder()
                     .code(code)
@@ -338,13 +501,13 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
 
     private void cancelEventJob(Event event, String targetStatus) {
         Integer eventId = event.getId();
-        if (targetStatus.equals(EventStatus.OPEN.name())) {
+        if (targetStatus.equals(EventStatus.OPENED.name())) {
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
         }
         if (targetStatus.equals(EventStatus.SOLD.name())) {
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
         }
-        if (targetStatus.equals(EventStatus.CLOSE.name())) {
+        if (targetStatus.equals(EventStatus.CLOSED.name())) {
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_CLOSE);
         }
@@ -353,7 +516,7 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_CLOSE);
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_LIVE);
         }
-        if (targetStatus.equals(EventStatus.FINISH.name())) {
+        if (targetStatus.equals(EventStatus.FINISHED.name())) {
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_OPEN);
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_CLOSE);
             cancelSingleEventJob(eventId, ScheduleJobType.EVENT_LIVE);
@@ -361,8 +524,8 @@ public class EventServiceImpl extends Observable<EventServiceImpl> implements Ev
         }
     }
 
-    private void cancelSingleEventJob(Integer eventId, String type) {
-        Optional<ScheduleJob> scheduleJobOptional = scheduleJobRepository.findByRemovedFalseAndObjectIdAndType(eventId, type);
+    private void cancelSingleEventJob(Integer objectId, String type) {
+        Optional<ScheduleJob> scheduleJobOptional = scheduleJobRepository.findByRemovedFalseAndObjectIdAndType(objectId, type);
         if (!scheduleJobOptional.isPresent()) {
             return;
         }

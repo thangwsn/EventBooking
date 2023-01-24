@@ -18,4 +18,5 @@ public class OrganizerGetResponse {
     private String representative;
     private String taxCode;
     private String updateBy; // username
+    private String summary;
 }

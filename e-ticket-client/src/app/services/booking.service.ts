@@ -26,7 +26,7 @@ export class BookingService {
     ) {}
 
     getBookingList(request: any) {
-        this.http.post(`${BASE_API}/get-list-booking`, request, this.getHeader()).subscribe({
+        this.http.get(`${BASE_API}/get-list-booking`, this.getHeader()).subscribe({
             next: (resp: any) => {
                 this.bookingList = resp.data.listBooking;
                 this.bookingList.forEach(booking => {

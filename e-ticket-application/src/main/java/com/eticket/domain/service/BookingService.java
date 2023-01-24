@@ -15,4 +15,8 @@ public interface BookingService {
     ListBookingGetResponse getListBooking(BookingGetRequest bookingGetRequest) throws AuthenticationException;
 
     BookingDetailResponse getBookingDetail(Integer bookingId) throws AuthenticationException, ResourceNotFoundException;
+
+    ListBookingGetResponse getAllBooking();
+
+    boolean removeBooking(Integer bookingId) throws AuthenticationException, AuthorizationException, ResourceNotFoundException;
 }

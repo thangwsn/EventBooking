@@ -1,0 +1,18 @@
+<section class="container py-0" style="margin-top: -10rem !important">
+  <p-blockUI [blocked]="blockedDocument"></p-blockUI>
+  <div class="row">
+    <div class="card">
+      <div class="card-body">
+        <h5 class="text-uppercase mb-4 card-title">Followed Event List</h5>
+        <div
+          class="list-group"
+          *ngFor="let event of followedEventList$ | async"
+        >
+          <app-horizontal-event-item
+            [event]="event"
+          ></app-horizontal-event-item>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

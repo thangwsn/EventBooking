@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { EventDetail, EventGet } from "../model/event.model";
+import { EventDetail, EventGet, EventSearchRequest, LocationDTO } from "../model/event.model";
 import { OrganizerGet } from "../model/organizer.model";
 import { Constants } from "../utils/constants";
 import { ConvertToDate } from "../utils/time-convert";
@@ -27,8 +27,25 @@ export class EventUserService {
     liveEventList$: Observable<EventGet[]> = this.displayLiveEventListSubject.asObservable();
 
     private event!: EventDetail;
-    private displayEventDetailSubject: BehaviorSubject<EventDetail> = new BehaviorSubject<EventDetail>(new EventDetail(0, '', '', '', '', '', [], '', 0, 0, 0, 0, 0, 0, 0, 0, 0, new OrganizerGet(0, '', '', '', '', '', '', ''), '', [], [], false, false));
+    private displayEventDetailSubject: BehaviorSubject<EventDetail> = new BehaviorSubject<EventDetail>(new EventDetail(0, '', '', '', '', '', [], '', 0, 0, 0, 0, 0, 0, 0, 0, 0, new OrganizerGet(0, '', '', '', '', '', '', '', ''), new LocationDTO('', '', '', ''), [], [], false, false));
     event$: Observable<EventDetail> = this.displayEventDetailSubject.asObservable();
+
+    public eventSearchRequest!: EventSearchRequest;
+    public defaultSearch: boolean = true;
+    private searchEventList: EventGet[] = [];
+    private displaySearchEventListSubject: BehaviorSubject<EventGet[]> = new BehaviorSubject<EventGet[]>([]);
+    searchEventList$: Observable<EventGet[]> = this.displaySearchEventListSubject.asObservable();
+
+    private followedEventList: EventGet[] = [];
+    private displayFollowedEventListSubject: BehaviorSubject<EventGet[]> = new BehaviorSubject<EventGet[]>([]);
+    followedEventList$: Observable<EventGet[]> = this.displayFollowedEventListSubject.asObservable();
+
+    private fromOrganizerEventList: EventGet[] = [];
+    private displayFromOrganizerEventListSubject: BehaviorSubject<EventGet[]> = new BehaviorSubject<EventGet[]>([]);
+    fromOrganizerEventList$: Observable<EventGet[]> = this.displayFromOrganizerEventListSubject.asObservable();
+
+    public isEndEventList: boolean = false;
+
 
     constructor(
         private http: HttpClient,
@@ -58,7 +75,7 @@ export class EventUserService {
             pageNo: 1,
             pageSize: 4,
             searchKey: '',
-            sortDirection: 'desc',
+            sortDirection: 'asc',
             sortField: 'startTime',
             status: Constants.EVENT_STATUS_OPEN,
             type: ''
@@ -122,6 +139,62 @@ export class EventUserService {
         this.event.followerNum = event.followerNum;
         this.event.ticketCatalogList = event.ticketCatalogList;
         this.updateEventDetailData();
+    }
+
+    searchEvent() {
+        this.http.post(`${BASE_API}/get-events`, this.eventSearchRequest).subscribe({
+            next: (resp: any) => {
+                this.searchEventList = resp.data.listEvent;
+                this.updateSearchEventList();
+            }
+        })
+    }
+
+    fetchEvent() {
+        this.http.post(`${BASE_API}/get-events`, this.eventSearchRequest).subscribe({
+            next: (resp: any) => {
+                if (resp.data.listEvent.length > 0) {
+                    this.searchEventList = this.searchEventList.concat(resp.data.listEvent);
+                    this.updateSearchEventList();
+                    if (resp.data.listEvent.length < 2) {
+                        this.isEndEventList = true
+                    }
+                } else {
+                    this.isEndEventList = true;
+                }
+            }
+        })
+    }
+
+    getFollowedEventList() {
+        this.http.get(`${BASE_API}/followed`, this.getHeader()).subscribe({
+            next: (resp: any) => {
+                this.followedEventList = resp.data.listEvent;
+                this.updateFollowedEventList();
+            }
+        })
+    }
+
+    fetchFromOrganizerEventList(organizerId: number) {
+        const request = new EventSearchRequest(1, 8, 'startTime', 'desc', '', '', '', organizerId);
+        this.http.post(`${BASE_API}/get-events`, request).subscribe({
+            next: (resp: any) => {
+                this.fromOrganizerEventList = resp.data.listEvent;
+                this.updateFromOrganizerEventList();
+            }
+        })
+    }
+
+    private updateFromOrganizerEventList() {
+        this.displayFromOrganizerEventListSubject.next(this.fromOrganizerEventList);
+    }
+
+    private updateFollowedEventList() {
+        this.displayFollowedEventListSubject.next(this.followedEventList);
+    }
+
+    private updateSearchEventList() {
+        this.displaySearchEventListSubject.next(this.searchEventList);
     }
 
     private updatePopularEventList() {

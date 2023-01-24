@@ -52,10 +52,11 @@ public class WebSecurityConfig {
         // We don't need CSRF for this example
         http.csrf().disable()
                 // don't authenticate this particular request
-                .authorizeRequests().antMatchers("/swagger-ui/**", "/api/login", "/api/signup-user", "/api/verify-signup", "/api/event/*").permitAll()
-//                .antMatchers("/api/booking/**").hasAuthority(Role.USER.name())
+                .authorizeRequests().antMatchers("/swagger-ui/**", "/api/login", "/api/signup-user", "/api/verify-register", "/api/event/*").permitAll()
+//                .antMatchers("/api/booking/*", "/api/update-token", "/api/user-porfile").hasAnyAuthority(Role.USER.name())
+//                .antMatchers("/api/employees/**", "/api/users/**").hasAnyAuthority(Role.ADMINISTRATOR.name())
+//                .antMatchers("/api/organizers/**", "/api/emp/booking/**", "/api/emp/event/**", "/api/emp/event/*").hasAnyAuthority(Role.ADMINISTRATOR.name(), Role.OPERATOR.name())
                 // all other requests need to be authenticated
-//                .anyRequest().authenticated()
                 .and()
                 // make sure we use stateless session; session won't be used to
                 // store user's state.

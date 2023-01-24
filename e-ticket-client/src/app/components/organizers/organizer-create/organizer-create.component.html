@@ -1,5 +1,5 @@
 <main id="main" class="main">
-  <div class="bg-holder overlay" style="background-image:url(assets/img/header-bg.png);background-size:cover;background-repeat: repeat;"></div>
+  <p-blockUI [blocked]="blockedDocument"></p-blockUI>
   <div class="pagetitle">
     <h1>Organizers</h1>
     <nav>
@@ -13,91 +13,102 @@
   <div class="card">
     <div class="card-body">
       <h5 class="card-title">New Organizer</h5>
-      <form class="row g-3" [formGroup]="createOrganizerForm" (ngSubmit)="createOrganizerForm.valid && onSubmit()">
-        <div class="col-md-12">
-          <div class="form-floating">
+      <form
+        class="row g-3"
+        [formGroup]="createOrganizerForm"
+        (ngSubmit)="createOrganizerForm.valid && onSubmit()"
+      >
+        <div class="col-md-12 mb-4 mt-4">
+          <span class="p-float-label">
             <input
+              id="float-input"
               type="text"
+              pInputText
               class="form-control"
-              id="floatingName"
               formControlName="name"
             />
-            <label for="floatingName">Organizer Name</label>
-          </div>
+            <label for="float-input">Organizer Name</label>
+          </span>
         </div>
-        <div class="col-md-6">
-          <div class="form-floating">
+        <div class="col-md-6 mb-4">
+          <span class="p-float-label">
             <input
+              id="float-input"
               type="email"
+              pInputText
               class="form-control"
-              id="floatingEmail"
               formControlName="email"
             />
-            <label for="floatingEmail">Organizer Email</label>
-          </div>
+            <label for="float-input">Organizer Email</label>
+          </span>
         </div>
-        <div class="col-md-6">
-          <div class="form-floating">
+        <div class="col-md-6 mb-4">
+          <span class="p-float-label">
             <input
+              id="float-input"
               type="text"
+              pInputText
               class="form-control"
-              id="floatingMobile"
               formControlName="mobile"
             />
-            <label for="floatingMobile">Organizer Mobile</label>
-          </div>
+            <label for="float-input">Organizer Mobile</label>
+          </span>
         </div>
-        <div class="col-md-8">
-          <div class="form-floating">
+        <div class="col-md-8 mb-4">
+          <span class="p-float-label">
             <input
+              id="float-input"
               type="text"
+              pInputText
               class="form-control"
-              id="floatingRepresentative"
               formControlName="representative"
             />
-            <label for="floatingRepresentative">Organizer Representative</label>
-          </div>
+            <label for="float-input">Organizer Representative</label>
+          </span>
         </div>
-        <div class="col-md-4">
-          <div class="form-floating">
+        <div class="col-md-4 mb-4">
+          <span class="p-float-label">
             <input
+              id="float-input"
               type="text"
+              pInputText
               class="form-control"
-              id="floatingTaxcode"
               formControlName="taxCode"
             />
-            <label for="floatingZip">Tax Code</label>
-          </div>
+            <label for="float-input">Tax Code</label>
+          </span>
         </div>
-        <div class="col-12">
-          <div class="form-floating">
-            <textarea
+        <div class="col-md-12 mb-4">
+          <span class="p-float-label">
+            <input
+              id="float-input"
+              type="text"
+              pInputText
               class="form-control"
-              id="floatingTextarea"
-              style="height: 100px"
               formControlName="address"
-            ></textarea
-            ><label for="floatingTextarea">Address</label>
-          </div>
+            />
+            <label for="float-input">Address</label>
+          </span>
         </div>
-       
-        <div class="col-12">
-          <div class="form-floating">
-            <textarea
-              class="form-control"
-              id="floatingTextarea"
-              style="height: 100px"
-              formControlName="summary"
-            ></textarea
-            ><label for="floatingTextarea">Summary</label>
-          </div>
+        <div class="col-md-12 mb-4">
+          <label>Summary</label>
+          <p-editor
+            formControlName="summary"
+            [style]="{ height: '200px' }"
+          ></p-editor>
         </div>
-       
+
         <div class="text-center">
-          <button type="submit" class="btn btn-primary" [disabled]="createOrganizerForm.invalid">Submit</button>
-          <button type="reset" class="btn btn-secondary">Reset</button>
+          <button
+            pButton
+            type="submit"
+            [disabled]="createOrganizerForm.invalid"
+            label="Submit"
+          ></button>
+          <button pButton type="reset" class="p-button-secondary" label="Reset"></button>
         </div>
       </form>
     </div>
   </div>
+  <p-toast></p-toast>
 </main>

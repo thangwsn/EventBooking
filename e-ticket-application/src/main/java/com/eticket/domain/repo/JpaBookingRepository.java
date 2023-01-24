@@ -22,6 +22,8 @@ public interface JpaBookingRepository extends JpaRepository<Booking, Integer> {
 
     List<Booking> findByRemovedFalse(Pageable pageable);
 
+    List<Booking> findAllByRemovedFalse();
+
     Optional<Booking> findByRemovedFalseAndEventIdAndUserIdAndStatus(Integer eventId, Integer userId, BookingStatus status);
 
     Integer countBookingByRemovedFalseAndStatusAndUserId(BookingStatus status, Integer userId);

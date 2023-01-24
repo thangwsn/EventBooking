@@ -15,4 +15,5 @@ public class EventGetRequest {
     private String type;
     private String status;
     private String searchKey;
+    private Integer organizerId;
 }

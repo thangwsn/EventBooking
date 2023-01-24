@@ -35,13 +35,14 @@ public class EventMap {
         eventDetailGetResponse.setFollowerNum(followNum);
         eventDetailGetResponse.setStatusString(event.getStatus().name());
         eventDetailGetResponse.setTypeString(event.getType().name());
-        eventDetailGetResponse.setLocationString(event.locationToString());
-        eventDetailGetResponse.setOrganizer(OrganizerGetResponse.builder().id(event.getOrganizer().getId()).name(event.getOrganizer().getName()).build());
+        eventDetailGetResponse.setVideoLink(event.getVideoLink());
+        eventDetailGetResponse.setLocation(modelMapper.map(event.getLocation(), LocationDto.class));
+        eventDetailGetResponse.setOrganizer(OrganizerGetResponse.builder().id(event.getOrganizer().getId()).name(event.getOrganizer().getName()).summary(event.getOrganizer().getSummary()).build());
         List<String> imagePathList = event.getImageList()
                 .stream().map(image -> image.getUrl()).collect(Collectors.toList());
         eventDetailGetResponse.setImagePathList(imagePathList);
         List<TicketCatalogGetResponse> catalogGetResponseList = event.getTicketCatalogList()
-                .stream().map(ticketCatalog -> modelMapper.map(ticketCatalog, TicketCatalogGetResponse.class))
+                .stream().filter(t -> t.isRemoved() == false).map(ticketCatalog -> modelMapper.map(ticketCatalog, TicketCatalogGetResponse.class))
                 .collect(Collectors.toList());
         eventDetailGetResponse.setTicketCatalogList(catalogGetResponseList);
         if (userView) {
@@ -56,7 +57,7 @@ public class EventMap {
         EventWebSocketDto eventWebSocketDto = modelMapper.map(event, EventWebSocketDto.class);
         eventWebSocketDto.setStatusString(event.getStatus().name());
         List<TicketCatalogGetResponse> catalogGetResponseList = event.getTicketCatalogList()
-                .stream().map(ticketCatalog -> modelMapper.map(ticketCatalog, TicketCatalogGetResponse.class))
+                .stream().filter(t -> t.isRemoved() == false).map(ticketCatalog -> modelMapper.map(ticketCatalog, TicketCatalogGetResponse.class))
                 .collect(Collectors.toList());
         eventWebSocketDto.setTicketCatalogList(catalogGetResponseList);
         eventWebSocketDto.setFollowerNum(followNum);

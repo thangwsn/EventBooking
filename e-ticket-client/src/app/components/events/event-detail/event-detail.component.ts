@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Observable } from 'rxjs';
@@ -7,6 +7,10 @@ import { EventDetail } from 'app/model/event.model';
 import { EventService } from 'app/services/event.service';
 import { Constants } from 'app/utils/constants';
 import { environment } from 'environments/environment';
+import { AddTicketDialogComponent } from '../add-ticket-dialog/add-ticket-dialog.component';
+import { EditTicketDialogComponent } from '../edit-ticket-dialog/edit-ticket-dialog.component';
+import { EventEditComponent } from '../event-edit/event-edit.component';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-event-detail',
@@ -15,6 +19,9 @@ import { environment } from 'environments/environment';
   providers: [ConfirmationService, MessageService]
 })
 export class EventDetailComponent implements OnInit {
+  @ViewChild("addTicketCatalog", { static: false }) addTicketCatalogComponent!: AddTicketDialogComponent;
+  @ViewChild("editTicketCatalog", { static: false }) editTicketCatalogComponent!: EditTicketDialogComponent;
+  @ViewChild("edit_event", {static: false}) editEventComponent!: EventEditComponent;
   BASE_API = environment.host;
   event$: Observable<EventDetail> = new Observable<EventDetail>();
   eventStatusList$: Observable<string[]> = new Observable<string[]>();
@@ -23,6 +30,12 @@ export class EventDetailComponent implements OnInit {
   hiddenAddCatalog: boolean = false;
   hiddenEditCatalog: boolean = false;
   blockedDocument: boolean = false;
+  addTicketCatalogDialog: boolean = false;
+  editTicketCatalogDialog: boolean = false;
+  editEventDialog: boolean = false;
+  ticketCatalog: any = {};
+
+  safeSrc!: SafeResourceUrl;
 
   constructor(private _route: ActivatedRoute,
     private _router: Router,
@@ -30,9 +43,11 @@ export class EventDetailComponent implements OnInit {
     private fb: FormBuilder,
     private confirmationService: ConfirmationService,
     private primengConfig: PrimeNGConfig,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private sanitizer: DomSanitizer) { }
 
   ngOnInit(): void {
+    window.scroll(0, 0);
     this.primengConfig.ripple = true;
     let paramValue = this._route.snapshot.paramMap.get('eventId');
     if (paramValue !== null) {
@@ -47,8 +62,21 @@ export class EventDetailComponent implements OnInit {
       this.changeStatusForm = this.fb.group({
         targetStatus: [Validators.required]
       })
+      this.event$.subscribe({
+        next: (event: EventDetail) => {
+          this.safeSrc =  this.sanitizer.bypassSecurityTrustResourceUrl(event.videoLink);
+          this.changeStatusForm.setValue({
+            targetStatus: event.statusString
+          })
+        }
+      })
+     
     }
 
+  }
+
+  locationString(event: EventDetail): string {
+    return `${event.location.street}, ${event.location.ward}, ${event.location.district}, ${event.location.city}`;
   }
 
   changeStatus() {
@@ -56,19 +84,19 @@ export class EventDetailComponent implements OnInit {
       eventId: this.eventId,
       targetStatus: this.changeStatusForm.get('targetStatus').value
     }
-    this.eventService.changeEventStatus(request).subscribe({
-      next: (statusCode) => {
-        if (statusCode == 200) {
-          this.changeStatusForm.patchValue({
-            targetStatus: ''
-          })
-          this.updateHidden();
-          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Update event status successfully!' });
-        } else {
-          this.messageService.add({ severity: 'error', summary: 'Failure', detail: 'Change event status failure!' });
+    if (this.changeStatusForm.valid) {
+      this.eventService.changeEventStatus(request).subscribe({
+        next: (statusCode) => {
+          if (statusCode == 200) {
+            this.updateHidden();
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Update event status successfully!' });
+          } else {
+            this.messageService.add({ severity: 'error', summary: 'Failure', detail: 'Change event status failure!' });
+          }
         }
-      }
-    })
+      })
+    }
+
   }
 
   updateHidden() {
@@ -161,5 +189,111 @@ export class EventDetailComponent implements OnInit {
         this.blockedDocument = false;
       }
     })
+  }
+
+  openAddTicketCatalogDialog() {
+    this.addTicketCatalogDialog = true;
+  }
+
+  closeAddTicketCatalogDialog() {
+    this.addTicketCatalogDialog = false;
+  }
+
+  submitAddTicketCatalog() {
+    if (this.addTicketCatalogComponent.addTicketCatalogForm.valid) {
+      this.addTicketCatalogComponent.submit().subscribe({
+        next: (resp: any) => {
+          if (resp.meta.code == 200) {
+            this.closeAddTicketCatalogDialog();
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Create ticket catalog successfully!' });
+            this.eventService.fetchEventDetail(this.eventId);
+          } else {
+            this.messageService.add({ severity: 'warn', summary: 'Failure', detail: 'Create ticket catalog failure!' });
+          }
+        }
+      });
+    }
+  }
+
+  openEditTicketCatalogDialog(ticketCatalog: any) {
+    this.ticketCatalog = ticketCatalog;
+    this.editTicketCatalogDialog = true;
+  }
+
+  closeEditTicketCatalogDialog() {
+    this.editTicketCatalogDialog = false;
+  }
+
+  submitEditTicketCatalog() {
+    if (this.editTicketCatalogComponent.editTicketCatalogForm.valid) {
+      this.editTicketCatalogComponent.submit().subscribe({
+        next: (resp: any) => {
+          if (resp.meta.code == 200) {
+            this.closeEditTicketCatalogDialog();
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Update ticket catalog successfully!' });
+            this.eventService.fetchEventDetail(this.eventId);
+          } else {
+            this.messageService.add({ severity: 'warn', summary: 'Failure', detail: 'Update ticket catalog failure!' });
+          }
+        }
+      });
+    }
+  }
+
+  openConfirmDialog(ticketCatalog: any) {
+    this.confirmationService.confirm({
+      message: 'Are you sure that you want to delete this ticket catalog?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.handleRemoveTicketCatalog(ticketCatalog.id)
+      },
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Cancel', detail: 'Cancel removing!' });
+      }
+    });
+  }
+
+  private handleRemoveTicketCatalog(ticketCatalogId: number) {
+    this.blockedDocument = true;
+    this.eventService.removeTicketCatalog(this.eventId, ticketCatalogId).subscribe({
+      next: (resp: any) => {
+        if (resp.meta.code == 200) {
+          this.blockedDocument = false;
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Remove successfully!' });
+          this.eventService.fetchEventDetail(this.eventId);
+        }
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'warning', summary: 'Error', detail: 'Remove failure!' });
+        this.blockedDocument = false;
+      }
+    })
+  }
+
+  openEditEventDialog() {
+    this.editEventDialog = true;
+  }
+
+  closeEditEventDialog() {
+    this.editEventDialog = false;
+  }
+
+  submitEditEvent() {
+    if (this.editEventComponent.editEventForm.valid) {
+      this.editEventComponent.onSubmit().subscribe({
+        next: (resp: any) => {
+          if (resp.meta.code == 200) {
+            this.closeEditEventDialog();
+            this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Update event successfully!' });
+            this.eventService.fetchEventDetail(this.eventId);
+          }
+        },
+        error: (err) => {
+          this.messageService.add({ severity: 'warning', summary: 'Error', detail: 'failure!' });
+          this.blockedDocument = false;
+        }
+      })
+    }
   }
 }

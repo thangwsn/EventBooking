@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { BookingDetail } from 'app/model/booking.model';
 import { BookingService } from 'app/services/booking.service';
 import { Constants } from 'app/utils/constants';
+import { environment } from 'environments/environment';
+import { EventGet } from 'app/model/event.model';
 
 @Component({
   selector: 'app-booking-detail',
@@ -11,19 +13,13 @@ import { Constants } from 'app/utils/constants';
   styleUrls: ['./booking-detail.component.css']
 })
 export class BookingDetailComponent implements OnInit {
+  @Input("bookingDetail") bookingDetail$: Observable<BookingDetail> = new Observable<BookingDetail>();
 
-  bookingId!: number;
-  bookingDetail$: Observable<BookingDetail> = new Observable<BookingDetail>();
+  BASE_API = environment.host;
 
   constructor(private bookingService: BookingService, private _route: ActivatedRoute) { }
 
   ngOnInit(): void {
-    let paramValue = this._route.snapshot.paramMap.get('bookingId');
-    if (paramValue !== null) {
-     this.bookingId = parseInt(paramValue);
-     this.bookingService.getBookingDetail(this.bookingId);
-     this.bookingDetail$ = this.bookingService.bookingDetail$
-    }
   }
 
   getBookingStatusClass(status: string): string {
@@ -48,9 +44,34 @@ export class BookingDetailComponent implements OnInit {
     var imageLink = '';
     switch(type) {
       case Constants.PAYMENT_TYPE_PAYPAL:
-        imageLink = 'https://i.imgur.com/cMk1MtK.jpg'
+        imageLink = 'assets/img/paypal.jpg'
     }
     return imageLink
+  }
+
+  getClassOfEventStatus(event: EventGet) {
+    var status = event.statusString;
+    var eventStatusClass = '';
+    switch(status) {
+      case Constants.EVENT_STATUS_CREATED:
+        eventStatusClass = 'badge bg-primary'
+        break;
+      case Constants.EVENT_STATUS_OPEN:
+        eventStatusClass = 'badge bg-success'
+        break;
+      case Constants.EVENT_STATUS_SOLD:
+        eventStatusClass = 'badge bg-danger'
+        break;
+      case Constants.EVENT_STATUS_LIVE:
+        eventStatusClass = 'badge bg-info text-dark'
+        break;
+      case Constants.EVENT_STATUS_FINISH:
+        eventStatusClass = 'badge bg-secondary'
+        break;
+      default:
+        eventStatusClass = 'badge bg-light text-dark'
+    }
+    return eventStatusClass;
   }
 
 }

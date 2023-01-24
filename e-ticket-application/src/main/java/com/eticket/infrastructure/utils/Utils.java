@@ -47,4 +47,8 @@ public class Utils {
     public static long timeStampToTime(Timestamp datetime) {
         return datetime.getTime();
     }
+
+    public static Date convertToDate(long time) {
+        return new Date(time);
+    }
 }

@@ -1,8 +1,7 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable } from "rxjs";
-import { OrganizerCreateRequest, OrganizerGet } from "../model/organizer.model";
-import { Constants } from "../utils/constants";
+import { OrganizerCreateRequest, OrganizerEdit, OrganizerGet } from "../model/organizer.model";
 import { TokenStorageService } from "./token-storage.service";
 import { environment } from 'environments/environment';
 
@@ -50,6 +49,14 @@ export class OrganizerService {
     removeOrganizer(organizerId: number): Observable<any> {
         this.httpOptions = this.getHeader();
         return this.http.delete(BASE_API + "/" + organizerId, this.httpOptions);
+    }
+
+    getOrganizerForEditing(organizerId: number): Observable<any> {
+        return this.http.get(`${BASE_API}/edit/${organizerId}`, this.getHeader());
+    }
+
+    updateOrganizer(organizerEditRequest: OrganizerEdit): Observable<any> {
+        return this.http.put(`${BASE_API}/edit/${organizerEditRequest.id}`, organizerEditRequest, this.getHeader());
     }
 
     private updateOrganizerListData() {

@@ -1,8 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ToastrService } from 'ngx-toastr';
+import { PrimeNGConfig } from 'primeng/api';
 import { EventService } from 'app/services/event.service';
 import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-add-ticket-dialog',
@@ -12,12 +13,15 @@ import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 export class AddTicketDialogComponent implements OnInit {
   @Input() eventId!: number;
   @Input() eventType: string = '';
-  addTicketCatalogForm: any;
+  addTicketCatalogForm: any = new FormGroup({});
 
-  constructor(private fb: FormBuilder, private eventService: EventService, private toastr: ToastrService) { }
+  constructor(
+    private fb: FormBuilder,
+    private eventService: EventService,
+    private primengConfig: PrimeNGConfig) { }
 
   ngOnInit(): void {
-    console.log("Event ID", this.eventId);
+    this.primengConfig.ripple = true;
     this.addTicketCatalogForm = this.fb.group({
       title: ['', NoWhitespaceValidator()],
       slot: [0, Validators.compose([
@@ -32,29 +36,13 @@ export class AddTicketDialogComponent implements OnInit {
     })
   }
 
-  submit() {
+  submit(): Observable<any> {
     const ticketCatalogCreateRequest = {
       title: this.addTicketCatalogForm.get('title').value,
       slot: this.addTicketCatalogForm.get('slot').value,
       price: (this.eventType === 'FREE') ? 0 : this.addTicketCatalogForm.get('price').value,
-      remark: this.addTicketCatalogForm.get('remark').value, 
+      remark: this.addTicketCatalogForm.get('remark').value,
     }
-    this.eventService.createTicketCatalog(ticketCatalogCreateRequest, this.eventId).subscribe({
-      next: (statusCode) => {
-        if (statusCode == 200) {
-          //reset form
-          this.addTicketCatalogForm.setValue({
-            title: '',
-            slot: 0,
-            price: 0,
-            remark: ''
-          })
-          this.toastr.success('', 'Create ticket catalog successfully!', {timeOut: 1000, newestOnTop: true, tapToDismiss: true});
-
-        } else {
-          this.toastr.error('', 'Create ticket catalog failure!', {timeOut: 1000, newestOnTop: true, tapToDismiss: true});
-        }
-      }
-    })    
+    return this.eventService.createTicketCatalog(ticketCatalogCreateRequest, this.eventId)
   }
 }

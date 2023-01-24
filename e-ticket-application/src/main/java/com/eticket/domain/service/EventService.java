@@ -1,9 +1,11 @@
 package com.eticket.domain.service;
 
+import com.eticket.application.api.dto.FieldViolation;
 import com.eticket.application.api.dto.event.*;
 import com.eticket.domain.exception.AuthenticationException;
 import com.eticket.domain.exception.EventRemoveException;
 import com.eticket.domain.exception.ResourceNotFoundException;
+import com.eticket.domain.exception.TicketCatalogException;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -33,4 +35,11 @@ public interface EventService {
 
     List<EventWebSocketDto> getAllEventForWS();
 
+    void updateTicketCatalog(Integer ticketCatalogId, TicketCatalogUpdateRequest ticketCatalogUpdateRequest) throws ResourceNotFoundException, TicketCatalogException;
+
+    void removeTicketCatalog(Integer ticketCatalogId) throws ResourceNotFoundException, TicketCatalogException;
+
+    List<FieldViolation> updateEvent(Integer eventId, EventUpdateRequest eventUpdateRequest) throws ResourceNotFoundException;
+
+    ListEventGetResponse getFollowedEventList() throws AuthenticationException, ResourceNotFoundException;
 }

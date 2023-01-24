@@ -28,7 +28,7 @@ public class EventDetailGetResponse {
     private int remainSlot;
     private int followerNum;
     private OrganizerGetResponse organizer;
-    private String locationString;
+    private LocationDto location;
     private List<String> imagePathList;
     private List<TicketCatalogGetResponse> ticketCatalogList;
     private boolean followed;

@@ -1,6 +1,7 @@
 package com.eticket.infrastructure.mapper;
 
 import com.eticket.application.api.dto.account.EmployeeDetailResponse;
+import com.eticket.application.api.dto.account.EmployeeEditDto;
 import com.eticket.application.api.dto.account.EmployeeGetResponse;
 import com.eticket.domain.entity.account.Employee;
 import org.modelmapper.ModelMapper;
@@ -22,5 +23,9 @@ public class EmployeeMap {
             employeeDetailResponse.setAddressString(employee.getAddress().toAddressString());
         }
         return employeeDetailResponse;
+    }
+
+    public EmployeeEditDto toEmployeeEditDto(Employee employee) {
+        return modelMapper.map(employee, EmployeeEditDto.class);
     }
 }

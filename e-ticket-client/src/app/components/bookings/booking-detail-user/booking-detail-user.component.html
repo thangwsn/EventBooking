@@ -3,14 +3,19 @@
   style="margin-top: -10rem !important"
   *ngIf="bookingDetail$ | async as bookingDetail"
 >
-<p-blockUI [blocked]="blockedDocument"></p-blockUI>
+  <p-blockUI [blocked]="blockedDocument"></p-blockUI>
   <div class="row align-items-top">
     <div class="col-lg-9 mb-1">
       <div class="card">
         <div class="card-body">
           <h5 class="card-title text-uppercase">Booking Detail</h5>
-          <h6  class="card-text">Amount: <span #amount>{{ bookingDetail.amount }}</span>VND</h6>
-          <h6 class="card-text">Create At: {{ bookingDetail.createTime | date: 'medium' }}</h6>
+          <h6 class="card-text">
+            Amount: <span #amount>{{ bookingDetail.amount }}</span
+            >$
+          </h6>
+          <h6 class="card-text">
+            Create At: {{ bookingDetail.createTime | date : "medium" }}
+          </h6>
           <span [ngClass]="getBookingStatusClass(bookingDetail.statusString)">{{
             bookingDetail.statusString | titlecase
           }}</span>
@@ -25,7 +30,7 @@
                   >
                     <div class="ms-2 me-auto">
                       <div class="fw-bold">{{ item.ticketCatalogTitle }}</div>
-                      {{ item.price }}đ
+                      {{ item.price }}$
                     </div>
                     <span class="badge bg-primary rounded-pill">{{
                       item.quantity
@@ -67,7 +72,7 @@
                       <label for="customRadioInline23"
                         ><img
                           width="80px"
-                          src="https://i.imgur.com/cMk1MtK.jpg"
+                          src="assets/img/paypal.jpg"
                           class="card-image"
                       /></label>
                     </div>
@@ -86,7 +91,7 @@
                       <label for="customRadioInline11"
                         ><img
                           width="80px"
-                          src="https://i.imgur.com/OdxcctP.jpg"
+                          src="assets/img/visa.jpg"
                           class="card-image"
                         />
                       </label>
@@ -106,7 +111,7 @@
                       <label for="customRadioInline22"
                         ><img
                           width="80px"
-                          src="https://i.imgur.com/WIAP9Ku.jpg"
+                          src="assets/img/mastercard.jpg"
                           class="card-image"
                       /></label>
                     </div>
@@ -118,7 +123,10 @@
                   </div>
                 </form>
 
-                <div *ngIf="bookingDetail.statusString === 'COMPLETED'" class="row col-sm-auto">
+                <div
+                  *ngIf="bookingDetail.statusString === 'COMPLETED'"
+                  class="row col-sm-auto"
+                >
                   <div
                     class="col-sm-4 custom-control custom-radio custom-control-inline"
                   >
@@ -141,6 +149,7 @@
               </div>
             </div>
           </div>
+          <button *ngIf="displayRemoveButton(bookingDetail.statusString)" (click)="openConfirmRemove(bookingDetail.id)" type="button" class="btn btn-danger">Remove</button>
         </div>
       </div>
       <div class="card">
@@ -179,24 +188,13 @@
         </div>
       </div>
       <div class="card">
-        <img
-          [src]="BASE_API + bookingDetail.event.imagePathList[0]"
-          class="card-img-top"
-          alt="..."
-        />
-        <div class="card-body">
-          <h5 class="card-title">{{ bookingDetail.event.title }}</h5>
-          <p class="card-text">
-            {{
-              bookingDetail.event.summary.length >= 50
-                ? bookingDetail.event.summary.substring(0, 47) + "... "
-                : bookingDetail.event.summary
-            }}<a [routerLink]="['/events/', bookingDetail.event.id]">more</a>
-          </p>
-        </div>
+        <app-event-item [event]="bookingDetail.event"></app-event-item>
       </div>
     </div>
   </div>
-  <p-confirmDialog [style]="{width: '50vw'}" [baseZIndex]="10000"></p-confirmDialog> 
+  <p-confirmDialog
+    [style]="{ width: '50vw' }"
+    [baseZIndex]="10000"
+  ></p-confirmDialog>
   <p-toast></p-toast>
 </section>

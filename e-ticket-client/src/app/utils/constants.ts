@@ -1,11 +1,11 @@
 export class Constants {
 
     static EVENT_STATUS_CREATED = 'CREATED';
-    static EVENT_STATUS_OPEN = 'OPEN';
-    static EVENT_STATUS_CLOSE = 'CLOSE';
+    static EVENT_STATUS_OPEN = 'OPENED';
+    static EVENT_STATUS_CLOSE = 'CLOSED';
     static EVENT_STATUS_SOLD= 'SOLD';
     static EVENT_STATUS_LIVE = 'LIVE';
-    static EVENT_STATUS_FINISH = 'FINISH';
+    static EVENT_STATUS_FINISH = 'FINISHED';
 
     static EVENT_TYPE_FREE = 'FREE'
     static EVENT_TYPE_CHARGE = 'CHARGE'

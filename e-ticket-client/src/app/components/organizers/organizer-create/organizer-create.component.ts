@@ -1,27 +1,31 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 import { OrganizerCreateRequest } from 'app/model/organizer.model';
 import { OrganizerService } from 'app/services/organizer.service';
 import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 
+
 @Component({
   selector: 'app-organizer-create',
   templateUrl: './organizer-create.component.html',
-  styleUrls: ['./organizer-create.component.css']
+  styleUrls: ['./organizer-create.component.css'],
+  providers: [MessageService]
 })
 export class OrganizerCreateComponent implements OnInit {
-
+  blockedDocument: boolean = false;
   createOrganizerForm: any = new FormGroup({})
 
   constructor(
     private fb: FormBuilder, 
     private organizerService: OrganizerService, 
     private _router: Router,
-    private toastr: ToastrService) { }
+    private primengConfig: PrimeNGConfig,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
+    this.primengConfig.ripple = true;
     this.createOrganizerForm = this.fb.group({
       name: [
         '',
@@ -75,6 +79,7 @@ export class OrganizerCreateComponent implements OnInit {
   }
 
   onSubmit(): void {
+    this.blockedDocument = true;
     let organizerCreateRequest = new OrganizerCreateRequest(
       this.createOrganizerForm.get('name').value,
       this.createOrganizerForm.get('email').value,
@@ -87,14 +92,18 @@ export class OrganizerCreateComponent implements OnInit {
     this.organizerService.create(organizerCreateRequest).subscribe({
       next: (response: any) => {
         if (response.meta.code == 200) {
-          this.toastr.success('', 'Create organizer successfully!', {timeOut: 1000, newestOnTop: true, tapToDismiss: true});
-          this._router.navigate(["admin/organizers"]);
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Create organizer successfully!' });
+          setTimeout(()=> {
+            this._router.navigate(["admin/organizers"]);
+          }, 500)
         } else {
-          this.toastr.error('', 'Create organizer failure!', {timeOut: 1000, newestOnTop: true, tapToDismiss: true});
+          this.blockedDocument = false;
+          this.messageService.add({ severity: 'error', summary: 'Failure', detail: 'Create organizer failure!' });
         }
       },
-      error: (resp) => {
-        this.toastr.error('', 'Create organizer failure!', {timeOut: 1000, newestOnTop: true, tapToDismiss: true});
+      error: (err) => {
+        this.blockedDocument = false;
+        this.messageService.add({ severity: 'error', summary: 'Failure', detail: 'Create organizer failure!' });
       }
     });
   }

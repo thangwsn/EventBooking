@@ -53,7 +53,12 @@
             ><i [ngClass]="getFollowClass(event.followed)"></i
           ></a>
         </div>
-        <p class="text-muted lead">Price</p>
+        <p class="text-muted lead">
+          <ng-container *ngFor="let catalog of event.ticketCatalogList"
+            ><strong class="badge rounded-pill bg-primary"
+              >{{ catalog.price }} <i class="bi bi-currency-dollar"></i></strong
+          > &nbsp;</ng-container>
+        </p>
         <p class="text-sm mb-4" [innerHTML]="event.summary"></p>
         <h6 class="text-muted">
           Remain Slot: <strong>{{ event.remainSlot }}</strong>
@@ -62,7 +67,7 @@
           <h5 class="card-title">
             Ticket Catalog ({{ event.ticketCatalogList.length }})
           </h5>
-          <ul class="list-group" *ngIf="true">
+          <ul class="list-group">
             <app-ticket-catalog-item
               *ngFor="let catalog of event.ticketCatalogList"
               [ticketCatalog]="catalog"
@@ -74,7 +79,9 @@
             <button
               class="btn btn-outline-dark"
               (click)="booking()"
-              [disabled]="event.disableBooking || event.statusString != 'OPEN'"
+              [disabled]="
+                event.disableBooking || event.statusString != 'OPENED'
+              "
             >
               Book
             </button>
@@ -84,12 +91,15 @@
           <li class="px-3 py-2 mb-1 bg-white">
             <strong class="text-uppercase">Time: </strong
             ><span class="ms-2 text-muted">{{
-              event.startTime | date: "medium"
+              event.startTime | date : "medium"
             }}</span>
           </li>
           <li class="px-3 py-2 mb-1 bg-white">
             <strong class="text-uppercase">Location: </strong
-            ><span class="ms-2 text-muted">{{ event.locationString }}</span>
+            ><span class="ms-2 text-muted"
+              >{{ event.location.street }}, {{ event.location.ward }},
+              {{ event.location.district }}, {{ event.location.city }}</span
+            >
           </li>
           <li class="px-3 py-2 mb-1 bg-white text-muted">
             <strong class="text-uppercase text-dark">Organizer:</strong
@@ -108,6 +118,17 @@
         </ul>
       </div>
     </div>
+    <iframe *ngIf="event.videoLink != ''"
+      class="mb-2"
+      [class.thumbnail]="'thumbnail'"
+      [src]="safeSrc"
+      width="100%"
+      height="700"
+      frameborder="0"
+      webkitallowfullscreen
+      mozallowfullscreen
+      allowfullscreen
+    ></iframe>
     <!-- DETAILS TABS-->
     <ul class="nav nav-tabs border-0" id="myTab" role="tablist">
       <li class="nav-item">
@@ -131,7 +152,7 @@
           role="tab"
           aria-controls="reviews"
           aria-selected="false"
-          >Reviews</a
+          >ORGANIZER</a
         >
       </li>
     </ul>
@@ -143,7 +164,6 @@
         aria-labelledby="description-tab"
       >
         <div class="p-4 p-lg-5 bg-white">
-          <h6 class="text-uppercase">Event description</h6>
           <p
             class="text-muted text-sm mb-0"
             [innerHTML]="event.description"
@@ -157,38 +177,30 @@
         aria-labelledby="reviews-tab"
       >
         <div class="p-4 p-lg-5 bg-white">
-          <div class="row">
-            <div class="col-lg-8"></div>
-          </div>
+          <h2 class="h5 text-uppercase mb-3">
+            <strong>{{ event.organizer.name }}</strong>
+          </h2>
+          <p
+            class="text-muted text-sm mb-0"
+            [innerHTML]="event.organizer.summary"
+          ></p>
         </div>
       </div>
     </div>
     <!-- RELATED Events-->
-    <h2 class="h5 text-uppercase mb-4">Related events</h2>
-    <!-- <div class="row h-100">
-      <div class="col-12">
-        <div>
-          <div>
-            <div>
-              <div class="row h-100 align-items-center g-2">
-                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
-                  <app-event-item></app-event-item>
-                </div>
-                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
-                  <app-event-item></app-event-item>
-                </div>
-                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
-                  <app-event-item></app-event-item>
-                </div>
-                <div class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100">
-                  <app-event-item></app-event-item>
-                </div>
-              </div>
-            </div>
-          </div>
+    <h2 class="h5 text-uppercase mb-3">
+      MORE FROM <strong>{{ event.organizer.name }}</strong>
+    </h2>
+    <div class="row">
+      <div class="row h-100 align-items-center g-2">
+        <div
+          class="col-sm-6 col-md-3 mb-3 mb-md-0 h-100"
+          *ngFor="let e of liveEventList$ | async"
+        >
+          <app-event-item [event]="e"></app-event-item>
         </div>
       </div>
-    </div> -->
+    </div>
   </div>
   <p-toast></p-toast>
   <p-toast

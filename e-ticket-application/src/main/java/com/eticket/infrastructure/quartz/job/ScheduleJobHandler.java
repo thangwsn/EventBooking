@@ -80,12 +80,12 @@ public class ScheduleJobHandler extends QuartzJobBean {
 
     private void scheduleEventOpen(Integer eventId) throws ResourceNotFoundException {
         logger.info("Handle change to open status with event od = {}", eventId);
-        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.OPEN.name()));
+        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.OPENED.name()));
     }
 
     private void scheduleEventClose(Integer eventId) throws ResourceNotFoundException {
         logger.info("Handle change to close status with event od = {}", eventId);
-        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.CLOSE.name()));
+        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.CLOSED.name()));
     }
 
     private void scheduleEventLive(Integer eventId) throws ResourceNotFoundException {
@@ -95,6 +95,6 @@ public class ScheduleJobHandler extends QuartzJobBean {
 
     private void scheduleEventFinish(Integer eventId) throws ResourceNotFoundException {
         logger.info("Handle change to finish status with event od = {}", eventId);
-        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.FINISH.name()));
+        eventService.changeEventStatus(new ChangeEventStatusRequest(eventId, EventStatus.FINISHED.name()));
     }
 }

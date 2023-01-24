@@ -1,10 +1,12 @@
 package com.eticket.application.api.controller;
 
 import com.eticket.application.api.dto.BaseResponse;
+import com.eticket.application.api.dto.FieldViolation;
 import com.eticket.application.api.dto.event.*;
 import com.eticket.domain.exception.AuthenticationException;
 import com.eticket.domain.exception.EventRemoveException;
 import com.eticket.domain.exception.ResourceNotFoundException;
+import com.eticket.domain.exception.TicketCatalogException;
 import com.eticket.domain.service.EventService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -28,8 +30,12 @@ public class EventApiController {
     }
 
     @PutMapping("/{event_id}")
-    public ResponseEntity<?> updateEvent(@PathVariable("event_id") Integer eventId, @RequestBody EventUpdateRequest eventUpdateRequest) {
-        return null;
+    public ResponseEntity<BaseResponse> updateEvent(@PathVariable("event_id") Integer eventId, @RequestBody EventUpdateRequest eventUpdateRequest) throws ResourceNotFoundException {
+        List<FieldViolation> violationList = eventService.updateEvent(eventId, eventUpdateRequest);
+        if (violationList.size() > 0) {
+            return ResponseEntity.ok(BaseResponse.ofInvalid(violationList));
+        }
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
     @DeleteMapping("/{event_id}")
@@ -51,14 +57,21 @@ public class EventApiController {
     }
 
     @PostMapping("/{event_id}/ticket-catalog")
-    public ResponseEntity<BaseResponse<TicketCatalogGetResponse>> addTicketCatalog(@PathVariable("event_id") Integer eventId, @RequestBody TicketCatalogRequest ticketCatalogRequest) throws ResourceNotFoundException {
+    public ResponseEntity<BaseResponse<Void>> addTicketCatalog(@PathVariable("event_id") Integer eventId, @RequestBody TicketCatalogRequest ticketCatalogRequest) throws ResourceNotFoundException {
         eventService.addTicketCatalog(eventId, ticketCatalogRequest);
         return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
-    @PutMapping("/{event_id}/ticket-catalog")
-    public ResponseEntity<?> editTicketCatalog(@PathVariable("event_id") Integer eventId, @RequestBody TicketCatalogUpdateRequest ticketCatalogUpdateRequest) {
-        return null;
+    @PutMapping("/{event_id}/ticket-catalog/{ticket_catalog_id}")
+    public ResponseEntity<BaseResponse<Void>> editTicketCatalog(@PathVariable("ticket_catalog_id") Integer ticketCatalogId, @RequestBody TicketCatalogUpdateRequest ticketCatalogUpdateRequest) throws TicketCatalogException, ResourceNotFoundException {
+        eventService.updateTicketCatalog(ticketCatalogId, ticketCatalogUpdateRequest);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
+    }
+
+    @DeleteMapping("/{event_id}/ticket-catalog/{ticket_catalog_id}")
+    public ResponseEntity<BaseResponse<Void>> removeTicketCatalog(@PathVariable("ticket_catalog_id") Integer ticketCatalogId) throws TicketCatalogException, ResourceNotFoundException {
+        eventService.removeTicketCatalog(ticketCatalogId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
     @PostMapping("/change-status")

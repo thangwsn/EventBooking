@@ -1,93 +1,38 @@
-<div class="modal fade" id="add-ticket-modal" tabindex="-1">
-  <div class="modal-dialog modal-dialog-centered">
-    <form
-      class="modal-content"
-      [formGroup]="addTicketCatalogForm"
-      (ngSubmit)="addTicketCatalogForm.valid && submit()"
-    >
-      <div class="modal-header">
-        <h5 class="modal-title">Add Ticket Catalog</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="modal"
-          aria-label="Close"
-        ></button>
+<div class="card">
+  <div class="card-body">
+    <form class="row g-3 mt-2" [formGroup]="addTicketCatalogForm">
+      <div class="col-md-6 mb-4">
+        <span>
+          <label>Title</label>
+          <input
+            pInputText
+            class="form-control"
+            formControlName="title"
+          />
+        </span>
       </div>
-      <div class="modal-body">
-        <div class="row g-3">
-          <div class="col-md-12">
-            <!-- <span class="p-float-label">
-              <input
-                id="float-input"
-                type="text"
-                pInputText
-                formControlName="title"
-              />
-              <label for="float-input">Title</label>
-            </span> -->
-            <div class="form-floating">
-              <input
-                type="text"
-                class="form-control"
-                id="floatingName"
-                placeholder="Title"
-                formControlName="title"
-              />
-              <label for="floatingName">Title</label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input
-                type="number"
-                class="form-control"
-                id="floatingEmail"
-                placeholder="Slot"
-                formControlName="slot"
-              />
-              <label for="floatingEmail">Slot</label>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="form-floating">
-              <input
-                type="number"
-                class="form-control"
-                id="floatingPassword"
-                placeholder="Price"
-                formControlName="price"
-                [disabled]="eventType === 'FREE'"
-              />
-              <label for="floatingPassword">Price</label>
-            </div>
-          </div>
-          <div class="col-12">
-            <div class="form-floating">
-              <textarea
-                class="form-control"
-                placeholder="Remark"
-                id="floatingTextarea"
-                style="height: 100px"
-                formControlName="remark"
-              ></textarea
-              ><label for="floatingTextarea">Remark</label>
-            </div>
-          </div>
-        </div>
+      <div class="col-md-6 mb-4">
+        <label>Slot</label>
+        <p-inputNumber mode="decimal" formControlName="slot"></p-inputNumber>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="btn btn-primary"
-          data-bs-dismiss="modal"
-          [disabled]="addTicketCatalogForm.invalid"
-        >
-          Submit
-        </button>
+      <div class="col-md-6 mb-4">
+        <label>Price</label>
+        <p-inputNumber
+          mode="decimal"
+          [minFractionDigits]="2"
+          formControlName="price"
+        ></p-inputNumber>
+      </div>
+      <div class="col-md-6 mb-4">
+        <span>
+          <label>Remark</label>
+          <input
+            id="float-input"
+            pInputText
+            class="form-control"
+            formControlName="remark"
+          />
+        </span>
       </div>
     </form>
   </div>

@@ -1,0 +1,115 @@
+<main id="main" class="main">
+    <p-blockUI [blocked]="blockedDocument"></p-blockUI>
+    <div class="pagetitle">
+      <h1>Organizers</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a routerLink="/dashboard">Home</a></li>
+          <li class="breadcrumb-item">Organizers</li>
+          <li class="breadcrumb-item">Edit Organizer</li>
+        </ol>
+      </nav>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">Edit Organizer</h5>
+        <form
+          class="row g-3"
+          [formGroup]="editOrganizerForm"
+          (ngSubmit)="editOrganizerForm.valid && onSubmit()"
+        >
+          <div class="col-md-12 mb-4 mt-4">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                class="form-control"
+                formControlName="name"
+              />
+              <label for="float-input">Organizer Name</label>
+            </span>
+          </div>
+          <div class="col-md-6 mb-4">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="email"
+                pInputText
+                class="form-control"
+                formControlName="email"
+              />
+              <label for="float-input">Organizer Email</label>
+            </span>
+          </div>
+          <div class="col-md-6 mb-4">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                class="form-control"
+                formControlName="mobile"
+              />
+              <label for="float-input">Organizer Mobile</label>
+            </span>
+          </div>
+          <div class="col-md-8 mb-4">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                class="form-control"
+                formControlName="representative"
+              />
+              <label for="float-input">Organizer Representative</label>
+            </span>
+          </div>
+          <div class="col-md-4 mb-4">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                class="form-control"
+                formControlName="taxCode"
+              />
+              <label for="float-input">Tax Code</label>
+            </span>
+          </div>
+          <div class="col-md-12 mb-4">
+            <span class="p-float-label">
+              <input
+                id="float-input"
+                type="text"
+                pInputText
+                class="form-control"
+                formControlName="address"
+              />
+              <label for="float-input">Address</label>
+            </span>
+          </div>
+          <div class="col-md-12 mb-4">
+            <label>Summary</label>
+            <p-editor
+              formControlName="summary"
+              [style]="{ height: '200px' }"
+            ></p-editor>
+          </div>
+  
+          <div class="text-center">
+            <button
+              pButton
+              type="submit"
+              [disabled]="editOrganizerForm.invalid"
+              label="Submit"
+            ></button>
+            <button pButton type="reset" class="p-button-secondary" label="Reset"></button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <p-toast></p-toast>
+  </main>
+  

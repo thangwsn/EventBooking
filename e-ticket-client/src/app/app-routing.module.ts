@@ -24,6 +24,9 @@ import { BookingListComponent } from './components/bookings/booking-list/booking
 import { BookingDetailComponent } from './components/bookings/booking-detail/booking-detail.component';
 import { VerifyComponent } from './pages/user/verify/verify.component';
 import { UserProfileComponent } from './components/users/user-profile/user-profile.component';
+import { OrganizerEditComponent } from './components/organizers/organizer-edit/organizer-edit.component';
+import { EventSearchComponent } from './components/events/event-search/event-search.component';
+import { FollowedEventListComponent } from './components/events/followed-event-list/followed-event-list.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent},
@@ -39,20 +42,21 @@ const routes: Routes = [
   { path: 'admin/organizers', component: OrganizerListComponent},
   { path: 'admin/organizers/create', component: OrganizerCreateComponent},
   { path: 'admin/organizers/:organizerId', component: OrganizerDetailComponent},
+  { path: 'admin/organizers/edit/:organizerId', component: OrganizerEditComponent},
   { path: 'admin/events', component: EventListComponent},
   { path: 'admin/events/create', component: EventCreateComponent},
   { path: 'admin/events/:eventId', component: EventDetailComponent},
-  { path: 'admin/users', component: UserListComponent},
-  { path: 'admin/employees', component: EmployeeListComponent},
   { path: 'events/:eventId', component: EventDetailUserComponent},
   { path: 'checkout', component: CheckoutComponent},
   { path: 'booking', component: BookingListUserComponent},
   { path: 'booking/:bookingId', component: BookingDetailUserComponent},
+  { path: 'event', component: EventSearchComponent},
   { path: 'admin/bookings', component: BookingListComponent}, 
   { path: 'admin/bookings/:bookingId', component: BookingDetailComponent},
   { path: 'admin/users', component: UserListComponent},
   { path: 'admin/employees', component: EmployeeListComponent},
-  { path: 'profile', component: UserProfileComponent}
+  { path: 'profile', component: UserProfileComponent},
+  { path: 'followed-event', component: FollowedEventListComponent}
 ];
 
 @NgModule({

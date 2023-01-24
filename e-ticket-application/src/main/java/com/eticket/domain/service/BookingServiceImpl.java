@@ -14,6 +14,7 @@ import com.eticket.domain.exception.AuthenticationException;
 import com.eticket.domain.exception.AuthorizationException;
 import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.repo.*;
+import com.eticket.infrastructure.file.FileStorageService;
 import com.eticket.infrastructure.kafka.producer.KafkaSendService;
 import com.eticket.infrastructure.mail.MailService;
 import com.eticket.infrastructure.mapper.BookingMap;
@@ -211,7 +212,7 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
         }
         List<Ticket> ticketList = booking.getListTicket();
         Event event = eventRepository.findByIdAndRemovedFalse(booking.getEvent().getId()).get();
-        if (!(event.getStatus().equals(EventStatus.OPEN) || event.getStatus().equals(EventStatus.SOLD))) {
+        if (!(event.getStatus().equals(EventStatus.OPENED) || event.getStatus().equals(EventStatus.SOLD))) {
             return;
         }
         if (withAuth && !user.getId().equals(booking.getUser().getId())) {
@@ -251,7 +252,7 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
             event.setSoldSlot(event.getSoldSlot() - sum);
             event.setRemainSlot(event.getRemainSlot() + sum);
             if (event.getStatus().equals(EventStatus.SOLD) && event.getRemainSlot() > 0) {
-                event.setStatus(EventStatus.OPEN);
+                event.setStatus(EventStatus.OPENED);
             }
             booking.setEvent(event);
             bookingRepository.save(booking);
@@ -296,6 +297,35 @@ public class BookingServiceImpl extends Observable<BookingServiceImpl> implement
                 })
                 .collect(Collectors.toList());
         return new ListBookingGetResponse(bookingGetResponseList.size(), bookingGetResponseList);
+    }
+
+    @Override
+    public ListBookingGetResponse getAllBooking() {
+        List<Booking> bookingList = bookingRepository.findAllByRemovedFalse();
+        List<BookingGetResponse> bookingGetResponseList = bookingList.stream()
+                .map((i) -> {
+                    List<BookingDetail> ticketCalalogItem = bookingDetailRepository.findAllByBooking(i);
+                    List<BookingCatalogItem> bookingCatalogItems = ticketCalalogItem.stream().map(item -> new BookingCatalogItem(item.getTicketCatalog().getId(), item.getTicketCatalog().getTitle(), item.getTicketCatalog().getPrice(), item.getQuantity())).collect(Collectors.toList());
+                    return bookingMap.toBookingGet(i, bookingCatalogItems);
+                })
+                .collect(Collectors.toList());
+        return new ListBookingGetResponse(bookingGetResponseList.size(), bookingGetResponseList);
+    }
+
+    @Override
+    public boolean removeBooking(Integer bookingId) throws AuthenticationException, AuthorizationException, ResourceNotFoundException {
+        Booking booking = bookingRepository.findByIdAndRemovedFalse(bookingId).get();
+        if (booking.getStatus().equals(BookingStatus.CANCEL)) {
+            booking.setRemoved(true);
+            bookingRepository.save(booking);
+            return true;
+        } else if (booking.getStatus().equals(BookingStatus.PENDING)) {
+            cancelBooking(bookingId, true);
+            booking.setRemoved(true);
+            bookingRepository.save(booking);
+            return true;
+        }
+        return false;
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.eticket.application.api.controller;
 
 import com.eticket.application.api.dto.BaseResponse;
 import com.eticket.application.api.dto.booking.BookingDetailResponse;
-import com.eticket.application.api.dto.booking.BookingGetRequest;
 import com.eticket.application.api.dto.booking.ListBookingGetResponse;
 import com.eticket.domain.exception.AuthenticationException;
 import com.eticket.domain.exception.ResourceNotFoundException;
@@ -18,9 +17,15 @@ public class BookingApiController {
     @Autowired
     private BookingService bookingService;
 
-    @PostMapping("/get-list-booking")
-    public ResponseEntity<BaseResponse<ListBookingGetResponse>> getListBooking(@RequestBody BookingGetRequest bookingGetRequest) throws AuthenticationException {
-        ListBookingGetResponse response = bookingService.getListBooking(bookingGetRequest);
+//    @PostMapping("/get-list-booking")
+//    public ResponseEntity<BaseResponse<ListBookingGetResponse>> getListBooking(@RequestBody BookingGetRequest bookingGetRequest) throws AuthenticationException {
+//        ListBookingGetResponse response = bookingService.getListBooking(bookingGetRequest);
+//        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
+//    }
+
+    @GetMapping("/get-list-booking")
+    public ResponseEntity<BaseResponse<ListBookingGetResponse>> getListBooking() throws AuthenticationException {
+        ListBookingGetResponse response = bookingService.getAllBooking();
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 

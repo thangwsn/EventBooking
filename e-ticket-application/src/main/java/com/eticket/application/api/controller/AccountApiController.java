@@ -45,8 +45,9 @@ public class AccountApiController {
     }
 
     @PostMapping("/update-information")
-    public ResponseEntity<?> updateInformation() {
-        return null;
+    public ResponseEntity<?> updateInformation(@RequestBody UpdateInfomationRequest updateInfomationRequest) throws AuthenticationException, ResourceNotFoundException {
+        accountService.updateInformation(updateInfomationRequest);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
     @PostMapping("/change-password")
@@ -93,8 +94,8 @@ public class AccountApiController {
         return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
     }
 
-    @PostMapping("/signup-employee")
-    public ResponseEntity<BaseResponse> registerEmployee(@Valid @RequestBody EmployeeSignUpRequest employeeSignUpRequest) {
+    @PostMapping("/employees")
+    public ResponseEntity<BaseResponse> registerEmployee(@Valid @RequestBody EmployeeCreateRequest employeeSignUpRequest) {
         List<FieldViolation> violationList = accountService.registerEmployee(employeeSignUpRequest);
         if (violationList.size() > 0) {
             ResponseEntity.ok(BaseResponse.ofInvalid(violationList));
@@ -113,6 +114,18 @@ public class AccountApiController {
     public ResponseEntity<BaseResponse<EmployeeDetailResponse>> getDetailEmployee(@PathVariable("employee_id") Integer employeeId) throws ResourceNotFoundException {
         EmployeeDetailResponse employeeDetailResponse = accountService.getEmployeeDetail(employeeId);
         return ResponseEntity.ok(BaseResponse.ofSucceeded(employeeDetailResponse));
+    }
+
+    @GetMapping("/employees/edit/{employee_id}")
+    public ResponseEntity<BaseResponse<EmployeeEditDto>> getEmployeeEdit(@PathVariable("employee_id") Integer employeeId) throws ResourceNotFoundException {
+        EmployeeEditDto response = accountService.getEmployeeForEdit(employeeId);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded(response));
+    }
+
+    @PutMapping("/employees/edit/{employee_id}")
+    public ResponseEntity<BaseResponse> updateEmployee(@PathVariable("employee_id") Integer employeeId, @RequestBody EmployeeEditDto employeeEditDto) throws ResourceNotFoundException {
+        accountService.updateEmployee(employeeId, employeeEditDto);
+        return ResponseEntity.ok(BaseResponse.ofSucceeded());
     }
 
     @DeleteMapping("/employees/{employee_id}")

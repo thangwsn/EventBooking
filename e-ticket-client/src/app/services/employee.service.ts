@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Injectable } from "@angular/core";
-import { Employee } from "../model/account.model";
+import { Employee, EmployeeCreate, EmployeeEdit } from "../model/account.model";
 import { TokenStorageService } from "./token-storage.service";
 import { environment } from 'environments/environment';
 
@@ -35,8 +35,21 @@ export class EmployeeService {
     getEmployeeDetail(employeeId: number): Observable<any> {
         return this.http.get(`${BASE_API}/employees/${employeeId}`, this.getHeader());
     }
+
+    getEmployeeEdit(employeeId: number): Observable<any> {
+        return this.http.get(`${BASE_API}/employees/edit/${employeeId}`, this.getHeader());
+    }
+
+    updateEmployee(employeeEditRequest: EmployeeEdit): Observable<any> {
+        return this.http.put(`${BASE_API}/employees/edit/${employeeEditRequest.id}`, employeeEditRequest, this.getHeader());
+    }
+
     removeEmployee(id: number): Observable<any> {
         return this.http.delete(`${BASE_API}/employees/${id}`, this.getHeader());
+    }
+
+    createEmployee(employeeCreateRequest: EmployeeCreate): Observable<any> {
+        return this.http.post(`${BASE_API}/employees`, employeeCreateRequest, this.getHeader());
     }
 
     private updateEmployeeListData() {

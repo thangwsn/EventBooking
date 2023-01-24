@@ -44,7 +44,7 @@ public class Account extends BaseEntity {
     private String imageUrl;
     @Column(name = "removed")
     private boolean removed;
-    @OneToOne(targetEntity = Address.class, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToOne(targetEntity = Address.class, fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id")
     private Address address;
 }

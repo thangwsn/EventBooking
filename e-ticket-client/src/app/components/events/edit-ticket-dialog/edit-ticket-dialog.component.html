@@ -1,0 +1,40 @@
+<div class="card">
+    <div class="card-body">
+      <form class="row g-3 mt-2" [formGroup]="editTicketCatalogForm">
+        <div class="col-md-6 mb-4">
+          <span>
+            <label>Title</label>
+            <input
+              pInputText
+              class="form-control"
+              formControlName="title"
+            />
+          </span>
+        </div>
+        <div class="col-md-6 mb-4">
+          <label>Slot</label>
+          <p-inputNumber mode="decimal" formControlName="slot" [min]="ticketCatalog.soldSlot"></p-inputNumber>
+        </div>
+        <div class="col-md-6 mb-4">
+          <label>Price</label>
+          <p-inputNumber
+            mode="decimal"
+            [minFractionDigits]="2"
+            formControlName="price"
+          ></p-inputNumber>
+        </div>
+        <div class="col-md-6 mb-4">
+          <span>
+            <label>Remark</label>
+            <input
+              id="float-input"
+              pInputText
+              class="form-control"
+              formControlName="remark"
+            />
+          </span>
+        </div>
+      </form>
+    </div>
+  </div>
+  

@@ -56,6 +56,10 @@ export class AccountService {
     return this.http.get(`${BASE_API}/update-token`, this.getHeader());
   }
 
+  updateInformation(request: any): Observable<any> {
+    return this.http.post(`${BASE_API}/update-information`, request, this.getHeader());
+  }
+
   private getHeader() {
     return {
         headers: new HttpHeaders({

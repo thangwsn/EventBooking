@@ -3,7 +3,6 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
-import { ToastrModule } from 'ngx-toastr';
 import { ButtonModule } from 'primeng/button';
 import { MessagesModule } from 'primeng/messages';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -23,6 +22,8 @@ import {DialogModule} from 'primeng/dialog';
 import { BadgeModule } from "primeng/badge";
 import { AvatarModule } from "primeng/avatar";
 import {TooltipModule} from 'primeng/tooltip';
+import {ProgressSpinnerModule} from 'primeng/progressspinner';
+import {RadioButtonModule} from 'primeng/radiobutton';
 
 
 import { AppRoutingModule } from './app-routing.module';
@@ -64,6 +65,15 @@ import { TicketDetailAdminComponent } from './components/bookings/ticket-detail-
 import { VerifyComponent } from './pages/user/verify/verify.component';
 import { UserDetailComponent } from './components/users/user-detail/user-detail.component';
 import { UserProfileComponent } from './components/users/user-profile/user-profile.component';
+import { EmployeeDetailComponent } from './components/employees/employee-detail/employee-detail.component';
+import { OrganizerEditComponent } from './components/organizers/organizer-edit/organizer-edit.component';
+import { EmployeeEditComponent } from './components/employees/employee-edit/employee-edit.component';
+import { EditTicketDialogComponent } from './components/events/edit-ticket-dialog/edit-ticket-dialog.component';
+import { EventEditComponent } from './components/events/event-edit/event-edit.component';
+import { EventSearchComponent } from './components/events/event-search/event-search.component';
+import { AmIVisibleDirective } from './directives/am-ivisible.directive';
+import { FollowedEventListComponent } from './components/events/followed-event-list/followed-event-list.component';
+import { HorizontalEventItemComponent } from './components/events/horizontal-event-item/horizontal-event-item.component';
 
 @NgModule({
   declarations: [
@@ -104,6 +114,15 @@ import { UserProfileComponent } from './components/users/user-profile/user-profi
     VerifyComponent,
     UserDetailComponent,
     UserProfileComponent,
+    EmployeeDetailComponent,
+    OrganizerEditComponent,
+    EmployeeEditComponent,
+    EditTicketDialogComponent,
+    EventEditComponent,
+    EventSearchComponent,
+    AmIVisibleDirective,
+    FollowedEventListComponent,
+    HorizontalEventItemComponent
   ],
   imports: [
     BrowserModule,
@@ -111,7 +130,6 @@ import { UserProfileComponent } from './components/users/user-profile/user-profi
     ReactiveFormsModule,
     HttpClientModule,
     BrowserAnimationsModule,
-    ToastrModule.forRoot(),
     ConfirmDialogModule,
     ButtonModule,
     MessagesModule,
@@ -130,7 +148,9 @@ import { UserProfileComponent } from './components/users/user-profile/user-profi
     DialogModule,
     BadgeModule,
     AvatarModule,
-    TooltipModule
+    TooltipModule,
+    ProgressSpinnerModule,
+    RadioButtonModule
   ],
   providers: [],
   bootstrap: [AppComponent]

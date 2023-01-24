@@ -84,6 +84,10 @@ export class BookingUserService {
         this.updateBookingDetail();
     }
 
+    removeBooking(bookingId: number): Observable<any> {
+        return this.http.delete(`${BASE_API}/${bookingId}`, this.getHeader());
+    }
+
     private updateBookingList() {
         this.displayBookingListSubject.next(this.bookingList);
     }

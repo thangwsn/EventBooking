@@ -2,9 +2,8 @@ import { DOCUMENT } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ToastrService } from 'ngx-toastr';
-import { PrimeNGConfig } from 'primeng/api';
 import { Observable } from 'rxjs';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
 import { AccountInfo } from 'app/model/account.model';
 import { BookingCreateRequest, ItemCreateRequest } from 'app/model/booking.model';
 import { AccountService } from 'app/services/account.service';
@@ -15,7 +14,8 @@ import { NoWhitespaceValidator } from 'app/utils/no-whitespace.validator';
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
-  styleUrls: ['./checkout.component.css']
+  styleUrls: ['./checkout.component.css'],
+  providers: [MessageService]
 })
 export class CheckoutComponent implements OnInit {
   bookingPreCheckout: any;
@@ -28,11 +28,10 @@ export class CheckoutComponent implements OnInit {
     private bookingService: BookingUserService,
     private accountService: AccountService,
     private fb: FormBuilder,
-    private toastr: ToastrService,
     private _router: Router,
     @Inject(DOCUMENT) private document: Document,
-    private _route: ActivatedRoute,
-    private primengConfig: PrimeNGConfig) { }
+    private primengConfig: PrimeNGConfig,
+    private messageService: MessageService) { }
 
   ngOnInit(): void {
     this.primengConfig.ripple = true;
@@ -44,6 +43,14 @@ export class CheckoutComponent implements OnInit {
       fullName: [''],
       mobile: [''],
       paymentType: ['PayPal', Validators.required]
+    })
+    this.userInfo$.subscribe({
+      next: (userInfo: AccountInfo) => {
+        this.bookingCheckoutForm.patchValue({
+          fullName: userInfo.fullName,
+          mobile: userInfo.mobile,
+        })
+      }
     })
 
   }
@@ -63,8 +70,10 @@ export class CheckoutComponent implements OnInit {
         if (resp.meta.code === 200) {
           const data = resp.data;
           if (data.status === Constants.BOOKING_STATUS_COMPLETED) {
-            this.toastr.success('', 'Completed booking!', { timeOut: 1000, newestOnTop: true, tapToDismiss: true });
-            this._router.navigate(['/booking/' + data.id]);
+            this.messageService.add({ severity: 'success', detail: 'Completed booking!!' });
+            setTimeout(() => {
+              this._router.navigate(['/booking/' + data.id]);
+            }, 500) 
           } else if (data.status === Constants.BOOKING_STATUS_PENDING) {
             // handle payment
             const bookingPaymentRequest = {
@@ -78,15 +87,15 @@ export class CheckoutComponent implements OnInit {
               }
             });
           } else if (data.status === Constants.BOOKING_STATUS_REJECT) {
-            this.toastr.warning('', data.message, { timeOut: 1000, newestOnTop: true, tapToDismiss: true });
+            this.messageService.add({ severity: 'warn', detail: data.message });
           }
         } else {
-          this.toastr.error('', 'Having error!', { timeOut: 1000, newestOnTop: true, tapToDismiss: true });
+          this.messageService.add({ severity: 'error', detail:'Having error!' });
         }
 
       },
       error: () => {
-        this.toastr.error('', 'Having error!', { timeOut: 1000, newestOnTop: true, tapToDismiss: true });
+        this.messageService.add({ severity: 'error', detail:'Having error!' });
       }
     });
 

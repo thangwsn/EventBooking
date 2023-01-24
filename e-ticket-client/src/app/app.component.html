@@ -1,6 +1,6 @@
 
 <app-header *ngIf="isAdminSite()"></app-header>
-<app-sidebar *ngIf="isAdminSite()"></app-sidebar>
+<app-sidebar *ngIf="isAdminSite()" [role]="role"></app-sidebar>
 
 <app-header-user *ngIf="isUserSite()"></app-header-user>
 

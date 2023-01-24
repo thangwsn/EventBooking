@@ -4,7 +4,7 @@
   <div class="col-md-9">
     {{ ticketCatalog.title }} ({{
       ticketCatalog.slot - ticketCatalog.soldSlot
-    }}/{{ ticketCatalog.slot }})
+    }}/{{ ticketCatalog.slot }}) -  <strong>{{ticketCatalog.price}}</strong><i class="bi bi-currency-dollar"></i>
   </div>
   <div class="col-md-1">
     <span [hidden]="isHiddenSub()"

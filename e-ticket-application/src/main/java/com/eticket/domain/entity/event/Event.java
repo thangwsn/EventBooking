@@ -54,10 +54,10 @@ public class Event extends BaseEntity {
     private int remainSlot;
     @Column(name = "removed")
     private boolean removed;
-    @ManyToOne(targetEntity = Organizer.class, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @ManyToOne(targetEntity = Organizer.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     @JoinColumn(name = "organizer_id")
     private Organizer organizer;
-    @OneToOne(targetEntity = Location.class, fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
+    @OneToOne(targetEntity = Location.class, fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "location_id")
     private Location location;
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)

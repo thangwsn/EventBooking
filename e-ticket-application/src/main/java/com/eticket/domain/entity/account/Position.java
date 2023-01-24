@@ -1,5 +1,5 @@
 package com.eticket.domain.entity.account;
 
 public enum Position {
-    Manager
+    Administrator, Manager, Operator, Staff
 }

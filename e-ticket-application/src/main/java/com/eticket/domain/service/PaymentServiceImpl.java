@@ -8,11 +8,13 @@ import com.eticket.domain.entity.booking.Booking;
 import com.eticket.domain.entity.booking.BookingStatus;
 import com.eticket.domain.entity.booking.PaymentStatus;
 import com.eticket.domain.entity.booking.PaymentType;
+import com.eticket.domain.entity.event.Event;
 import com.eticket.domain.entity.event.Ticket;
 import com.eticket.domain.entity.quartz.ScheduleJob;
 import com.eticket.domain.entity.quartz.ScheduleJobType;
 import com.eticket.domain.exception.ResourceNotFoundException;
 import com.eticket.domain.repo.*;
+import com.eticket.infrastructure.file.FileStorageService;
 import com.eticket.infrastructure.mail.MailService;
 import com.eticket.infrastructure.paypal.PayPalService;
 import com.eticket.infrastructure.quartz.service.ScheduleService;
@@ -43,9 +45,11 @@ public class PaymentServiceImpl extends Observable<PaymentServiceImpl> implement
     @Autowired
     private JpaTicketRepository ticketRepository;
     @Autowired
-    private MailService mailService;
-    @Autowired
     private JpaUserRepository userRepository;
+    @Autowired
+    private JpaEventRepository eventRepository;
+    @Autowired
+    private MailService mailService;
 
     @Override
     public Object createPayment(BookingPaymentRequest bookingPaymentRequest) {
@@ -75,6 +79,11 @@ public class PaymentServiceImpl extends Observable<PaymentServiceImpl> implement
         for (Ticket ticket : ticketList) {
             ticket.setQRcode(fileStorageService.generateQRCode(ticket));
         }
+        user.setAmountReserved(user.getAmountReserved() + booking.getAmount());
+        userRepository.save(user);
+        Event event = eventRepository.findByIdAndRemovedFalse(booking.getEvent().getId()).get();
+        event.setSales(event.getSales() + booking.getAmount());
+        eventRepository.save(event);
         // notify
         notifyObservers(this, booking.getEvent().getId(), booking.getUser().getUsername() + " has booked ", MessageType.BOOKING);
         // send an email for all ticket

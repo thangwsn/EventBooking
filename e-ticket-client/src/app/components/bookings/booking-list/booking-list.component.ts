@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { Observable } from 'rxjs';
-import { BookingGet } from 'app/model/booking.model';
+import { BookingDetail, BookingGet } from 'app/model/booking.model';
 import { BookingService } from 'app/services/booking.service';
 import { Constants } from 'app/utils/constants';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-booking-list',
@@ -10,7 +11,11 @@ import { Constants } from 'app/utils/constants';
   styleUrls: ['./booking-list.component.css']
 })
 export class BookingListComponent implements OnInit {
+  @ViewChild('dt') dt!: Table;
   bookingList$: Observable<BookingGet[]> = new Observable<BookingGet[]>();
+  bookingDetail$: Observable<BookingDetail> = new Observable<BookingDetail>();
+  bookingDetailDialog: boolean = false;
+
   constructor(
     private bookingService: BookingService
   ) { }
@@ -46,4 +51,17 @@ export class BookingListComponent implements OnInit {
     return bookingStatusClass;
   }
 
+  applyFilterGlobal($event: any, stringVal: any) {
+    this.dt.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
+  }
+
+  detailBooking(id: number) {
+    this.bookingService.getBookingDetail(id);
+    this.bookingDetail$ = this.bookingService.bookingDetail$;
+    this.bookingDetailDialog = true;
+  }
+
+  closeDetailDialog() {
+    this.bookingDetailDialog = false;
+  }
 }

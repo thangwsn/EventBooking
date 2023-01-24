@@ -1,7 +1,7 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { BehaviorSubject, Observable, Subject } from "rxjs";
-import { EventCreateRequest, EventDetail, EventGet } from "../model/event.model";
+import { EventCreateRequest, EventDetail, EventEditRequest, EventGet, LocationDTO } from "../model/event.model";
 import { OrganizerGet } from "../model/organizer.model";
 import { ConvertToDate } from "../utils/time-convert";
 import { TokenStorageService } from "./token-storage.service";
@@ -18,7 +18,7 @@ export class EventService {
     private displayItemSubject: BehaviorSubject<EventGet[]> = new BehaviorSubject<EventGet[]>([]);
 
     private event!: EventDetail;
-    private displayEventDetailSubject: BehaviorSubject<EventDetail> = new BehaviorSubject<EventDetail>(new EventDetail(0, '', '', '', '', '', [], '', 0, 0, 0, 0, 0, 0, 0, 0, 0, new OrganizerGet(0, '', '', '', '', '', '', ''), '', [], [], false, false));
+    private displayEventDetailSubject: BehaviorSubject<EventDetail> = new BehaviorSubject<EventDetail>(new EventDetail(0, '', '', '', '', '', [], '', 0, 0, 0, 0, 0, 0, 0, 0, 0, new OrganizerGet(0, '', '', '', '', '', '', '', ''), new LocationDTO('', '', '', ''), [], [], false, false));
 
     private eventStatusList: string[] = [];
     private displayEventStatusListSubject: BehaviorSubject<string[]> = new BehaviorSubject<string[]>([]);
@@ -102,22 +102,24 @@ export class EventService {
         });
     }
 
-    createTicketCatalog(ticketCreateRequest: any, eventId: number): Observable<number> {
-        var subject = new Subject<number>();
-        this.httpOptions = this.getHeader();
-        this.http.post(`${BASE_API_ADMIN}/${eventId}/ticket-catalog`, ticketCreateRequest, this.httpOptions).subscribe({
-            next: (resp: any) => {
-                if (resp.meta.code === 200) {
-                    this.fetchEventDetail(eventId);
-                }
-                subject.next(resp.meta.code)
-            },
-        });
-        return subject.asObservable();
+    createTicketCatalog(ticketCreateRequest: any, eventId: number): Observable<any> {
+        return this.http.post(`${BASE_API_ADMIN}/${eventId}/ticket-catalog`, ticketCreateRequest, this.getHeader());
+    }
+
+    editTicketCatalog(ticketEditRequest: any, eventId: number): Observable<any> {
+        return this.http.put(`${BASE_API_ADMIN}/${eventId}/ticket-catalog/${ticketEditRequest.id}`, ticketEditRequest, this.getHeader())
+    }
+
+    removeTicketCatalog(eventId: number, ticketCatalogId: number): Observable<any> {
+        return this.http.delete(`${BASE_API_ADMIN}/${eventId}/ticket-catalog/${ticketCatalogId}`, this.getHeader());
     }
 
     removeEvent(eventId: any): Observable<any> {
         return this.http.delete(`${BASE_API_ADMIN}/${eventId}`, this.getHeader());
+    }
+
+    editEvent(event: EventEditRequest, eventId: number): Observable<any> {
+        return this.http.put(`${BASE_API_ADMIN}/${eventId}`, event, this.getHeader());
     }
 
     private updateEventListData() {

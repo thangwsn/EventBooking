@@ -1,6 +1,7 @@
 package com.eticket.application.api.dto.account;
 
 import com.eticket.domain.entity.account.Position;
+import com.eticket.domain.entity.account.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,4 +17,5 @@ public class EmployeeGetResponse {
     private String fullName;
     private String employeeCode;
     private Position position;
+    private Role role;
 }

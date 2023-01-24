@@ -14,7 +14,7 @@ public interface AccountService {
 
     boolean verifyActiveCode(Integer userId, String code);
 
-    List<FieldViolation> registerEmployee(EmployeeSignUpRequest employeeSignUpRequest);
+    List<FieldViolation> registerEmployee(EmployeeCreateRequest employeeSignUpRequest);
 
     AccountInfoResponse getAccountInfo() throws AuthenticationException, ResourceNotFoundException;
 
@@ -33,4 +33,10 @@ public interface AccountService {
     List<FieldViolation> changePassword(ChangePasswordRequest changePasswordRequest) throws AuthenticationException, ResourceNotFoundException;
 
     LoginResponse updateToken() throws AuthenticationException;
+
+    void updateInformation(UpdateInfomationRequest updateInfomationRequest) throws AuthenticationException, ResourceNotFoundException;
+
+    EmployeeEditDto getEmployeeForEdit(Integer employeeId) throws ResourceNotFoundException;
+
+    void updateEmployee(Integer employeeId, EmployeeEditDto employeeEditDto) throws ResourceNotFoundException;
 }

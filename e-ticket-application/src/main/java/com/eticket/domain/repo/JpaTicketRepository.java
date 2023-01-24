@@ -21,4 +21,12 @@ public interface JpaTicketRepository extends JpaRepository<Ticket, Integer> {
     List<Ticket> findAllByBooking(Booking booking);
 
     void deleteAllByEvent(Event event);
+
+    @Query(nativeQuery = true, value = "SELECT * FROM ticket WHERE ticket_catalog_id = ?1 AND status = ?2 ORDER BY id DESC LIMIT ?3")
+    List<Ticket> getListTicketByTicketCatalogDesc(int ticketCatalogId, String ticketStatus, int quantity);
+
+    @Query(nativeQuery = true, value = "SELECT ticket.code FROM ticket WHERE ticket_catalog_id = ?1 ORDER BY id DESC LIMIT 1")
+    String lastestTicketCodeByTicketCatalogId(Integer ticketCatalogId);
+
+    List<Ticket> findAllByTicketCatalogId(Integer ticketCatalogId);
 }

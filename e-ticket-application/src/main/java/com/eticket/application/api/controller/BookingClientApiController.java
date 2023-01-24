@@ -91,8 +91,12 @@ public class BookingClientApiController {
     }
 
     @DeleteMapping("/{booking_id}")
-    public ResponseEntity<BaseResponse> removeCanceledBooking(@PathVariable("booking_id") Integer bookingId) {
-        return null;
+    public ResponseEntity<?> removeBooking(@PathVariable("booking_id") Integer bookingId) throws AuthenticationException, AuthorizationException, ResourceNotFoundException {
+        boolean removed = bookingService.removeBooking(bookingId);
+        if (removed) {
+            return ResponseEntity.ok(BaseResponse.ofSucceeded());
+        }
+        return ResponseEntity.badRequest().build();
     }
 
     @GetMapping("/ticket/{user_id}")

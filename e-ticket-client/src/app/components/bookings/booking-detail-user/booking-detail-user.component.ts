@@ -1,7 +1,7 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PrimeNGConfig, ConfirmationService, Message, MessageService, } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { BookingDetail } from 'app/model/booking.model';
@@ -29,7 +29,8 @@ export class BookingDetailUserComponent implements OnInit {
     @Inject(DOCUMENT) private document: Document,
     private confirmationService: ConfirmationService,
     private primengConfig: PrimeNGConfig,
-    private messageService: MessageService) { }
+    private messageService: MessageService,
+    private _router: Router) { }
 
   ngOnInit(): void {
     this.primengConfig.ripple = true;
@@ -66,7 +67,7 @@ export class BookingDetailUserComponent implements OnInit {
     var imageLink = '';
     switch (type) {
       case Constants.PAYMENT_TYPE_PAYPAL:
-        imageLink = 'https://i.imgur.com/cMk1MtK.jpg'
+        imageLink = 'assets/img/paypal.jpg'
     }
     return imageLink
   }
@@ -131,6 +132,40 @@ export class BookingDetailUserComponent implements OnInit {
         } else {
           this.messageService.add({severity:'waring', summary: 'Error', detail: 'Having error!'});
         }
+      }
+    })
+  }
+
+  displayRemoveButton(bookingStatus: string): boolean {
+    return bookingStatus == Constants.BOOKING_STATUS_CANCEL || bookingStatus == Constants.BOOKING_STATUS_PENDING;
+  }
+
+  openConfirmRemove(bookingId: number) {
+    this.confirmationService.confirm({
+      message: 'Are you sure that you want to remove this booking?',
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.handleRemoveBooking(bookingId)
+      },
+      reject: () => {
+        this.messageService.add({severity:'info', summary: 'Reject', detail: 'Reject!'});
+      }
+    });
+  }
+
+  handleRemoveBooking(bookingId: number) {
+    this.bookingService.removeBooking(bookingId).subscribe({
+      next: (resp: any) => {
+        if (resp.meta.code == 200) {
+          this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Remove successfully!' });
+          setTimeout(() => {
+            this._router.navigate(["/booking"]);
+          }, 500)
+        }
+      },
+      error: (err) => {
+        this.messageService.add({ severity: 'warning', summary: 'Error', detail: 'Remove failure!' });
       }
     })
   }

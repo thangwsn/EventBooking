@@ -3,7 +3,6 @@
   style="margin-top: -10rem !important"
   *ngIf="userProfile$ | async as userProfile"
 >
-  <p-blockUI [blocked]="blockedDocument"></p-blockUI>
   <div class="row">
     <div class="col-xl-4">
       <div class="card">
@@ -81,7 +80,7 @@
               <div class="row">
                 <div class="col-lg-3 col-md-4 label">Address</div>
                 <div class="col-lg-9 col-md-8">
-                  {{ userProfile.address.toString() }}
+                  {{userProfile.address.street}}, {{userProfile.address.ward}}, {{userProfile.address.district}}, {{userProfile.address.city}}
                 </div>
               </div>
               <div class="row">
@@ -94,191 +93,122 @@
               </div>
             </div>
             <div class="tab-pane fade profile-edit pt-3" id="profile-edit">
-              <form>
-                <div class="row mb-3">
-                  <label
-                    for="profileImage"
-                    class="col-md-4 col-lg-3 col-form-label"
-                    >Profile Image</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <img src="assets/img/profile-img.jpg" alt="Profile" />
-                    <div class="pt-2">
-                      <a
-                        href="#"
-                        class="btn btn-primary btn-sm"
-                        title="Upload new profile image"
-                        ><i class="bi bi-upload"></i
-                      ></a>
-                      <a
-                        href="#"
-                        class="btn btn-danger btn-sm"
-                        title="Remove my profile image"
-                        ><i class="bi bi-trash"></i
-                      ></a>
-                    </div>
-                  </div>
-                </div>
-                <div class="row mb-3">
+              <form
+                [formGroup]="updateInformationForm"
+                (ngSubmit)="
+                  updateInformationForm.valid && updateInformationSubmit()
+                "
+              >
+                <div class="row mb-4">
                   <label for="fullName" class="col-md-4 col-lg-3 col-form-label"
                     >Full Name</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
-                      name="fullName"
+                      formControlName="fullName"
                       type="text"
+                      pInputText
+                      [value]="userProfile.fullName"
                       class="form-control"
-                      id="fullName"
-                      value="Jassa"
                     />
                   </div>
                 </div>
-                <div class="row mb-3">
-                  <label for="company" class="col-md-4 col-lg-3 col-form-label"
-                    >Company</label
-                  >
+                <div class="row mb-4">
+                  <label class="col-md-4 col-lg-3 col-form-label">Gender</label>
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="company"
-                      type="text"
-                      class="form-control"
-                      id="company"
-                      value="Therichpost"
-                    />
+                    <p-selectButton
+                      [options]="['Male', 'Female', 'Other']"
+                      formControlName="gender"
+                    ></p-selectButton>
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-4">
                   <label for="Job" class="col-md-4 col-lg-3 col-form-label"
-                    >Job</label
+                    >Date of Birth</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="job"
-                      type="text"
-                      class="form-control"
-                      id="Job"
-                      value="Web Designer"
-                    />
+                    <p-calendar
+                      formControlName="dateOfBirth"
+                      [showTime]="false"
+                      inputId="time"
+                    ></p-calendar>
                   </div>
                 </div>
-                <div class="row mb-3">
-                  <label for="Country" class="col-md-4 col-lg-3 col-form-label"
-                    >Country</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input
-                      name="country"
-                      type="text"
-                      class="form-control"
-                      id="Country"
-                      value="USA"
-                    />
-                  </div>
-                </div>
-                <div class="row mb-3">
+                <div class="row mb-4">
                   <label for="Address" class="col-md-4 col-lg-3 col-form-label"
                     >Address</label
                   >
                   <div class="col-md-8 col-lg-9">
-                    <input
-                      name="address"
-                      type="text"
-                      class="form-control"
-                      id="Address"
-                      value="Ludhiana, Punjab, India"
-                    />
+                    <span class="p-float-label mb-4">
+                        <input
+                          type="text"
+                          pInputText
+                          formControlName="street"
+                        />
+                        <label>Street</label>
+                      </span>
+                      <span class="p-float-label mb-4">
+                        <input
+                          type="text"
+                          pInputText
+                          formControlName="ward"
+                        />
+                        <label>Ward</label>
+                      </span>
+                      <span class="p-float-label mb-4">
+                        <input
+                          type="text"
+                          pInputText
+                          formControlName="district"
+                        />
+                        <label>District</label>
+                      </span>
+                      <span class="p-float-label mn-4">
+                        <input
+                          type="text"
+                          pInputText
+                          formControlName="city"
+                        />
+                        <label>City</label>
+                      </span>
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-4">
                   <label for="Phone" class="col-md-4 col-lg-3 col-form-label"
-                    >Phone</label
+                    >Mobile</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
-                      name="phone"
+                      [disabled]="'true'"
                       type="text"
                       class="form-control"
                       id="Phone"
-                      value="(436) 486-3538 x29071"
+                      [value]="userProfile.mobile"
                     />
                   </div>
                 </div>
-                <div class="row mb-3">
+                <div class="row mb-4">
                   <label for="Email" class="col-md-4 col-lg-3 col-form-label"
                     >Email</label
                   >
                   <div class="col-md-8 col-lg-9">
                     <input
-                      name="email"
-                      type="email"
+                      [disabled]="'true'"
                       class="form-control"
                       id="Email"
-                      value="k.anderson@example.com"
-                    />
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="Twitter" class="col-md-4 col-lg-3 col-form-label"
-                    >Twitter Profile</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input
-                      name="twitter"
-                      type="text"
-                      class="form-control"
-                      id="Twitter"
-                      value="https://twitter.com/#"
-                    />
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="Facebook" class="col-md-4 col-lg-3 col-form-label"
-                    >Facebook Profile</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input
-                      name="facebook"
-                      type="text"
-                      class="form-control"
-                      id="Facebook"
-                      value="https://facebook.com/#"
-                    />
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label
-                    for="Instagram"
-                    class="col-md-4 col-lg-3 col-form-label"
-                    >Instagram Profile</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input
-                      name="instagram"
-                      type="text"
-                      class="form-control"
-                      id="Instagram"
-                      value="https://instagram.com/#"
-                    />
-                  </div>
-                </div>
-                <div class="row mb-3">
-                  <label for="Linkedin" class="col-md-4 col-lg-3 col-form-label"
-                    >Linkedin Profile</label
-                  >
-                  <div class="col-md-8 col-lg-9">
-                    <input
-                      name="linkedin"
-                      type="text"
-                      class="form-control"
-                      id="Linkedin"
-                      value="https://linkedin.com/#"
+                      [value]="userProfile.email"
                     />
                   </div>
                 </div>
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary">
-                    Save Changes
-                  </button>
+                  <button
+                    pButton
+                    pRipple
+                    label="Save Changes"
+                    class="p-button-info mb-4"
+                    type="submit"
+                    class="btn btn-primary"
+                  ></button>
                 </div>
               </form>
             </div>

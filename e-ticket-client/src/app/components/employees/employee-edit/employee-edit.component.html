@@ -1,0 +1,182 @@
+<div class="card">
+  <div class="card-body">
+    <form
+      class="row g-3 mt-2"
+      [formGroup]="updateEmployeeForm"
+    >
+    <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            [disabled]="true"
+            [value]="employeeEdit.id"
+          />
+          <label for="float-input">ID</label>
+        </span>
+      </div>
+      <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            [disabled]="true"
+            [value]="employeeEdit.employeeCode"
+          />
+          <label for="float-input">Employee Code</label>
+        </span>
+      </div>
+      <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            [disabled]="true"
+            [value]="employeeEdit.username"
+          />
+          <label for="float-input">Username</label>
+        </span>
+      </div>
+      <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            formControlName="fullName"
+          />
+          <label for="float-input">Full Name</label>
+        </span>
+      </div>
+      <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            pInputText
+            class="form-control"
+            [disabled]="true"
+            [value]="employeeEdit.email"
+          />
+          <label for="float-input">Email</label>
+        </span>
+      </div>
+      <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            pInputText
+            class="form-control"
+            formControlName="mobile"
+          />
+          <label for="float-input">Mobile</label>
+        </span>
+      </div>
+
+      <div class="col-md-12 mb-4">
+        <label class="col-md-4 col-lg-3 col-form-label">Role</label>
+        <div class="col-md-8 col-lg-9">
+            <p-selectButton
+              [options]="['ADMINISTRATOR', 'OPERATOR']"
+              formControlName="role"
+            ></p-selectButton>
+          </div>
+      </div>
+
+      <div class="col-md-6 mb-4">
+        <label class="col-md-4 col-lg-3 col-form-label">Gender</label>
+        <div class="col-md-8 col-lg-9">
+          <p-selectButton
+            [options]="['Male', 'Female', 'Other']"
+            formControlName="gender"
+          ></p-selectButton>
+        </div>
+      </div>
+
+      <div class="col-md-6 mb-4">
+        <label class="col-md-4 col-lg-3 col-form-label">Position</label>
+        <p-dropdown
+          [options]="['Administrator', 'Operator']"
+          formControlName="position"
+          placeholder="Select a position"
+          [showClear]="true"
+        ></p-dropdown>
+      </div>
+
+      <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+            <p-calendar
+            formControlName="dateOfBirth"
+            [showTime]="false"
+            inputId="time"
+          ></p-calendar>
+          <label for="float-input">Date of Birth</label>
+        </span>
+      </div>
+      <div class="col-md-6 mb-4">
+        <span class="p-float-label">
+            <p-calendar
+            formControlName="joinDate"
+            [showTime]="false"
+            inputId="time"
+          ></p-calendar>
+          <label for="float-input">Join Date</label>
+        </span>
+      </div>
+      <div class="col-md-3">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            formControlName="street"
+          />
+          <label for="float-input">Address</label>
+        </span>
+      </div>
+      <div class="col-md-3">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            formControlName="ward"
+          />
+          <label for="float-input">Ward</label>
+        </span>
+      </div>
+      <div class="col-md-3">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            formControlName="district"
+          />
+          <label for="float-input">District</label>
+        </span>
+      </div>
+      <div class="col-md-3">
+        <span class="p-float-label">
+          <input
+            id="float-input"
+            type="text"
+            pInputText
+            class="form-control"
+            formControlName="city"
+          />
+          <label for="float-input">City</label>
+        </span>
+      </div>
+    </form>
+  </div>
+</div>

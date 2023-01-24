@@ -2,6 +2,7 @@ package com.eticket.domain.repo;
 
 import com.eticket.domain.entity.event.Event;
 import com.eticket.domain.entity.event.EventStatus;
+import com.eticket.domain.entity.event.EventType;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,9 +20,21 @@ public interface JpaEventRepository extends JpaRepository<Event, Integer> {
 
     Optional<Event> findByIdAndRemovedFalseAndStatusIsNot(Integer eventId, EventStatus status);
 
-    List<Event> findByRemovedFalseAndStatus(EventStatus status, Pageable pageable);
+    List<Event> findByRemovedFalseAndTitleContaining(String title, Pageable pageable);
 
-    List<Event> findByRemovedFalseAndStatusAndTypeOrderByStartTimeAsc(Event status, String type, Pageable pageable);
+    List<Event> findByRemovedFalseAndTitleContainingAndStatus(String title, EventStatus status, Pageable pageable);
+
+    List<Event> findByRemovedFalseAndTitleContainingAndType(String title, EventType type, Pageable pageable);
+
+    List<Event> findByRemovedFalseAndTitleContainingAndStatusAndType(String title, EventStatus status, EventType type, Pageable pageable);
+
+    List<Event> findByRemovedFalseAndTitleContainingAndOrganizerId(String title, Integer organizerId, Pageable pageable);
+
+    List<Event> findByRemovedFalseAndTitleContainingAndStatusAndOrganizerId(String title, EventStatus status, Integer organizerId, Pageable pageable);
+
+    List<Event> findByRemovedFalseAndTitleContainingAndTypeAndOrganizerId(String title, EventType type, Integer organizerId, Pageable pageable);
+
+    List<Event> findByRemovedFalseAndTitleContainingAndStatusAndTypeAndOrganizerId(String title, EventStatus status, EventType type, Integer organizerId, Pageable pageable);
 
     List<Event> findByRemovedFalseAndStatusIsNot(EventStatus status);
 }

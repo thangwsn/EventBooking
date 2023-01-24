@@ -71,6 +71,11 @@ public class MailService {
         }
     }
 
+    @Async
+    public void sendMailText(MailType type, String text) {
+
+    }
+
     private Message prepareVerifyMessage(Session session, String from, String to, Integer userId, String userName, String code) {
         Message message = new MimeMessage(session);
         try {
@@ -106,7 +111,7 @@ public class MailService {
             message.setSubject("BOOKING SUCCESS");
             Multipart multipart = new MimeMultipart();
             // Now set the actual message
-            String htmlText = "<h1>Dear <i> " + userName + "</i></h1>";
+            String htmlText = "<h1>Chào <i> " + userName + "</i></h1><br><p>Đây là thông tin vé của bạn. Chúc bạn tham gia sự kiện vui vẻ!</p>";
             message.setContent(htmlText, "text/html");
             for (Ticket ticket : listTicket) {
                 BodyPart messageBodyPart = new MimeBodyPart();

@@ -12,7 +12,7 @@ import java.util.Optional;
 @Repository
 public interface JpaTicketCatalogRepository extends JpaRepository<TicketCatalog, Integer> {
     @Query(nativeQuery = true, value = "SELECT SUM(t.slot) FROM ticket_catalog t WHERE t.event_id = ?1 AND t.removed = false")
-    int sumSlotByEventId(Integer eventId);
+    Optional<Integer> sumSlotByEventId(Integer eventId);
 
     @Query(nativeQuery = true, value = "SELECT SUM(t.soldSlot) FROM ticket_catalog t WHERE t.event_id = ?1 AND t.removed = false")
     int sumSoldSlotByEventId(Integer eventId);
